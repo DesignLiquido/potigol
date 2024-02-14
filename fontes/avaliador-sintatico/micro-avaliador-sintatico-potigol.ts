@@ -1,11 +1,11 @@
-import { Agrupamento, ConstanteOuVariavel, Construto, Literal, Logico } from '../../../construtos';
-import { Declaracao } from '../../../declaracoes';
-import { RetornoLexador, RetornoAvaliadorSintatico } from '../../../interfaces/retornos';
-import { MicroAvaliadorSintaticoBase } from '../../micro-avaliador-sintatico-base';
-import { SeletorTuplas, Tupla } from '../../../construtos/tuplas';
-import { SimboloInterface } from '../../../interfaces';
+import { Agrupamento, ConstanteOuVariavel, Construto, Literal, Logico } from '@designliquido/delegua/construtos';
+import { Declaracao } from '@designliquido/delegua/declaracoes';
+import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
+import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
+import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
+import { SimboloInterface } from '@designliquido/delegua/interfaces';
 
-import tiposDeSimbolos from '../../../tipos-de-simbolos/potigol';
+import tiposDeSimbolos from '@designliquido/delegua/tipos-de-simbolos/potigol';
 
 export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase {
     hashArquivo: number;
