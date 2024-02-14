@@ -4,9 +4,9 @@
     "version": "0.0.0",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/DesignLiquido/visualg/issues"
+        "url": "https://github.com/DesignLiquido/potigol/issues"
     },
-    "homepage": "https://github.com/DesignLiquido/visualg#readme",
+    "homepage": "https://github.com/DesignLiquido/potigol#readme",
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org"
