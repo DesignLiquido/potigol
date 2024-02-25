@@ -26,7 +26,7 @@ export const palavrasReservadas = {
     leia_texto: tiposDeSimbolos.LEIA_TEXTO,
     leia_textos: tiposDeSimbolos.LEIA_TEXTOS,
     Logico: tiposDeSimbolos.LOGICO,
-    Lógico: tiposDeSimbolos.LOGICO,
+    Lógico: tiposDeSimbolos.LÓGICO,
     mod: tiposDeSimbolos.MODULO,
     ou: tiposDeSimbolos.OU,
     nao: tiposDeSimbolos.NEGACAO,

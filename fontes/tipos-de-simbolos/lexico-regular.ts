@@ -33,6 +33,7 @@ export default {
     LEIA_TEXTO: 'LEIA_TEXTO',
     LEIA_TEXTOS: 'LEIA_TEXTOS',
     LOGICO: 'LOGICO',
+    LÓGICO: 'LÓGICO', // TODO: Conferir se isso é aceito pelo léxico oficial.
     MAIOR: 'MAIOR',
     MAIOR_IGUAL: 'MAIOR_IGUAL',
     MENOR: 'MENOR',

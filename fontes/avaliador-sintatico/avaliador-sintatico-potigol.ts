@@ -47,7 +47,7 @@ import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 import { RetornoDeclaracao } from '@designliquido/delegua/avaliador-sintatico/retornos';
 
-import tiposDeSimbolos from '@designliquido/delegua/tipos-de-simbolos/potigol';
+import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 
@@ -887,6 +887,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.CARACTERE,
                 tiposDeSimbolos.INTEIRO,
                 tiposDeSimbolos.LOGICO,
+                tiposDeSimbolos.LÓGICO,
                 tiposDeSimbolos.REAL,
                 tiposDeSimbolos.TEXTO,
             ].includes(this.simbolos[this.atual].tipo)
