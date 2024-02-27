@@ -272,7 +272,7 @@ describe('Interpretador', () => {
             });
         });
 
-        describe('Leia vetores', () => {
+        describe('Leia inteiros', () => {
             it('Dado um leia_inteiros separador por virgula, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
                     'escreva(leia_inteiros(","))'
@@ -299,7 +299,7 @@ describe('Interpretador', () => {
                     'escreva(leia_inteiros(3))'
                 ], -1);
 
-                const respostas = [1, 2, 3];
+                const respostas = ["1", "2", "3"];
                 interpretador.interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(respostas.shift());
@@ -315,6 +315,33 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
+            it('leia_inteiros, lado esquerdo com constantes', async () => {
+                const saidas: string[] = [];
+                const retornoLexador = lexador.mapear([
+                    'a, b = leia_inteiro',
+                    'escreva "X = {a + b}"'
+                ], -1);
+
+                const respostas = ["1", "2"];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    saidas.push(saida);
+                };
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(saidas).toHaveLength(1);
+                expect(saidas[0]).toBe('X = 3');
+            });
+        });
+
+        describe('Leia reais', () => {
             it('Dado um leia_reais separador por virgula, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
                     'escreva(leia_reais(","))'
@@ -356,7 +383,9 @@ describe('Interpretador', () => {
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+        });
 
+        describe('Leia textos', () => {
             it('Dado um leia_textos separador por virgula, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
                     'escreva(leia_textos(","))'
