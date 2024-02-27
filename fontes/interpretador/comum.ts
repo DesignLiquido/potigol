@@ -95,15 +95,26 @@ export async function visitarExpressaoLeiaMultiplo(
     let valores = 0;
     const argumento = expressao.argumento;
     if (argumento instanceof Literal) {
-        valores = argumento.valor;
+        switch (argumento.valor) {
+            case ',':
+                await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
+                    respostas = String(resposta)
+                        .split(',')
+                        .filter((valor) => !/(\s+)/.test(valor));
+                });
+                break;
+            default:
+                valores = argumento.valor;
+                for (let i = 0; i < valores; i++) {
+                    await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
+                        respostas.push(resposta);
+                    });
+                }
+
+                break;
+        }
     }
 
-    for (let i = 0; i < valores; i++) {
-        await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
-            respostas.push(resposta);
-        });
-    }
-    
     return Promise.resolve(respostas);
 }
 
