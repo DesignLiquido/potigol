@@ -16,6 +16,7 @@ import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-inter
 import { registrarBibliotecaGlobalPotigol } from '../bibliotecas/biblioteca-global';
 import { inferirTipoVariavel } from './inferenciador';
 import * as comum from './comum';
+import { LeiaMultiplo } from '@designliquido/delegua';
 
 /**
  * Uma implementação do interpretador de Potigol.
@@ -67,43 +68,15 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
 
+    async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
+        return comum.visitarExpressaoLeiaMultiplo(this, expressao);
+    }
+
     async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
-        let qualTipo = expressao.valor;
-
-        if (expressao?.valor instanceof ConstanteOuVariavel) {
-            const nome = expressao?.valor.simbolo.lexema;
-            qualTipo = this.pilhaEscoposExecucao.topoDaPilha().ambiente.valores[nome].valor;
-        }
-
-        if (
-            qualTipo instanceof Binario ||
-            qualTipo instanceof Literal ||
-            qualTipo instanceof QualTipo ||
-            qualTipo instanceof Unario ||
-            qualTipo instanceof Variavel
-        ) {
-            qualTipo = await this.avaliar(qualTipo);
-            return qualTipo.tipo || inferirTipoVariavel(qualTipo);
-        }
-
-        return inferirTipoVariavel(qualTipo?.valores || qualTipo);
+        return comum.visitarExpressaoQualTipo(this, expressao);
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-        let formatoTexto: string = '';
-
-        for (const argumento of argumentos) {
-            const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-            formatoTexto += `${this.paraTexto(valor)},`;
-        }
-
-        formatoTexto = formatoTexto.slice(0, -1);
-
-        if (argumentos.length > 1) {
-            formatoTexto = `(${formatoTexto})`;
-        }
-
-        return formatoTexto;
+        return comum.avaliarArgumentosEscreva(this, argumentos);
     }
 }

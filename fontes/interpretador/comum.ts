@@ -1,4 +1,4 @@
-import { AcessoMetodoOuPropriedade } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Unario, Variavel } from '@designliquido/delegua/construtos';
 import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
@@ -8,6 +8,7 @@ import { inferirTipoVariavel } from './inferenciador';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import { LeiaMultiplo } from '@designliquido/delegua';
 
 /**
  * Executa um acesso a método, normalmente de um objeto de classe.
@@ -81,6 +82,86 @@ export async function visitarExpressaoAcessoMetodo(
             expressao.linha
         )
     );
+}
+
+export async function visitarExpressaoLeiaMultiplo(
+    interpretador: InterpretadorBase,
+    expressao: LeiaMultiplo
+): Promise<any> {
+    let respostas = [];
+    // O argumento sempre vem preenchido aqui.
+    // Se for um literal, o literal contém o número de valores a serem lidos
+    // da entrada.
+    let valores = 0;
+    const argumento = expressao.argumento;
+    if (argumento instanceof Literal) {
+        switch (argumento.valor) {
+            case ',':
+                await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
+                    respostas = String(resposta)
+                        .split(',')
+                        .filter((valor) => !/(\s+)/.test(valor));
+                });
+                break;
+            default:
+                valores = argumento.valor;
+                for (let i = 0; i < valores; i++) {
+                    await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
+                        respostas.push(resposta);
+                    });
+                }
+
+                break;
+        }
+    }
+
+    return Promise.resolve(respostas);
+}
+
+export async function visitarExpressaoQualTipo(
+    interpretador: InterpretadorBase,
+    expressao: QualTipo
+): Promise<string> {
+    let qualTipo = expressao.valor;
+
+    if (expressao?.valor instanceof ConstanteOuVariavel) {
+        const nome = expressao?.valor.simbolo.lexema;
+        qualTipo = interpretador.pilhaEscoposExecucao.topoDaPilha().ambiente.valores[nome].valor;
+    }
+
+    if (
+        qualTipo instanceof Binario ||
+        qualTipo instanceof Literal ||
+        qualTipo instanceof QualTipo ||
+        qualTipo instanceof Unario ||
+        qualTipo instanceof Variavel
+    ) {
+        qualTipo = await interpretador.avaliar(qualTipo);
+        return qualTipo.tipo || inferirTipoVariavel(qualTipo);
+    }
+
+    return inferirTipoVariavel(qualTipo?.valores || qualTipo);
+}
+
+export async function avaliarArgumentosEscreva(
+    interpretador: InterpretadorBase,
+    argumentos: Construto[]
+): Promise<string> {
+    let formatoTexto: string = '';
+
+    for (const argumento of argumentos) {
+        const resultadoAvaliacao = await interpretador.avaliar(argumento);
+        let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+        formatoTexto += `${interpretador.paraTexto(valor)},`;
+    }
+
+    formatoTexto = formatoTexto.slice(0, -1);
+
+    if (argumentos.length > 1) {
+        formatoTexto = `(${formatoTexto})`;
+    }
+
+    return formatoTexto;
 }
 
 /**
