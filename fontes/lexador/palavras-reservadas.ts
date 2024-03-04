@@ -17,6 +17,7 @@ export const palavrasReservadas = {
     faça: tiposDeSimbolos.FACA,
     falso: tiposDeSimbolos.FALSO,
     fim: tiposDeSimbolos.FIM,
+    formato: tiposDeSimbolos.FORMATO,
     imprima: tiposDeSimbolos.IMPRIMA,
     Inteiro: tiposDeSimbolos.INTEIRO,
     leia_inteiro: tiposDeSimbolos.LEIA_INTEIRO,

@@ -20,6 +20,7 @@ export default {
     FALSO: 'FALSO',
     FACA: 'FACA',
     FIM: 'FIM',
+    FORMATO: 'FORMATO',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IGUAL: 'IGUAL',
     IGUAL_IGUAL: 'IGUAL_IGUAL',
