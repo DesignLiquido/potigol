@@ -1,6 +1,8 @@
-import { LexadorPotigol } from "../fontes/lexador";
+import { LexadorPotigol, MicroLexadorPotigol } from "../fontes/lexador";
 import { AvaliadorSintaticoPotigol } from "../fontes/avaliador-sintatico";
 import { ErroAvaliadorSintatico } from "@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico";
+import { Escreva } from "@designliquido/delegua";
+import { MicroAvaliadorSintaticoPotigol } from "../fontes/avaliador-sintatico/micro-avaliador-sintatico-potigol";
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -427,7 +429,20 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1); 
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3); 
+
+                    // Micro Análise Sintática
+                    const declaracaoEscreva = retornoAvaliadorSintatico.declaracoes[2] as Escreva;
+                    expect(declaracaoEscreva.argumentos).toHaveLength(1);
+                    
+                    const argumentoEscreva = declaracaoEscreva.argumentos[0];
+                    const regexInterpolacao = /\{(.*)\}/gi;
+                    const microLexador = new MicroLexadorPotigol();
+                    const microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(-1);
+                    const argumentoInterpolado = argumentoEscreva.valor.match(regexInterpolacao)[0];
+                    const resultadoMicroLexador = microLexador.mapear(argumentoInterpolado.replace(/[{}]/gi, ''));
+                    const resultadoMicroAvaliacao = microAvaliadorSintatico.analisar(resultadoMicroLexador, 3);
+                    expect(resultadoMicroAvaliacao.declaracoes).toHaveLength(3);
                 });
             });
         });

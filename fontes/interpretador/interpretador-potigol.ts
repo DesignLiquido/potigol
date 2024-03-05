@@ -2,21 +2,15 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador/interpretador-base';
 import {
     AcessoMetodoOuPropriedade,
-    Binario,
-    ConstanteOuVariavel,
     Construto,
-    Literal,
-    QualTipo,
-    Unario,
-    Variavel,
+    QualTipo
 } from '@designliquido/delegua/construtos';
 import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
-import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-interface-potigol';
-
-import { registrarBibliotecaGlobalPotigol } from '../bibliotecas/biblioteca-global';
-import { inferirTipoVariavel } from './inferenciador';
-import * as comum from './comum';
 import { LeiaMultiplo } from '@designliquido/delegua';
+
+import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-interface-potigol';
+import { registrarBibliotecaGlobalPotigol } from '../bibliotecas/biblioteca-global';
+import * as comum from './comum';
 
 /**
  * Uma implementação do interpretador de Potigol.

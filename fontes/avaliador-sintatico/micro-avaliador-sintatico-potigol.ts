@@ -1,18 +1,31 @@
-import { Agrupamento, ConstanteOuVariavel, Construto, Literal, Logico } from '@designliquido/delegua/construtos';
+import { Agrupamento, Chamada, ConstanteOuVariavel, Construto, Literal, Logico } from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
 import { SimboloInterface } from '@designliquido/delegua/interfaces';
+import { MetodoPrimitiva } from '@designliquido/delegua/estruturas';
 
-import tiposDeSimbolos from '@designliquido/delegua/tipos-de-simbolos/potigol';
+import tiposDeSimbolos from '../tipos-de-simbolos/micro-lexico';
+import primitivasNumero from '../bibliotecas/primitivas-numero';
 
+/**
+ * O Micro Avaliador Sintático funciona em dois momentos:
+ * 
+ * - Avaliação de elementos dentro de interpolações de texto (interpretador);
+ * - Avaliação de argumentos de funções (avaliador sintático).
+ */
 export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase {
     hashArquivo: number;
+    // Aqui precisamos ter declarações como propriedade porque
+    // chamadas a certos métodos de primitivas, como "formato", exigem
+    // ver a ultima declaração resolvida.
+    declaracoes: Declaracao[];
 
     constructor(hashArquivo: number) {
         super();
         this.hashArquivo = hashArquivo;
+        this.declaracoes = [];
     }
 
     primario(): Construto {
@@ -38,6 +51,16 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
                         return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
                 }
 
+            case tiposDeSimbolos.FORMATO:
+                const objetoFormato = this.declaracoes[this.declaracoes.length - 1];
+                const simboloFormato = this.avancarEDevolverAnterior();
+                // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
+                const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
+                if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
+                    throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
+                }
+                
+                return new Chamada(this.hashArquivo, objetoFormato, undefined, [new MetodoPrimitiva(objetoFormato, primitivasNumero.formato)]);
             case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.LOGICO:
@@ -72,13 +95,13 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
 
         this.simbolos = retornoLexador?.simbolos || [];
 
-        const declaracoes: Declaracao[] = [];
+        this.declaracoes = [];
         while (this.atual < this.simbolos.length) {
-            declaracoes.push(this.declaracao() as Declaracao);
+            this.declaracoes.push(this.declaracao() as Declaracao);
         }
 
         return {
-            declaracoes: declaracoes,
+            declaracoes: this.declaracoes,
             erros: this.erros,
         } as RetornoAvaliadorSintatico<Declaracao>;
     }

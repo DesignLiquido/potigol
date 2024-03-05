@@ -36,6 +36,6 @@
         "typescript": "^5.3.3"
     },
     "dependencies": {
-        "@designliquido/delegua": "^0.33.6"
+        "@designliquido/delegua": "^0.33.9"
     }
 }
