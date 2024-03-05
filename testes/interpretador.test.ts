@@ -428,5 +428,24 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
         });
+
+        describe('Primitivas', () => {
+            describe('Primitivas de Texto', () => {
+                it('formato, número com casas decimais', async () => {
+                    const saidas: string[] = [];
+                    const retornoLexador = lexador.mapear([
+                        'escreva(123.45 formato "%.1f")'
+                    ], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(String(saida));
+                    };
+                    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            });
+        });
     });
 });

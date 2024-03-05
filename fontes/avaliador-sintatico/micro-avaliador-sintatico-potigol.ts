@@ -52,15 +52,7 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
                 }
 
             case tiposDeSimbolos.FORMATO:
-                const objetoFormato = this.declaracoes[this.declaracoes.length - 1];
-                const simboloFormato = this.avancarEDevolverAnterior();
-                // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
-                const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
-                if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
-                    throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
-                }
                 
-                return new Chamada(this.hashArquivo, objetoFormato, undefined, [new MetodoPrimitiva(objetoFormato, primitivasNumero.formato)]);
             case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.LOGICO:
@@ -84,8 +76,26 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
         }
     }
 
+    protected formato(): Construto {
+        const expressao = this.primario();
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
+            const objetoFormato = this.declaracoes[this.declaracoes.length - 1];
+            const simboloFormato = this.avancarEDevolverAnterior();
+            // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
+            const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
+            if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
+                throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
+            }
+            
+            return new Chamada(this.hashArquivo, objetoFormato, undefined, [new MetodoPrimitiva(objetoFormato, primitivasNumero.formato)]);
+        }
+
+        return expressao;
+    }
+
     chamar(): Construto {
-        return this.primario();
+        return this.formato();
     }
 
     analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao> {

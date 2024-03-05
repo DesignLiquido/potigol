@@ -353,16 +353,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 }
 
                 return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
-            case tiposDeSimbolos.FORMATO:
-                    const objetoFormato = this.declaracoes[this.declaracoes.length - 1];
-                    const simboloFormato = this.avancarEDevolverAnterior();
-                    // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
-                    const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
-                    if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
-                        throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
-                    }
-                    
-                    return new Chamada(this.hashArquivo, objetoFormato, undefined, [new MetodoPrimitiva(objetoFormato, primitivasNumero.formato)]);
             case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.LOGICO:
@@ -408,6 +398,24 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
+    protected formato(): Construto {
+        const expressao = this.primario();
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
+            const objetoFormato = this.declaracoes[this.declaracoes.length - 1];
+            const simboloFormato = this.avancarEDevolverAnterior();
+            // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
+            const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
+            if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
+                throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
+            }
+            
+            return new Chamada(this.hashArquivo, objetoFormato, undefined, [new MetodoPrimitiva(objetoFormato, primitivasNumero.formato)]);
+        }
+
+        return expressao;
+    }
+
     /**
      * Em Potigol, só é possível determinar a diferença entre uma chamada e uma
      * declaração de função depois dos argumentos.
@@ -417,7 +425,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * dependendo dos símbolos encontrados.
      */
     chamar(): Construto {
-        let expressao = this.primario();
+        let expressao = this.formato();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
