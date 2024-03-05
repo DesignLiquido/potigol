@@ -47,9 +47,12 @@ import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 import { RetornoDeclaracao } from '@designliquido/delegua/avaliador-sintatico/retornos';
 
-import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
+import { MetodoPrimitiva } from '@designliquido/delegua/estruturas';
+
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
+import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import primitivasNumero from '../bibliotecas/primitivas-numero';
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -69,6 +72,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     };
 
     declaracoesAnteriores: { [identificador: string]: any[] };
+    declaracoes: Declaracao[];
+
+    constructor() {
+        super();
+        this.declaracoes = [];
+    }
 
     /**
      * Testa se o primeiro parâmetro na lista de símbolos
@@ -344,6 +353,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 }
 
                 return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
+            case tiposDeSimbolos.FORMATO:
+                    const objetoFormato = this.declaracoes[this.declaracoes.length - 1];
+                    const simboloFormato = this.avancarEDevolverAnterior();
+                    // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
+                    const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
+                    if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
+                        throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
+                    }
+                    
+                    return new Chamada(this.hashArquivo, objetoFormato, undefined, [new MetodoPrimitiva(objetoFormato, primitivasNumero.formato)]);
             case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.LOGICO:
@@ -450,32 +469,28 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    /**
+     * Em Potigol, `escreva` aceita apenas um argumento.
+     * @returns Uma declaração `Escreva`.
+     */
     declaracaoEscreva(): Escreva {
         const simboloAtual = this.avancarEDevolverAnterior();
+        const argumento = this.ou();
 
-        const argumentos: Construto[] = [];
-
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO);
-
-        do {
-            argumentos.push(this.ou());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO);
-
-        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+        return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, [argumento]);
     }
 
+    /**
+     * Em Potigol, `imprima` aceita apenas um argumento.
+     * @returns Uma declaração `EscrevaMesmaLinha`, já que `imprima` em Potigol escreve
+     * o resultado na saída na mesma linha.
+     * @see https://potigol.github.io/docs/basico/entrada_saida.html
+     */
     declaracaoImprima(): EscrevaMesmaLinha {
         const simboloAtual = this.avancarEDevolverAnterior();
+        const argumento = this.ou();
 
-        const argumentos: Construto[] = [];
-
-        do {
-            argumentos.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        return new EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+        return new EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, [argumento]);
     }
 
     /**
@@ -1103,18 +1118,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
 
-        let declaracoes: Declaracao[] = [];
+        this.declaracoes = [];
         while (!this.estaNoFinal()) {
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
-                declaracoes = declaracoes.concat(retornoDeclaracao);
+                this.declaracoes = this.declaracoes.concat(retornoDeclaracao);
             } else {
-                declaracoes.push(retornoDeclaracao as Declaracao);
+                this.declaracoes.push(retornoDeclaracao as Declaracao);
             }
         }
 
         return {
-            declaracoes: declaracoes,
+            declaracoes: this.declaracoes,
             erros: this.erros,
         } as RetornoAvaliadorSintatico<Declaracao>;
     }
