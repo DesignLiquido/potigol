@@ -416,6 +416,20 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
             });
+
+            describe('Primitivas', () => {
+                it('formato, trivial', () => {
+                    const retornoLexador = lexador.mapear([
+                        'x = leia_real',
+                        'area = (x * x) * 3.14159',
+                        'escreva "A={area formato "%.4f"}"'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1); 
+                });
+            });
         });
 
         describe('Cenários de Falha', () => {

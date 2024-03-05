@@ -11,8 +11,23 @@ import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
  * Este dialeto é sensível a tamanho de caixa. `Inteiro` é aceito. `inteiro` não.
  */
 export class LexadorPotigol extends LexadorBaseLinhaUnica {
+    chaveEmTexto: boolean;
+
+    constructor() {
+        super();
+        this.chaveEmTexto = false;
+    }
+
     protected logicaComumCaracteres(delimitador: string) {
-        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
+        while ((this.chaveEmTexto || this.simboloAtual() !== delimitador) && !this.eFinalDoCodigo()) {
+            if (this.codigo.charAt(this.atual) === '{') {
+                this.chaveEmTexto = true;
+            }
+
+            if (this.codigo.charAt(this.atual) === '}') {
+                this.chaveEmTexto = false;
+            }
+
             this.avancar();
         }
 
