@@ -26,8 +26,9 @@ export async function visitarExpressaoAcessoMetodo(
         return objeto.obter(expressao.simbolo) || null;
     }
 
-    // TODO: Possivelmente depreciar esta forma.
-    // Não parece funcionar em momento algum.
+    // TODO: Isso está aqui porque Delégua trabalha com objetos
+    // como dicionários internamente.
+    // Verificar se Potigol também possui suporte a dicionários.
     if (objeto.constructor === Object) {
         return objeto[expressao.simbolo.lexema] || null;
     }
@@ -56,6 +57,7 @@ export async function visitarExpressaoAcessoMetodo(
     switch (tipoObjeto) {
         case 'Inteiro':
         case 'Real':
+        case 'número': // TODO: Remover. Potigol não trabalha com um tipo 'número'.
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
             if (metodoDePrimitivaNumero) {
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);

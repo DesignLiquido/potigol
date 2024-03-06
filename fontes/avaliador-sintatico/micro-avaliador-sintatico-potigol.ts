@@ -1,4 +1,4 @@
-import { Agrupamento, Chamada, ConstanteOuVariavel, Construto, Literal, Logico } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Agrupamento, Chamada, Constante, ConstanteOuVariavel, Construto, Literal, Logico } from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
@@ -8,6 +8,7 @@ import { MetodoPrimitiva } from '@designliquido/delegua/estruturas';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/micro-lexico';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
+import { Simbolo } from '@designliquido/delegua';
 
 /**
  * O Micro Avaliador Sintático funciona em dois momentos:
@@ -72,7 +73,9 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
                 return undefined;
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
-                return new ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);
+                // Diferentemente da avaliação sintática tradicional, mesmo que o símbolo
+                // seja uma variável, sempre resolve como constante.
+                return new Constante(this.hashArquivo, simboloIdentificador);
         }
     }
 
@@ -80,15 +83,21 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
         const expressao = this.primario();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
-            const objetoFormato = this.declaracoes[this.declaracoes.length - 1];
-            const simboloFormato = this.avancarEDevolverAnterior();
             // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
             const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
             if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
                 throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
             }
             
-            return new Chamada(this.hashArquivo, objetoFormato, undefined, [new MetodoPrimitiva(objetoFormato, primitivasNumero.formato)]);
+            return new Chamada(this.hashArquivo, // new Expressao(new MetodoPrimitiva(expressao, primitivasNumero.formato)), undefined, [expressao]);
+                new AcessoMetodoOuPropriedade(
+                    this.hashArquivo, 
+                    expressao, 
+                    new Simbolo(tiposDeSimbolos.FORMATO, 'formato', 'formato', expressao.linha, this.hashArquivo)
+                ),
+                undefined, 
+                [new Literal(this.hashArquivo, expressao.linha, simboloMascaraFormato.literal)]
+            )
         }
 
         return expressao;

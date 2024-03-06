@@ -464,6 +464,33 @@ describe('Interpretador', () => {
                     expect(saidas).toHaveLength(1);
                     expect(saidas[0]).toBe('   12345');
                 });
+
+                it('formato, interpolação', async () => {
+                    const saidas: string[] = [];
+                    const retornoLexador = lexador.mapear([
+                        'x = leia_real',
+                        'area = (x * x) * 3.14159',
+                        'escreva "A={area formato "%.4f"}"'
+                    ], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(String(saida));
+                    };
+
+                    const resposta = "1";
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(resposta);
+                        }
+                    };
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toHaveLength(1);
+                    expect(saidas[0]).toBe('A=3.1416');
+                });
             });
         });
     });
