@@ -402,15 +402,21 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const expressao = this.primario();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
-            const objetoFormato = this.declaracoes[this.declaracoes.length - 1];
-            const simboloFormato = this.avancarEDevolverAnterior();
             // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
             const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
             if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
                 throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
             }
             
-            return new Chamada(this.hashArquivo, objetoFormato, undefined, [new MetodoPrimitiva(objetoFormato, primitivasNumero.formato)]);
+            return new Chamada(this.hashArquivo, // new Expressao(new MetodoPrimitiva(expressao, primitivasNumero.formato)), undefined, [expressao]);
+                new AcessoMetodoOuPropriedade(
+                    this.hashArquivo, 
+                    expressao, 
+                    new Simbolo(tiposDeSimbolos.FORMATO, 'formato', 'formato', expressao.linha, this.hashArquivo)
+                ),
+                undefined, 
+                [new Literal(this.hashArquivo, expressao.linha, simboloMascaraFormato.literal)]
+            )
         }
 
         return expressao;
