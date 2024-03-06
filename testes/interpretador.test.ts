@@ -447,6 +447,23 @@ describe('Interpretador', () => {
                     expect(saidas).toHaveLength(1);
                     expect(saidas[0]).toBe('123.5');
                 });
+
+                it('formato, número inteiro', async () => {
+                    const saidas: string[] = [];
+                    const retornoLexador = lexador.mapear([
+                        'escreva 12345 formato "%8d"'
+                    ], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(String(saida));
+                    };
+                    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toHaveLength(1);
+                    expect(saidas[0]).toBe('   12345');
+                });
             });
         });
     });

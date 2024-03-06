@@ -54,8 +54,7 @@ export async function visitarExpressaoAcessoMetodo(
     }
 
     switch (tipoObjeto) {
-        case 'numero':
-        case 'número':
+        case 'Inteiro':
         case 'Real':
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
             if (metodoDePrimitivaNumero) {
