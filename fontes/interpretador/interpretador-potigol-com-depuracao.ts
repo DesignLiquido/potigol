@@ -1,9 +1,9 @@
-import { registrarBibliotecaGlobalPotigol } from '@designliquido/delegua/bibliotecas/dialetos/potigol/biblioteca-global';
+import { LeiaMultiplo } from '@designliquido/delegua';
 import { AcessoMetodoOuPropriedade, Construto, QualTipo } from '@designliquido/delegua/construtos';
 import { InterpretadorComDepuracao } from '@designliquido/delegua/interpretador/interpretador-com-depuracao';
 
+import { registrarBibliotecaGlobalPotigol } from '../bibliotecas';
 import * as comum from './comum';
-import { LeiaMultiplo } from '@designliquido/delegua';
 
 export class InterpretadorPotigolComDepuracao extends InterpretadorComDepuracao {
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
