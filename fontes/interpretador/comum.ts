@@ -1,14 +1,17 @@
-import { AcessoMetodoOuPropriedade, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Unario, Variavel } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Tupla, Unario, Variavel } from '@designliquido/delegua/construtos';
 import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
+import { LeiaMultiplo } from '@designliquido/delegua';
 
 import { inferirTipoVariavel } from './inferenciador';
+import { EstruturaTupla } from '../estruturas';
+import { InterpretadorPotigol } from './interpretador-potigol';
+
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
-import { LeiaMultiplo } from '@designliquido/delegua';
 
 /**
  * Executa um acesso a método, normalmente de um objeto de classe.
@@ -145,22 +148,39 @@ export async function visitarExpressaoQualTipo(
     return inferirTipoVariavel(qualTipo?.valores || qualTipo);
 }
 
-export async function avaliarArgumentosEscreva(
-    interpretador: InterpretadorBase,
-    argumentos: Construto[]
-): Promise<string> {
-    let formatoTexto: string = '';
-
-    for (const argumento of argumentos) {
-        const resultadoAvaliacao = await interpretador.avaliar(argumento);
-        let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-        formatoTexto += `${interpretador.paraTexto(valor)},`;
+export async function visitarExpressaoTupla(interpretador: InterpretadorBase, expressao: Tupla): Promise<EstruturaTupla> {
+    const chaves = Object.keys(expressao);
+    const valores = [];
+    for (let chave of chaves) {
+        const valor = await interpretador.avaliar(expressao[chave]);
+        valores.push(valor);
     }
 
-    formatoTexto = formatoTexto.slice(0, -1);
+    const estruturaTupla = new EstruturaTupla(valores);
+    return estruturaTupla;
+}
 
-    if (argumentos.length > 1) {
-        formatoTexto = `(${formatoTexto})`;
+/**
+ * `escreva` em Potigol tem apenas um argumento.
+ * @param interpretador A instância do interpretador.
+ * @param argumento 
+ * @returns 
+ */
+export async function avaliarArgumentosEscreva(
+    interpretador: InterpretadorBase,
+    argumento: Construto
+): Promise<string> {
+    let formatoTexto: string = '';
+    if (argumento === undefined) {
+        return formatoTexto;
+    }
+
+    const resultadoAvaliacao = await interpretador.avaliar(argumento);
+    if (typeof resultadoAvaliacao.paraTexto === 'function') {
+        formatoTexto = resultadoAvaliacao.paraTexto();
+    } else {
+        let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
+        formatoTexto = `${interpretador.paraTexto(valor)}`;
     }
 
     return formatoTexto;

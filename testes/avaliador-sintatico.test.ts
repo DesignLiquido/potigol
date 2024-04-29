@@ -42,7 +42,7 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
                 it('Sucesso - Mod e Div', () => {
@@ -442,7 +442,7 @@ describe('Avaliador sintático', () => {
                     const argumentoInterpolado = argumentoEscreva.valor.match(regexInterpolacao)[0];
                     const resultadoMicroLexador = microLexador.mapear(argumentoInterpolado.replace(/[{}]/gi, ''));
                     const resultadoMicroAvaliacao = microAvaliadorSintatico.analisar(resultadoMicroLexador, 3);
-                    expect(resultadoMicroAvaliacao.declaracoes).toHaveLength(3);
+                    expect(resultadoMicroAvaliacao.declaracoes).toHaveLength(1);
                 });
             });
         });

@@ -35,6 +35,6 @@ export class InterpretadorPotigolComDepuracao extends InterpretadorComDepuracao 
     }
 
     async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-        return comum.avaliarArgumentosEscreva(this, argumentos);
+        return comum.avaliarArgumentosEscreva(this, argumentos.length > 0 ? argumentos[0] : undefined);
     }
 }

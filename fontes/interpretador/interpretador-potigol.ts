@@ -3,7 +3,8 @@ import { InterpretadorBase } from '@designliquido/delegua/interpretador/interpre
 import {
     AcessoMetodoOuPropriedade,
     Construto,
-    QualTipo
+    QualTipo,
+    Tupla
 } from '@designliquido/delegua/construtos';
 import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
 import { LeiaMultiplo } from '@designliquido/delegua';
@@ -12,6 +13,7 @@ import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-inter
 import { registrarBibliotecaGlobalPotigol } from '../bibliotecas/biblioteca-global';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
+
 import * as comum from './comum';
 
 /**
@@ -63,19 +65,23 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.retirarInterpolacao(texto, variaveis);
     }
 
-    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+    override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
 
-    async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
+    override async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         return comum.visitarExpressaoLeiaMultiplo(this, expressao);
     }
 
-    async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
+    override async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
         return comum.visitarExpressaoQualTipo(this, expressao);
+    }
+    
+    override async visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+        return comum.visitarExpressaoTupla(this, expressao);
     }
 
     protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-        return comum.avaliarArgumentosEscreva(this, argumentos);
+        return comum.avaliarArgumentosEscreva(this, argumentos.length > 0 ? argumentos[0] : undefined);
     }
 }

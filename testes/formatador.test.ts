@@ -48,8 +48,8 @@ describe('Formatador > Potigol', () => {
                     const linhasResultado = resultado.split(sistemaOperacional.EOL)
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
-                    expect(linhasResultado).toHaveLength(3)
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(linhasResultado).toHaveLength(2)
                 });
 
                 it('Sucesso - Mod e Div', () => {

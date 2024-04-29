@@ -320,14 +320,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const expressao = this.expressao();
+                const expressao = this.ou();
                 switch (this.simbolos[this.atual].tipo) {
                     case tiposDeSimbolos.VIRGULA:
                         // Tupla
                         const argumentos = [expressao];
                         while (this.simbolos[this.atual].tipo === tiposDeSimbolos.VIRGULA) {
                             this.avancarEDevolverAnterior();
-                            argumentos.push(this.expressao());
+                            argumentos.push(this.ou());
                         }
 
                         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");

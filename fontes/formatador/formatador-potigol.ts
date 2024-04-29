@@ -6,6 +6,7 @@ import {
     Atribuir,
     Binario,
     Chamada,
+    Comentario,
     Constante,
     Construto,
     Deceto,
@@ -87,6 +88,14 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.deveIndentar = true;
     }
 
+    /**
+     * Aparentemente só existe comentário de uma linha só em Potigol.
+     * @param declaracao A declaração de comentário.
+     */
+    visitarDeclaracaoComentario(declaracao: Comentario): void {
+        this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}# ${declaracao.conteudo}${this.quebraLinha}`;
+    }
+
     visitarDeclaracaoTendoComo(declaracao: TendoComo): void | Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -102,6 +111,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado');
     }
+    
     visitarDeclaracaoClasse(declaracao: Classe) {
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}tipo ${declaracao.simbolo.lexema}${this.quebraLinha}`
         this.formatarBlocoOuVetorDeclaracoes(declaracao.propriedades)
