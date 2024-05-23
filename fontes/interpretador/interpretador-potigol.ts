@@ -10,7 +10,6 @@ import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
 import { LeiaMultiplo } from '@designliquido/delegua';
 
 import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-interface-potigol';
-import { registrarBibliotecaGlobalPotigol } from '../bibliotecas/biblioteca-global';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
 
@@ -33,7 +32,7 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         this.microLexador = new MicroLexadorPotigol();
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(-1) as any;
 
-        registrarBibliotecaGlobalPotigol(this, this.pilhaEscoposExecucao);
+        comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
     }
 
     paraTexto(objeto: any) {

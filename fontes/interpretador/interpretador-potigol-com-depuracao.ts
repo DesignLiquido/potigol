@@ -2,7 +2,6 @@ import { LeiaMultiplo } from '@designliquido/delegua';
 import { AcessoMetodoOuPropriedade, Construto, QualTipo } from '@designliquido/delegua/construtos';
 import { InterpretadorComDepuracao } from '@designliquido/delegua/interpretador/interpretador-com-depuracao';
 
-import { registrarBibliotecaGlobalPotigol } from '../bibliotecas';
 import * as comum from './comum';
 
 export class InterpretadorPotigolComDepuracao extends InterpretadorComDepuracao {
@@ -11,7 +10,7 @@ export class InterpretadorPotigolComDepuracao extends InterpretadorComDepuracao 
         this.expandirPropriedadesDeObjetosEmEspacoVariaveis = true;
         this.regexInterpolacao = /{(.*?)}/g;
 
-        registrarBibliotecaGlobalPotigol(this, this.pilhaEscoposExecucao);
+        comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
     }
 
     protected async resolverInterpolacoes(textoOriginal: string, linha: number): Promise<any[]> {

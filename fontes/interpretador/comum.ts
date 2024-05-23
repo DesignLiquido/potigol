@@ -1,17 +1,80 @@
 import { AcessoMetodoOuPropriedade, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Tupla, Unario, Variavel } from '@designliquido/delegua/construtos';
-import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
+import { DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import { LeiaMultiplo } from '@designliquido/delegua';
+import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
 
 import { inferirTipoVariavel } from './inferenciador';
 import { EstruturaTupla } from '../estruturas';
-import { InterpretadorPotigol } from './interpretador-potigol';
 
+import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+
+export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
+    pilhaEscoposExecucao.definirVariavel(
+        'abs',
+        new FuncaoPadrao(1, bibliotecaGlobal.abs)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'aleatório',
+        new FuncaoPadrao(0, bibliotecaGlobal.aleatorio)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'arccos',
+        new FuncaoPadrao(1, bibliotecaGlobal.arccos)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'arcsen',
+        new FuncaoPadrao(1, bibliotecaGlobal.arcsen)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'arctg',
+        new FuncaoPadrao(1, bibliotecaGlobal.arctg)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'cos',
+        new FuncaoPadrao(1, bibliotecaGlobal.cos)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'log',
+        new FuncaoPadrao(1, bibliotecaGlobal.log)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'log10',
+        new FuncaoPadrao(1, bibliotecaGlobal.log10)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'pi',
+        new FuncaoPadrao(0, bibliotecaGlobal.pi)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'raiz',
+        new FuncaoPadrao(1, bibliotecaGlobal.raiz)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'sen',
+        new FuncaoPadrao(1, bibliotecaGlobal.sen)
+    );
+
+    pilhaEscoposExecucao.definirVariavel(
+        'tg',
+        new FuncaoPadrao(1, bibliotecaGlobal.tg)
+    );
+}
 
 /**
  * Executa um acesso a método, normalmente de um objeto de classe.

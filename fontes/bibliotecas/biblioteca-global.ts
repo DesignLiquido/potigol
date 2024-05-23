@@ -1,92 +1,82 @@
 import { FuncaoPadrao } from '@designliquido/delegua/estruturas';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
-import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 
-export function registrarBibliotecaGlobalPotigol(
-    interpretador: InterpretadorBase,
-    pilhaEscoposExecucao: PilhaEscoposExecucaoInterface
+import { InterpretadorInterfacePotigol } from '../interfaces';
+
+export async function abs(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+): Promise<number> {
+    return Promise.resolve(Math.abs(valor));
+}
+
+export async function aleatorio(): Promise<number> {
+    return Promise.resolve(Math.random());
+}
+
+export async function arccos(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+): Promise<number> {
+    return Promise.resolve(Math.acos(valor));
+}
+
+export async function arcsen(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+): Promise<number> {
+    return Promise.resolve(Math.asin(valor));
+}
+
+export async function arctg(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+): Promise<number> {
+    return Promise.resolve(Math.atan(valor));
+}
+
+export async function cos(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+): Promise<number> {
+    return Promise.resolve(Math.cos(valor));
+}
+
+export async function log(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+): Promise<number> {
+    return Promise.resolve(Math.log(valor));
+}
+
+export async function log10(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+): Promise<number> {
+    return Promise.resolve(Math.log10(valor));
+}
+
+export async function pi(): Promise<number> {
+    return Promise.resolve(Math.PI);
+}
+
+export async function raiz(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
 ) {
-    pilhaEscoposExecucao.definirVariavel(
-        'abs',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.abs(valor);
-        })
-    );
+    return Promise.resolve(Math.sqrt(valor));
+}
 
-    pilhaEscoposExecucao.definirVariavel(
-        'aleatório',
-        new FuncaoPadrao(0, function () {
-            return Math.random();
-        })
-    );
+export async function sen(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+) {
+    return Promise.resolve(Math.sin(valor));
+}
 
-    pilhaEscoposExecucao.definirVariavel(
-        'arccos',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.acos(valor);
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'arcsen',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.asin(valor);
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'arctg',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.atan(valor);
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'cos',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.cos(valor);
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'log',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.log(valor);
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'log10',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.log10(valor);
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'pi',
-        new FuncaoPadrao(0, function () {
-            return Math.PI;
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'raiz',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.sqrt(valor);
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'sen',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.sin(valor);
-        })
-    );
-
-    pilhaEscoposExecucao.definirVariavel(
-        'tg',
-        new FuncaoPadrao(1, function (valor: number) {
-            return Math.tan(valor);
-        })
-    );
+export async function tg(
+    interpretador: InterpretadorInterfacePotigol,
+    valor: number
+) {
+    return Promise.resolve(Math.tan(valor));
 }
