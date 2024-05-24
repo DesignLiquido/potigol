@@ -132,6 +132,45 @@ describe('Primitivas de vetor - Potigol', () => {
         });
     });
 
+    describe('injete()', () => {
+        it.skip('Trivial, apenas um argumento', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao', 
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: { nome: 'x', tipo: 'numero' }
+                    } as ParametroInterface,
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1),
+                        tipoDado: { nome: 'y', tipo: 'numero' }
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        {
+                            linha: -1,
+                            hashArquivo: -1,
+                            lexema: '',
+                            literal: '',
+                            tipo: 'qualquer',
+                        }, 
+                        new Binario(
+                            -1, 
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '<', '<', -1, -1), 
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1))
+                        )
+                    )
+                ])
+            );
+            
+            const resultado = await primitivasVetor.injete(interpretador, [2, 4, 6], deleguaFuncao);
+            expect(resultado).toStrictEqual(12);
+        });
+    });
+
     describe('inverta()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasVetor.inverta(interpretador, [2, 4, 6, 8, 10]);

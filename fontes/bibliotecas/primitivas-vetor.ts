@@ -62,13 +62,26 @@ export default {
         return retorno;
     },
     imutável: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
-    injete: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
+    injete: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        // TODO: Terminar
+        /* if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'injete'.");
+        }
+
+        let retorno: any;
+        for (let elemento of vetor) {
+            retorno = await funcao.chamar(interpretador, [retorno, elemento]);
+        }
+
+        return retorno; */
+        return Promise.resolve();
+    },
     insira: (
         interpretador: VisitanteComumInterface,
-        vetor: Array<any>,
+        vetor: Array<any[]>,
         posicao: number,
-        elemento: string
-    ): Promise<any> => {
+        elemento: any
+    ): Promise<any[]> => {
         let copia = [...vetor];
         copia.splice(posicao - 1, 0, elemento);
         return Promise.resolve(copia);
