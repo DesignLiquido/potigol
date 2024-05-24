@@ -71,7 +71,23 @@ export default {
         Promise.resolve(vetor.sort((a, b) => a - b)),
     pegue: (interpretador: VisitanteComumInterface, vetor: Array<any>, elementos: number): Promise<any> =>
         Promise.resolve(vetor.slice(0, elementos)),
-    pegue_enquanto: (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => Promise.resolve(),
+    pegue_enquanto: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'descarte_enquanto'.");
+        }
+
+        const retorno = [];
+        for (let elemento of vetor) {
+            let resultado = await funcao.chamar(interpretador, [elemento]);
+            if (resultado) {
+                retorno.push(elemento);
+            } else {
+                break;
+            }
+        }
+
+        return retorno;
+    },
     posição: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> =>
         Promise.resolve(vetor.indexOf(elemento) + 1),
     qual_tipo: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<string> => Promise.resolve('Lista'),

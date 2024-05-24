@@ -111,6 +111,40 @@ describe('Primitivas de vetor - Potigol', () => {
         });
     });
 
+    describe('pegue_enquanto()', () => {
+        it('Trivial', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao', 
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: { nome: 'x', tipo: 'numero' }
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        {
+                            linha: -1,
+                            hashArquivo: -1,
+                            lexema: '',
+                            literal: '',
+                            tipo: 'qualquer',
+                        }, 
+                        new Binario(
+                            -1, 
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.MENOR, '<', '<', -1, -1), 
+                            new Literal(-1, -1, 6)
+                        )
+                    )
+                ])
+            );
+            
+            const resultado = await primitivasVetor.pegue_enquanto(interpretador, [2, 4, 6, 8, 10], deleguaFuncao);
+            expect(resultado).toStrictEqual([2, 4]);
+        });
+    });
+
     describe('posição()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasVetor.posição(interpretador, [2, 4, 6, 8, 10], 8);
