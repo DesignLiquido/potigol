@@ -83,6 +83,55 @@ describe('Primitivas de vetor - Potigol', () => {
         });
     });
 
+    describe('divida_quando()', () => {
+        const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+            'funcao', 
+            new FuncaoConstruto(-1, -1, [
+                {
+                    abrangencia: 'padrao',
+                    nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                    tipoDado: { nome: 'x', tipo: 'numero' }
+                } as ParametroInterface,
+                {
+                    abrangencia: 'padrao',
+                    nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1),
+                    tipoDado: { nome: 'y', tipo: 'numero' }
+                } as ParametroInterface
+            ], [
+                new Retorna(
+                    {
+                        linha: -1,
+                        hashArquivo: -1,
+                        lexema: '',
+                        literal: '',
+                        tipo: 'qualquer',
+                    }, 
+                    new Binario(
+                        -1, 
+                        new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                        new Simbolo(tiposDeSimbolos.DIFERENTE, '<>', '<>', -1, -1), 
+                        new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1))
+                    )
+                )
+            ])
+        );
+
+        it('Trivial', async () => {
+            const resultado = await primitivasVetor.divida_quando(interpretador, [2, 2, 3, 3, 3, 6, 5, 6], deleguaFuncao);
+            expect(resultado).toStrictEqual([[2, 2], [3, 3, 3], [6], [5], [6]]);
+        });
+
+        it('Vetor vazio', async () => {
+            const resultado = await primitivasVetor.divida_quando(interpretador, [], deleguaFuncao);
+            expect(resultado).toStrictEqual([]);
+        });
+
+        it('Vetor com um elemento', async () => {
+            const resultado = await primitivasVetor.divida_quando(interpretador, [10], deleguaFuncao);
+            expect(resultado).toStrictEqual([[10]]);
+        });
+    });
+
     describe('inverta()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasVetor.inverta(interpretador, [2, 4, 6, 8, 10]);

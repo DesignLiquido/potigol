@@ -32,7 +32,35 @@ export default {
 
         return retorno;
     },
-    divida_quando: (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => Promise.resolve(),
+    divida_quando: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        if (vetor.length === 0) {
+            return vetor;
+        }
+        
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'divida_quando'.");
+        }
+
+        const retorno = [];
+        let elementoAnterior: any = vetor.shift();
+        let retornoAcumulado: any[] = [elementoAnterior];
+        for (let elemento of vetor) {
+            let resultado = await funcao.chamar(interpretador, [elementoAnterior, elemento]);
+            if (resultado) {
+                elementoAnterior = elemento;
+                retorno.push(retornoAcumulado);
+                retornoAcumulado = [elemento];
+            } else {
+                retornoAcumulado.push(elemento);
+            }
+        }
+
+        if (retornoAcumulado.length > 0) {
+            retorno.push(retornoAcumulado);
+        }
+
+        return retorno;
+    },
     imutável: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
     injete: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
     insira: (
@@ -73,7 +101,7 @@ export default {
         Promise.resolve(vetor.slice(0, elementos)),
     pegue_enquanto: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
         if (funcao === undefined || funcao === null) {
-            return Promise.reject("É necessário passar uma função para o método 'descarte_enquanto'.");
+            return Promise.reject("É necessário passar uma função para o método 'pegue_enquanto'.");
         }
 
         const retorno = [];
