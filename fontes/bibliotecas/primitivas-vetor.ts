@@ -1,3 +1,4 @@
+import { DeleguaFuncao } from '@designliquido/delegua/estruturas/delegua-funcao';
 import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
 
 export default {
@@ -14,8 +15,24 @@ export default {
         copia.splice(0, elementos);
         return Promise.resolve(copia);
     },
-    descarte_enquanto: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
-    divida_quando: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
+    descarte_enquanto: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'descarte_enquanto'.");
+        }
+
+        const retorno = [...vetor];
+        for (let elemento of vetor) {
+            let resultado = await funcao.chamar(interpretador, [elemento]);
+            if (resultado) {
+                retorno.shift();
+            } else {
+                break;
+            }
+        }
+
+        return retorno;
+    },
+    divida_quando: (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => Promise.resolve(),
     imutável: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
     injete: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
     insira: (
@@ -37,12 +54,24 @@ export default {
     },
     junte: (interpretador: VisitanteComumInterface, vetor: Array<any>, separador: string): Promise<any> =>
         Promise.resolve(vetor.join(separador)),
-    mapeie: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
+    mapeie: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'mapeie'.");
+        }
+
+        const retorno = [];
+        for (let elemento of vetor) {
+            let resultado = await funcao.chamar(interpretador, [elemento]);
+            retorno.push(resultado);
+        }
+
+        return retorno;
+    },
     ordene: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> =>
         Promise.resolve(vetor.sort((a, b) => a - b)),
     pegue: (interpretador: VisitanteComumInterface, vetor: Array<any>, elementos: number): Promise<any> =>
         Promise.resolve(vetor.slice(0, elementos)),
-    pegue_enquanto: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
+    pegue_enquanto: (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => Promise.resolve(),
     posição: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> =>
         Promise.resolve(vetor.indexOf(elemento) + 1),
     qual_tipo: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<string> => Promise.resolve('Lista'),
@@ -51,7 +80,20 @@ export default {
         copia.splice(posicao - 1, 1);
         return Promise.resolve(copia);
     },
-    selecione: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
+    selecione: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'selecione'.");
+        }
+
+        const retorno = [];
+        for (let elemento of vetor) {
+            if (await funcao.chamar(interpretador, [elemento])) {
+                retorno.push(elemento);
+            }
+        }
+
+        return retorno;
+    },
     tamanho: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length),
     último: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> =>
         Promise.resolve(vetor.length > 0 ? vetor[vetor.length - 1] : undefined),

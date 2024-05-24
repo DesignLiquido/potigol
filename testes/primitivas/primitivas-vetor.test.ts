@@ -1,5 +1,10 @@
+import { DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { Binario, FuncaoConstruto, Literal, ParametroInterface, Retorna, Simbolo, SimboloInterface, Variavel } from '@designliquido/delegua';
+
 import { InterpretadorPotigol } from '../../fontes/interpretador';
+
 import primitivasVetor from '../../fontes/bibliotecas/primitivas-vetor';
+import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/lexico-regular';
 
 describe('Primitivas de vetor - Potigol', () => {
     let interpretador: InterpretadorPotigol;
@@ -40,6 +45,40 @@ describe('Primitivas de vetor - Potigol', () => {
     describe('descarte()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasVetor.descarte(interpretador, [2, 4, 6, 8, 10], 2);
+            expect(resultado).toStrictEqual([6, 8, 10]);
+        });
+    });
+
+    describe('descarte_enquanto()', () => {
+        it('Trivial', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao', 
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: { nome: 'x', tipo: 'numero' }
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        {
+                            linha: -1,
+                            hashArquivo: -1,
+                            lexema: '',
+                            literal: '',
+                            tipo: 'qualquer',
+                        }, 
+                        new Binario(
+                            -1, 
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.MENOR, '<', '<', -1, -1), 
+                            new Literal(-1, -1, 6)
+                        )
+                    )
+                ])
+            );
+            
+            const resultado = await primitivasVetor.descarte_enquanto(interpretador, [2, 4, 6, 8, 10], deleguaFuncao);
             expect(resultado).toStrictEqual([6, 8, 10]);
         });
     });

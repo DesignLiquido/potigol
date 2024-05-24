@@ -37,6 +37,7 @@ import {
     Leia,
     LeiaMultiplo,
     ConstMultiplo,
+    Retorna,
 } from '@designliquido/delegua/declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { AvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/avaliador-sintatico-base';
@@ -112,20 +113,19 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     /**
      * Retorna uma declaração de função iniciada por igual,
      * ou seja, com apenas uma instrução.
-     * @param simboloPrimario O símbolo que identifica a função (nome).
-     * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de pragma.
+     * @param simboloPrimario O símbolo que identifica a função (nome), 
+     *                        também usado para fins de pragma.
      * @param parametros A lista de parâmetros da função.
      * @param tipoRetorno O tipo de retorno da função.
      * @returns Um construto do tipo `FuncaoDeclaracao`.
      */
     protected declaracaoFuncaoPotigolIniciadaPorIgual(
         simboloPrimario: SimboloInterface,
-        parenteseEsquerdo: SimboloInterface,
         parametros: ParametroInterface[],
         tipoRetorno?: SimboloInterface
     ): FuncaoDeclaracao {
         const corpo = new FuncaoConstruto(simboloPrimario.hashArquivo, simboloPrimario.linha, parametros, [
-            new Expressao(this.expressao()),
+            new Retorna(simboloPrimario, this.expressao()),
         ]);
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
     }
@@ -168,7 +168,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         const resolucaoParametros = this.logicaComumParametrosPotigol(simbolosEntreParenteses);
-        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         // Pode haver uma dica do tipo de retorno ou não.
         // Se houver, é uma declaração de função (verificado mais abaixo).
@@ -179,7 +179,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 'Esperado tipo válido após dois-pontos como retorno de função.'
             );
 
-            tipoRetorno = this.simbolos[this.atual - 1];
+            tipoRetorno = this.avancarEDevolverAnterior();
         }
 
         // Se houver símbolo de igual, seja após fechamento de parênteses,
@@ -189,7 +189,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             this.declaracoesAnteriores[construtoPrimario.simbolo.lexema] = [];
             return this.declaracaoFuncaoPotigolIniciadaPorIgual(
                 construtoPrimario.simbolo,
-                parenteseEsquerdo,
                 resolucaoParametros.parametros,
                 tipoRetorno
             );
