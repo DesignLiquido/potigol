@@ -522,9 +522,11 @@ export class FormatadorPotigol implements VisitanteComumInterface {
 
         this.formatarDeclaracaoOuConstruto(expressao.direita);
     }
-    visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        throw new Error('Método não implementado');
+
+    visitarExpressaoRetornar(declaracao: Retorna): any {
+        this.formatarDeclaracaoOuConstruto(declaracao.valor);
     }
+
     visitarExpressaoSuper(expressao: Super) {
         throw new Error('Método não implementado');
     }
