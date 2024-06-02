@@ -67,7 +67,8 @@ import {
     InicioAlgoritmo,
 } from '@designliquido/delegua/declaracoes';
 import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
+import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
+
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
 export class FormatadorPotigol implements VisitanteComumInterface {
