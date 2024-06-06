@@ -445,6 +445,20 @@ describe('Avaliador sintático', () => {
                     expect(resultadoMicroAvaliacao.declaracoes).toHaveLength(1);
                 });
             });
+
+            describe('Listas', () => {
+                it('Concatenação de listas', () => {
+                    const retornoLexador = lexador.mapear([
+                        'lista1 = [1,2,3,4]',
+                        'lista2 = 0::lista1',
+                        'escreva lista2'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                });
+            });
         });
 
         describe('Cenários de Falha', () => {

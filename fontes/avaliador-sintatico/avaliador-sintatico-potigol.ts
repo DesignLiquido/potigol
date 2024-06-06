@@ -203,9 +203,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     finalizarChamada(entidadeChamada: Construto): Construto {
-        // Parêntese esquerdo
-        // this.avancarEDevolverAnterior();
-
         const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
@@ -422,6 +419,40 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     /**
+     * Concatenação de lista é expressa por dois símbolos de dois-pontos 
+     * em sequência
+     * @returns Um construto, ou vindo da continuação da análise, ou um Binário.
+     */
+    protected concatenacaoLista(): Construto {
+        let expressao = this.formato();
+
+        if (this.atual < this.simbolos.length) {
+            if (
+                this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS && 
+                this.verificarTipoProximoSimbolo(tiposDeSimbolos.DOIS_PONTOS)
+            ) {
+                const primeiroDoisPontos = this.avancarEDevolverAnterior();
+                this.avancarEDevolverAnterior();
+                const ladoDireito = this.formato();
+                expressao = new Binario(
+                    this.hashArquivo, 
+                    expressao, 
+                    new Simbolo(
+                        tiposDeSimbolos.CONCATENACAO_LISTA, 
+                        '::', 
+                        '::', 
+                        primeiroDoisPontos.linha,
+                        primeiroDoisPontos.hashArquivo
+                    ), 
+                    ladoDireito
+                );
+            }
+        }
+
+        return expressao;
+    }
+
+    /**
      * Em Potigol, só é possível determinar a diferença entre uma chamada e uma
      * declaração de função depois dos argumentos.
      *
@@ -430,7 +461,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * dependendo dos símbolos encontrados.
      */
     chamar(): Construto {
-        let expressao = this.formato();
+        let expressao = this.concatenacaoLista();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
