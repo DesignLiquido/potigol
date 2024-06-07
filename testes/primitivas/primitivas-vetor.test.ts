@@ -1,5 +1,8 @@
 import { DeleguaFuncao } from '@designliquido/delegua/estruturas';
-import { Binario, FuncaoConstruto, Literal, ParametroInterface, Retorna, Simbolo, SimboloInterface, Variavel } from '@designliquido/delegua';
+import { Binario, FuncaoConstruto, Literal, Variavel } from '@designliquido/delegua/construtos';
+import { Retorna } from '@designliquido/delegua/declaracoes';
+import { ParametroInterface } from '@designliquido/delegua/interfaces';
+import { Simbolo } from '@designliquido/delegua/lexador';
 
 import { InterpretadorPotigol } from '../../fontes/interpretador';
 

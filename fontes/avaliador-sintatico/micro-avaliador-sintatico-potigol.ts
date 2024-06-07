@@ -1,14 +1,12 @@
-import { AcessoMetodoOuPropriedade, Agrupamento, Chamada, Constante, ConstanteOuVariavel, Construto, Literal, Logico } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Agrupamento, Chamada, Constante, Construto, Literal } from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
 import { SimboloInterface } from '@designliquido/delegua/interfaces';
-import { MetodoPrimitiva } from '@designliquido/delegua/estruturas';
+import { Simbolo } from '@designliquido/delegua/lexador';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/micro-lexico';
-import primitivasNumero from '../bibliotecas/primitivas-numero';
-import { Simbolo } from '@designliquido/delegua';
 
 /**
  * O Micro Avaliador Sintático funciona em dois momentos:

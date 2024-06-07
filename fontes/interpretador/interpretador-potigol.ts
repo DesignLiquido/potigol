@@ -1,5 +1,5 @@
 
-import { InterpretadorBase } from '@designliquido/delegua/interpretador/interpretador-base';
+import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import {
     AcessoMetodoOuPropriedade,
     Construto,
@@ -7,9 +7,9 @@ import {
     Tupla
 } from '@designliquido/delegua/construtos';
 import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
-import { LeiaMultiplo } from '@designliquido/delegua';
+import { LeiaMultiplo } from '@designliquido/delegua/declaracoes';
 
-import { InterpretadorInterfacePotigol } from '../interfaces/interpretador-interface-potigol';
+import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
 
@@ -18,7 +18,10 @@ import * as comum from './comum';
 /**
  * Uma implementação do interpretador de Potigol.
  */
-export class InterpretadorPotigol extends InterpretadorBase implements InterpretadorInterfacePotigol {
+export class InterpretadorPotigol 
+    extends InterpretadorBase 
+    implements InterpretadorPotigolInterface 
+{
     constructor(
         diretorioBase: string,
         performance = false,

@@ -20,7 +20,7 @@ describe('Interpretador', () => {
             ], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            interpretador.funcaoDeRetorno = (saida: any) => {
+            (interpretador as any).funcaoDeRetorno = (saida: any) => {
                 expect(saida).toEqual("Olá mundo")
             }
 
@@ -31,10 +31,16 @@ describe('Interpretador', () => {
 
         describe('Tipos e objetos', () => {
             it('Trivial', async () => {
+                let _saidas = '';
                 const saidasMensagens = [
                     "100",
                     "40"
-                ]
+                ];
+
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
+                    _saidas += saida;
+                }
+
                 const retornoLexador = lexador.mapear([
                     'tipo Quadrado',
                     '  area() = lado * lado',
@@ -45,14 +51,8 @@ describe('Interpretador', () => {
                     'escreva q1.area()',
                     'escreva q1.perimetro()'
                 ], -1);
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                // TODO: Repensar isso aqui. Quando dá erro, o erro não
-                // faz sentido algum.
-                /* interpretador.funcaoDeRetorno = (saida: any) => {
-                    expect(saidasMensagens.includes(saida)).toBeTruthy()
-                } */
-
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -67,7 +67,7 @@ describe('Interpretador', () => {
                 ], -1);
 
                 // Substitua a função de saída
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual("Inteiro");
                 };
 
@@ -82,7 +82,7 @@ describe('Interpretador', () => {
                 ], -1);
 
                 // Substitua a função de saída
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual("Inteiro");
                 }
 
@@ -98,7 +98,7 @@ describe('Interpretador', () => {
                 ], -1);
 
                 // Substitua a função de saída
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual("Real");
                 };
 
@@ -114,7 +114,7 @@ describe('Interpretador', () => {
                 ], -1);
 
                 // Substitua a função de saída
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual("Inteiro");
                 };
 
@@ -130,7 +130,7 @@ describe('Interpretador', () => {
                 ], -1);
 
                 // Substitua a função de saída
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual("Lista");
                 };
 
@@ -148,7 +148,7 @@ describe('Interpretador', () => {
                 ], -1);
 
                 // Substitua a função de saída
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('[3, 4]');
                 };
 
@@ -165,13 +165,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const resposta = 1;
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(resposta);
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('1');
                 };
 
@@ -187,13 +187,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const resposta = 1.2;
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(resposta);
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('1.2');
                 };
 
@@ -209,13 +209,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const resposta = "texto";
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(resposta);
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('texto');
                 };
 
@@ -232,13 +232,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const resposta = [1, 2, 3];
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(resposta.shift());
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('(1,2,3)');
                 };
 
@@ -255,13 +255,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const resposta = [1];
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(resposta.shift());
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('1');
                 };
 
@@ -279,13 +279,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const resposta = '1,2,3';
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(resposta);
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('[1, 2, 3]');
                 };
 
@@ -300,13 +300,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const respostas = ["1", "2", "3"];
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(respostas.shift());
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('[1, 2, 3]');
                 };
 
@@ -323,13 +323,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const respostas = ["1", "2"];
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(respostas.shift());
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     saidas.push(saida);
                 };
 
@@ -348,13 +348,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const resposta = '1,2,3';
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(resposta);
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('[1, 2, 3]');
                 };
 
@@ -369,13 +369,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const respostas = [1, 2, 3];
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(respostas.shift());
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('[1, 2, 3]');
                 };
 
@@ -392,13 +392,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const resposta = 'a,b,c';
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(resposta);
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('[a, b, c]');
                 };
 
@@ -413,13 +413,13 @@ describe('Interpretador', () => {
                 ], -1);
 
                 const respostas = ['a', 'b', 'c'];
-                interpretador.interfaceEntradaSaida = {
+                (interpretador as any).interfaceEntradaSaida = {
                     question: (mensagem: string, callback: Function) => {
                         callback(respostas.shift());
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
                     expect(saida).toEqual('[a, b, c]');
                 };
 
@@ -437,7 +437,7 @@ describe('Interpretador', () => {
                         'escreva 123.45 formato "%.1f"'
                     ], -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
+                    (interpretador as any).funcaoDeRetorno = (saida: any) => {
                         saidas.push(String(saida));
                     };
                     
@@ -454,7 +454,7 @@ describe('Interpretador', () => {
                         'escreva 12345 formato "%8d"'
                     ], -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
+                    (interpretador as any).funcaoDeRetorno = (saida: any) => {
                         saidas.push(String(saida));
                     };
                     
@@ -473,12 +473,12 @@ describe('Interpretador', () => {
                         'escreva "A={area formato "%.4f"}"'
                     ], -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
+                    (interpretador as any).funcaoDeRetorno = (saida: any) => {
                         saidas.push(String(saida));
                     };
 
                     const resposta = "1";
-                    interpretador.interfaceEntradaSaida = {
+                    (interpretador as any).interfaceEntradaSaida = {
                         question: (mensagem: string, callback: Function) => {
                             callback(resposta);
                         }

@@ -8,6 +8,7 @@ import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces
 
 import { inferirTipoVariavel } from './inferenciador';
 import { EstruturaTupla } from '../estruturas';
+import { InterpretadorPotigolInterface } from '../interfaces';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -82,7 +83,7 @@ export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecu
  * @returns O resultado da execução.
  */
 export async function visitarExpressaoAcessoMetodo(
-    interpretador: InterpretadorBase,
+    interpretador: InterpretadorPotigolInterface,
     expressao: AcessoMetodoOuPropriedade
 ): Promise<any> {
     const variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
@@ -153,7 +154,7 @@ export async function visitarExpressaoAcessoMetodo(
 }
 
 export async function visitarExpressaoLeiaMultiplo(
-    interpretador: InterpretadorBase,
+    interpretador: InterpretadorPotigolInterface,
     expressao: LeiaMultiplo
 ): Promise<any> {
     let respostas = [];
@@ -187,7 +188,7 @@ export async function visitarExpressaoLeiaMultiplo(
 }
 
 export async function visitarExpressaoQualTipo(
-    interpretador: InterpretadorBase,
+    interpretador: InterpretadorPotigolInterface,
     expressao: QualTipo
 ): Promise<string> {
     let qualTipo = expressao.valor;
@@ -211,7 +212,10 @@ export async function visitarExpressaoQualTipo(
     return inferirTipoVariavel(qualTipo?.valores || qualTipo);
 }
 
-export async function visitarExpressaoTupla(interpretador: InterpretadorBase, expressao: Tupla): Promise<EstruturaTupla> {
+export async function visitarExpressaoTupla(
+    interpretador: InterpretadorPotigolInterface, 
+    expressao: Tupla
+): Promise<EstruturaTupla> {
     const chaves = Object.keys(expressao);
     const valores = [];
     for (let chave of chaves) {
@@ -230,7 +234,7 @@ export async function visitarExpressaoTupla(interpretador: InterpretadorBase, ex
  * @returns 
  */
 export async function avaliarArgumentosEscreva(
-    interpretador: InterpretadorBase,
+    interpretador: InterpretadorPotigolInterface,
     argumento: Construto
 ): Promise<string> {
     let formatoTexto: string = '';
@@ -255,7 +259,7 @@ export async function avaliarArgumentosEscreva(
  * @returns Uma lista de variáveis interpoladas.
  */
 export async function resolverInterpolacoes(
-    interpretador: InterpretadorBase,
+    interpretador: InterpretadorPotigolInterface,
     textoOriginal: string,
     linha: number
 ): Promise<any[]> {

@@ -1,1 +1,1 @@
-export * from './interpretador-interface-potigol';
+export * from './interpretador-potigol-interface';
