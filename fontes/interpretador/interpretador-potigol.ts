@@ -71,6 +71,10 @@ export class InterpretadorPotigol
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
 
+    override async visitarExpressaoBinaria(expressao: any): Promise<any> {
+        return comum.visitarExpressaoBinaria(this, expressao);
+    }
+
     override async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
         return comum.visitarExpressaoLeiaMultiplo(this, expressao);
     }

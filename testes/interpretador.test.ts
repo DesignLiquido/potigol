@@ -139,8 +139,8 @@ describe('Interpretador', () => {
             });
         });
 
-        describe('Declaração de lista', () => {
-            it('Dado um vetor, escreva deve imprirmir o vetor', async () => {
+        describe('Listas', () => {
+            it('Dado um vetor, escreva deve imprimir o vetor', async () => {
                 const retornoLexador = lexador.mapear([
                     'a = [3, 4]',
                     'escreva (a)'
@@ -154,6 +154,27 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Concatenação de listas', async () => {
+                let _saidas: string[] = [];
+
+                (interpretador as any).funcaoDeRetorno = (saida: any) => {
+                    _saidas.push(saida);
+                }
+
+                const retornoLexador = lexador.mapear([
+                    'lista1 = [1,2,3,4]',
+                    'lista2 = 0::lista1',
+                    'escreva lista2'
+                ], -1);
+
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[0, 1, 2, 3, 4]');
             });
         })
 

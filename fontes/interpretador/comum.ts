@@ -2,7 +2,6 @@ import { AcessoMetodoOuPropriedade, Binario, ConstanteOuVariavel, Construto, Lit
 import { DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
-import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import { LeiaMultiplo } from '@designliquido/delegua';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
 
@@ -14,6 +13,7 @@ import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
 export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
     pilhaEscoposExecucao.definirVariavel(
@@ -151,6 +151,89 @@ export async function visitarExpressaoAcessoMetodo(
             expressao.linha
         )
     );
+}
+
+export async function visitarExpressaoBinaria(
+    interpretador: InterpretadorPotigolInterface,
+    expressao: any
+): Promise<any> {
+    const esquerda: VariavelInterface | any = await interpretador.avaliar(expressao.esquerda);
+    const direita: VariavelInterface | any = await interpretador.avaliar(expressao.direita);
+    const valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
+    const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
+    const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
+    const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
+
+    switch (expressao.operador.tipo) {
+        case tiposDeSimbolos.EXPONENCIACAO:
+            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Math.pow(valorEsquerdo, valorDireito);
+
+        case tiposDeSimbolos.MAIOR:
+            
+            if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
+                return Number(valorEsquerdo) > Number(valorDireito);
+            }
+
+            return String(valorEsquerdo) > String(valorDireito);
+
+        case tiposDeSimbolos.MAIOR_IGUAL:
+            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) >= Number(valorDireito);
+
+        case tiposDeSimbolos.MENOR:
+            if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
+                return Number(valorEsquerdo) < Number(valorDireito);
+            }
+
+            return String(valorEsquerdo) < String(valorDireito);
+
+        case tiposDeSimbolos.MENOR_IGUAL:
+            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) <= Number(valorDireito);
+
+        case tiposDeSimbolos.SUBTRACAO:
+            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) - Number(valorDireito);
+
+        case tiposDeSimbolos.ADICAO:
+            if (
+                this.tiposNumericos.includes(tipoEsquerdo) &&
+                this.tiposNumericos.includes(tipoDireito)
+            ) {
+                return Number(valorEsquerdo) + Number(valorDireito);
+            }
+
+            return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
+
+        case tiposDeSimbolos.DIVISAO:
+            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) / Number(valorDireito);
+
+        case tiposDeSimbolos.DIVISAO_INTEIRA:
+            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
+
+        case tiposDeSimbolos.MULTIPLICACAO:
+            return Number(valorEsquerdo) * Number(valorDireito);
+
+        case tiposDeSimbolos.MODULO:
+            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) % Number(valorDireito);
+
+        case tiposDeSimbolos.DIFERENTE:
+            return !this.eIgual(valorEsquerdo, valorDireito);
+
+        case tiposDeSimbolos.IGUAL_IGUAL:
+            return this.eIgual(valorEsquerdo, valorDireito);
+
+        case tiposDeSimbolos.CONCATENACAO_LISTA:
+            if (!Array.isArray(valorDireito)) {
+                throw new ErroEmTempoDeExecucao(expressao.operador, "Lado direito da concatenação não parece ser uma lista.");
+            }
+
+            return [valorEsquerdo].concat(valorDireito);
+    }
 }
 
 export async function visitarExpressaoLeiaMultiplo(

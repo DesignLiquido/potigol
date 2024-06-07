@@ -49,11 +49,10 @@ import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintati
 import { RetornoDeclaracao } from '@designliquido/delegua/avaliador-sintatico/retornos';
 
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
-import { MetodoPrimitiva } from '@designliquido/delegua/estruturas';
 
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
+
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
-import primitivasNumero from '../bibliotecas/primitivas-numero';
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -434,6 +433,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 const primeiroDoisPontos = this.avancarEDevolverAnterior();
                 this.avancarEDevolverAnterior();
                 const ladoDireito = this.formato();
+                // Como aqui precisamos resolver se o lado direito é constante ou variável,
+                // e a concatenação funciona para o operando direito apenas como leitura,
+                // é seguro emitir um construto de constante aqui.
+                if (!(ladoDireito instanceof ConstanteOuVariavel)) {
+                    throw this.erro(primeiroDoisPontos, "Operando direito de uma concatenação de lista não parece ser uma constante ou variável.");
+                }
+
+                const ladoDireitoComoConstante = new Constante(ladoDireito.hashArquivo, ladoDireito.simbolo);
                 expressao = new Binario(
                     this.hashArquivo, 
                     expressao, 
@@ -444,7 +451,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         primeiroDoisPontos.linha,
                         primeiroDoisPontos.hashArquivo
                     ), 
-                    ladoDireito
+                    ladoDireitoComoConstante
                 );
             }
         }
