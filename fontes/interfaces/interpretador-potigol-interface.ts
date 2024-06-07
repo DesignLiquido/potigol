@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '@designliquido/delegua';
+import { InterpretadorInterface } from '@designliquido/delegua/interfaces';
 import { QualTipo } from '@designliquido/delegua/construtos';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
 

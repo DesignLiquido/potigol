@@ -31,14 +31,10 @@ describe('Interpretador', () => {
 
         describe('Tipos e objetos', () => {
             it('Trivial', async () => {
-                let _saidas = '';
-                const saidasMensagens = [
-                    "100",
-                    "40"
-                ];
+                let _saidas: string[] = [];
 
                 (interpretador as any).funcaoDeRetorno = (saida: any) => {
-                    _saidas += saida;
+                    _saidas.push(saida);
                 }
 
                 const retornoLexador = lexador.mapear([
@@ -56,6 +52,9 @@ describe('Interpretador', () => {
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('100');
+                expect(_saidas[1]).toBe('40');
             });
         });
 
