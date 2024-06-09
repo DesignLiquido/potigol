@@ -1,4 +1,4 @@
-import { InterpretadorInterface } from '@designliquido/delegua/interfaces';
+import { InterpretadorInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
 import { QualTipo } from '@designliquido/delegua/construtos';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
 
@@ -9,4 +9,5 @@ export interface InterpretadorPotigolInterface extends InterpretadorInterface {
     microAvaliadorSintatico: MicroAvaliadorSintaticoBase;
     regexInterpolacao: RegExp;
     visitarExpressaoQualTipo(expressao: QualTipo): Promise<string>;
+    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean
 }

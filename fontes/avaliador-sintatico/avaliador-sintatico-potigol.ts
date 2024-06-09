@@ -6,7 +6,6 @@ import {
     Binario,
     Chamada,
     Constante,
-    ConstanteOuVariavel,
     Construto,
     DefinirValor,
     FimPara,
@@ -42,7 +41,7 @@ import {
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { AvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/avaliador-sintatico-base';
 
-import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
+import { ParametroInterface, PilhaInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
 import { TipoDadosElementar } from '@designliquido/delegua/tipo-dados-elementar';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
@@ -50,9 +49,11 @@ import { RetornoDeclaracao } from '@designliquido/delegua/avaliador-sintatico/re
 
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
 
+import { ConstanteOuVariavel } from '../construtos';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -71,12 +72,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         undefined: undefined,
     };
 
-    declaracoesAnteriores: { [identificador: string]: any[] };
     declaracoes: Declaracao[];
+    pilhaEscoposVariaveisConhecidas: PilhaEscoposVariaveisConhecidas;
 
     constructor() {
         super();
         this.declaracoes = [];
+        this.pilhaEscoposVariaveisConhecidas = new PilhaEscoposVariaveisConhecidas();
     }
 
     /**
@@ -149,8 +151,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     corpoDaFuncao(nomeFuncao: string, simboloPragma?: SimboloInterface, parametros?: any[]): FuncaoConstruto {
-        // this.consumir(tiposDeSimbolos.IGUAL, `Esperado '=' antes do escopo da função ${nomeFuncao}.`);
-
         const corpo = this.blocoEscopo();
 
         return new FuncaoConstruto(this.hashArquivo, Number(simboloPragma.linha), parametros, corpo);
@@ -185,7 +185,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // seja após a dica de retorno, é uma declaração de função.
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IGUAL) {
             this.avancarEDevolverAnterior();
-            this.declaracoesAnteriores[construtoPrimario.simbolo.lexema] = [];
             return this.declaracaoFuncaoPotigolIniciadaPorIgual(
                 construtoPrimario.simbolo,
                 resolucaoParametros.parametros,
@@ -498,7 +497,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 expressao = new AcessoIndiceVariavel(this.hashArquivo, variavelVetor, indice, simboloFechamento);
             } else {
                 if (expressao instanceof ConstanteOuVariavel) {
-                    expressao = new Constante(expressao.hashArquivo, (expressao as any).simbolo);
+                    // Neste ponto, precisamos resolver se identificador é uma variável ou
+                    // constante. 
+                    // Se houver menções a variáveis neste escopo ou em escopos anteriores,
+                    // consideramos a expressão como variável.
+                    // Caso contrário, consideramos como constante.
+                    if (this.pilhaEscoposVariaveisConhecidas.variavelExiste(expressao.simbolo.lexema)) {
+                        expressao = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
+                    } else {
+                        expressao = new Constante(expressao.hashArquivo, (expressao as any).simbolo);
+                    }
                 }
 
                 break;
@@ -556,6 +564,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      */
     blocoEscopo(): Array<RetornoDeclaracao> {
         let declaracoes: Array<RetornoDeclaracao> = [];
+        this.pilhaEscoposVariaveisConhecidas.empilhar([]);
 
         while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
@@ -566,6 +575,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             }
         }
 
+        this.pilhaEscoposVariaveisConhecidas.removerUltimo();
         return declaracoes;
     }
 
@@ -837,8 +847,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Escolha(condicao, caminhos, caminhoPadrao);
     }
 
-    protected declaracaoDeConstantes(): ConstMultiplo | Const[] {
-        const identificadores: SimboloInterface[] = [];
+    protected declaracaoDeConstantes(primeiroIdentificador: Constante): ConstMultiplo | Const[] {
+        // Normalmente o símbolo atual aqui será uma vírgula.
+        this.avancarEDevolverAnterior();
+
+        const identificadores: SimboloInterface[] = [primeiroIdentificador.simbolo];
         let tipo: any = null;
 
         do {
@@ -909,8 +922,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             retorno.push(new Const(identificador, inicializadores[indice], tipo));
         }
 
-        // this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-
         return retorno;
     }
 
@@ -936,8 +947,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         const retorno = [];
+        const escopoAtual = this.pilhaEscoposVariaveisConhecidas.topoDaPilha();
         for (let [indice, identificador] of identificadores.entries()) {
             retorno.push(new Var(identificador, inicializadores[indice]));
+            escopoAtual.push(identificador.lexema);
         }
 
         return retorno;
@@ -1087,8 +1100,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
             switch (this.simbolos[this.atual].tipo) {
                 case tiposDeSimbolos.VIRGULA:
-                    this.atual--;
-                    return this.declaracaoDeConstantes();
+                    return this.declaracaoDeConstantes(expressao);
                 case tiposDeSimbolos.IGUAL:
                     this.avancarEDevolverAnterior();
                     const valorAtribuicao = this.ou();
@@ -1164,7 +1176,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
-        this.declaracoesAnteriores = {};
+        this.pilhaEscoposVariaveisConhecidas = new PilhaEscoposVariaveisConhecidas();
+        this.pilhaEscoposVariaveisConhecidas.empilhar([]);
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];

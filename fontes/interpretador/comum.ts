@@ -1,4 +1,4 @@
-import { AcessoMetodoOuPropriedade, Binario, ConstanteOuVariavel, Construto, Literal, QualTipo, Tupla, Unario, Variavel } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Binario, Construto, Literal, QualTipo, Tupla, Unario, Variavel } from '@designliquido/delegua/construtos';
 import { DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
@@ -8,12 +8,20 @@ import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces
 import { inferirTipoVariavel } from './inferenciador';
 import { EstruturaTupla } from '../estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
+import { ConstanteOuVariavel } from '../construtos';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+
+const tiposNumericos = [
+    'inteiro',
+    'numero',
+    'número',
+    'real'
+];
 
 export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
     pilhaEscoposExecucao.definirVariavel(
@@ -171,7 +179,7 @@ export async function visitarExpressaoBinaria(
 
         case tiposDeSimbolos.MAIOR:
             
-            if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
+            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
                 return Number(valorEsquerdo) > Number(valorDireito);
             }
 
@@ -182,7 +190,7 @@ export async function visitarExpressaoBinaria(
             return Number(valorEsquerdo) >= Number(valorDireito);
 
         case tiposDeSimbolos.MENOR:
-            if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
+            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
                 return Number(valorEsquerdo) < Number(valorDireito);
             }
 
@@ -198,8 +206,8 @@ export async function visitarExpressaoBinaria(
 
         case tiposDeSimbolos.ADICAO:
             if (
-                this.tiposNumericos.includes(tipoEsquerdo) &&
-                this.tiposNumericos.includes(tipoDireito)
+                tiposNumericos.includes(tipoEsquerdo) &&
+                tiposNumericos.includes(tipoDireito)
             ) {
                 return Number(valorEsquerdo) + Number(valorDireito);
             }
@@ -222,10 +230,10 @@ export async function visitarExpressaoBinaria(
             return Number(valorEsquerdo) % Number(valorDireito);
 
         case tiposDeSimbolos.DIFERENTE:
-            return !this.eIgual(valorEsquerdo, valorDireito);
+            return !interpretador.eIgual(valorEsquerdo, valorDireito);
 
         case tiposDeSimbolos.IGUAL_IGUAL:
-            return this.eIgual(valorEsquerdo, valorDireito);
+            return interpretador.eIgual(valorEsquerdo, valorDireito);
 
         case tiposDeSimbolos.CONCATENACAO_LISTA:
             if (!Array.isArray(valorDireito)) {

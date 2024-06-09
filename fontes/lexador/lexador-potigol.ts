@@ -126,7 +126,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(tiposDeSimbolos.REATRIBUIR);
+                    this.adicionarSimbolo(tiposDeSimbolos.REATRIBUIR, ':=');
                     this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
