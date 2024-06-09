@@ -245,11 +245,17 @@ describe('Formatador > Potigol', () => {
                         '  i := i + 1',
                         'fim'
                     ], -1);
+
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
                     expect(linhasResultado.length).toBeGreaterThanOrEqual(5);
+                    expect(linhasResultado[0]).toBe('var i := 0');
+                    expect(linhasResultado[1]).toBe('enquanto i <= 10 faca');
+                    expect(linhasResultado[2]).toContain('escreva i');
+                    expect(linhasResultado[3]).toContain('i := i + 1');
+                    expect(linhasResultado[4]).toBe('fim');
                 });
 
                 it('Para', () => {

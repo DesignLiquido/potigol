@@ -15,6 +15,7 @@ import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import { ReatribuicaoVariavel } from 'fontes/declaracoes';
 
 const tiposNumericos = [
     'inteiro',
@@ -83,6 +84,17 @@ export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecu
         'tg',
         new FuncaoPadrao(1, bibliotecaGlobal.tg)
     );
+}
+
+export async function visitarDeclaracaoReatribuicaoVariavel(
+    interpretador: InterpretadorPotigolInterface,
+    declaracao: ReatribuicaoVariavel
+): Promise<any> {
+    const valorFinal = await interpretador.avaliacaoDeclaracaoVarOuConst(declaracao);
+
+    interpretador.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
+
+    return null;
 }
 
 /**

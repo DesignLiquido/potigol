@@ -22,6 +22,7 @@ import {
     Logico,
     Noneto,
     Octeto,
+    QualTipo,
     Quarteto,
     Quinteto,
     Septeto,
@@ -66,12 +67,13 @@ import {
     PropriedadeClasse,
     InicioAlgoritmo,
 } from '@designliquido/delegua/declaracoes';
-import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
+import { ReatribuicaoVariavel } from '../declaracoes';
+import { VisitanteComumPotigolInterface } from '../interfaces';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
-export class FormatadorPotigol implements VisitanteComumInterface {
+export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     indentacaoAtual: number;
     quebraLinha: string;
     tamanhoIndentacao: number;
@@ -89,6 +91,29 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.deveIndentar = true;
     }
 
+    visitarDeclaracaoReatribuicaoVariavel(declaracao: ReatribuicaoVariavel): void {
+        if (this.deveIndentar) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
+        }
+
+        this.codigoFormatado += `${declaracao.simbolo.lexema}`;
+        if (declaracao.inicializador) {
+            this.codigoFormatado += ` := `;
+            this.deveIndentar = false;
+            this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
+            this.deveIndentar = true;
+        }
+
+        // TODO: Talvez seja necessário mais futuramente.
+        /* if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        } */
+    }
+
+    visitarExpressaoQualTipo(expressao: QualTipo<string>): void {
+        throw new Error('Método não implementado.');
+    }
+
     /**
      * Aparentemente só existe comentário de uma linha só em Potigol.
      * @param declaracao A declaração de comentário.
@@ -97,30 +122,30 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}# ${declaracao.conteudo}${this.quebraLinha}`;
     }
 
-    visitarDeclaracaoTendoComo(declaracao: TendoComo): void | Promise<any> {
+    visitarDeclaracaoTendoComo(declaracao: TendoComo): void {
         throw new Error('Método não implementado.');
     }
 
-    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): void {
         throw new Error('Método não implementado.');
     }
 
-    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): void {
         throw new Error('Método não implementado.');
     }
 
-    visitarExpressaoTupla(expressao: Tupla): Promise<any> {
+    visitarExpressaoTupla(expressao: Tupla): void {
         throw new Error('Método não implementado');
     }
     
-    visitarDeclaracaoClasse(declaracao: Classe) {
+    visitarDeclaracaoClasse(declaracao: Classe): void {
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}tipo ${declaracao.simbolo.lexema}${this.quebraLinha}`;
         this.formatarBlocoOuVetorDeclaracoes(declaracao.propriedades);
         this.formatarBlocoOuVetorDeclaracoes(declaracao.metodos);
         this.codigoFormatado += `fim${this.quebraLinha}`;
     }
 
-    visitarExpressaoPropriedadeClasse(expressao: PropriedadeClasse): any {
+    visitarExpressaoPropriedadeClasse(expressao: PropriedadeClasse): void {
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}${expressao.nome.lexema}: `;
         if (expressao.tipo) {
             this.codigoFormatado += `${expressao.tipo}`;
@@ -129,7 +154,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.codigoFormatado += this.quebraLinha;
     }
 
-    visitarDeclaracaoConst(declaracao: Const): any {
+    visitarDeclaracaoConst(declaracao: Const): void {
         this.codigoFormatado += `${" ".repeat(this.indentacaoAtual)}${declaracao.simbolo.lexema}`
 
         if (declaracao.tipo) {
@@ -164,14 +189,13 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         if (declaracao.inicializador) {
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador)
         }
-
     }
 
-    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): void {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir): void {
         this.codigoFormatado += `${expressao.simbolo.lexema} de `;
         this.formatarDeclaracaoOuConstruto(expressao.valor);
 
@@ -180,15 +204,15 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         }
     }
 
-    visitarDeclaracaoDeExpressao(declaracao: Expressao) {
+    visitarDeclaracaoDeExpressao(declaracao: Expressao): void {
         this.formatarDeclaracaoOuConstruto(declaracao.expressao)
     }
 
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
+    visitarDeclaracaoAleatorio(declaracao: Aleatorio): void {
         throw new Error('Método não implementado.');
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void {
         if (declaracao.simbolo.tipo !== tiposDeSimbolos.CONSTRUTOR) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${declaracao.simbolo.lexema}(`;
 
@@ -196,7 +220,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         }
     }
 
-    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
+    visitarDeclaracaoEnquanto(declaracao: Enquanto): void {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}enquanto `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
         this.codigoFormatado += ` faca`;
@@ -209,7 +233,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.devePularLinha = false
     }
 
-    private formatarBlocoOuVetorDeclaracoes(declaracoes: Declaracao[]) {
+    private formatarBlocoOuVetorDeclaracoes(declaracoes: Declaracao[]): void {
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracaoBloco of declaracoes) {
             this.formatarDeclaracaoOuConstruto(declaracaoBloco);
@@ -217,7 +241,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.indentacaoAtual -= this.tamanhoIndentacao;
     }
 
-    visitarDeclaracaoEscolha(declaracao: Escolha) {
+    visitarDeclaracaoEscolha(declaracao: Escolha): void {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escolha `;
 
         this.formatarDeclaracaoOuConstruto(declaracao.identificadorOuLiteral);
@@ -251,7 +275,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fim${this.quebraLinha}`;
     }
 
-    visitarDeclaracaoEscreva(declaracao: Escreva) {
+    visitarDeclaracaoEscreva(declaracao: Escreva): void {
         if (this.deveIndentar) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escreva `;
         } else {
@@ -270,15 +294,15 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         }
     }
 
-    visitarDeclaracaoFazer(declaracao: Fazer) {
+    visitarDeclaracaoFazer(declaracao: Fazer): void {
         throw new Error('Método não implementado');
     }
 
-    visitarDeclaracaoImportar(declaracao: Importar) {
+    visitarDeclaracaoImportar(declaracao: Importar): void {
         throw new Error('Método não implementado');
     }
 
-    visitarDeclaracaoPara(declaracao: Para): any {
+    visitarDeclaracaoPara(declaracao: Para): void {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para `;
         this.indentacaoAtual += this.tamanhoIndentacao
         this.devePularLinha = false;
@@ -306,11 +330,11 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.codigoFormatado += `${this.quebraLinha}${' '.repeat(this.indentacaoAtual)}fim${this.quebraLinha}`;
     }
 
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+    visitarDeclaracaoParaCada(declaracao: ParaCada): void {
         throw new Error('Método não implementado');
     }
 
-    visitarDeclaracaoSe(declaracao: Se) {
+    visitarDeclaracaoSe(declaracao: Se): void {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}se `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
         this.codigoFormatado += ` entao${this.quebraLinha}`;
@@ -329,11 +353,11 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fim${this.quebraLinha}`;
     }
 
-    visitarDeclaracaoTente(declaracao: Tente) {
+    visitarDeclaracaoTente(declaracao: Tente): void {
         throw new Error('Método não implementado');
     }
 
-    visitarDeclaracaoVar(declaracao: Var): any {
+    visitarDeclaracaoVar(declaracao: Var): void {
         if (this.deveIndentar) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
         }
@@ -349,7 +373,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         }
     }
 
-    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): void {
         throw new Error('Método não implementado');
     }
 
@@ -371,11 +395,11 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         this.codigoFormatado += ')';
     }
 
-    visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndice(expressao: any): void {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
+    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): void {
         throw new Error('Método não implementado');
     }
 
@@ -482,7 +506,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         }
     }
 
-    visitarExpressaoFalhar(expressao: any): Promise<any> {
+    visitarExpressaoFalhar(expressao: any): void {
         throw new Error('Método não implementado');
     }
 
@@ -531,11 +555,11 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoLeia(expressao: Leia): Promise<any> {
+    visitarExpressaoLeia(expressao: Leia): void {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
+    visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): void {
         throw new Error('Método não implementado');
     }
 
@@ -585,7 +609,7 @@ export class FormatadorPotigol implements VisitanteComumInterface {
         throw new Error('Método não implementado');
     }
 
-    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+    visitarExpressaoTipoDe(expressao: TipoDe): void {
         throw new Error('Método não implementado');
     }
 
@@ -793,6 +817,9 @@ export class FormatadorPotigol implements VisitanteComumInterface {
                 break;
             case 'ParaCada':
                 this.visitarDeclaracaoParaCada(declaracaoOuConstruto as ParaCada);
+                break;
+            case 'ReatribuicaoVariavel':
+                this.visitarDeclaracaoReatribuicaoVariavel(declaracaoOuConstruto as ReatribuicaoVariavel);
                 break;
             case 'Retorna':
                 this.visitarExpressaoRetornar(declaracaoOuConstruto as Retorna);

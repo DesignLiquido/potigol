@@ -41,19 +41,19 @@ import {
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { AvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/avaliador-sintatico-base';
 
-import { ParametroInterface, PilhaInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
+import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
 import { TipoDadosElementar } from '@designliquido/delegua/tipo-dados-elementar';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 import { RetornoDeclaracao } from '@designliquido/delegua/avaliador-sintatico/retornos';
-
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
 
 import { ConstanteOuVariavel } from '../construtos';
+import { ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
+import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
-import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -858,6 +858,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
+        // TODO: Aparentemente, não é possível definir tipo para atribuição 
+        // múltipla de constantes. Se algo mudar nisso, o código abaixo poderá
+        // voltar a ser usado.
         /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             const tipoConstante = this.verificarDefinicaoTipoAtual();
             if (!tipoConstante) {
@@ -925,9 +928,29 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return retorno;
     }
 
-    protected declaracaoDeVariaveis(): Var[] {
-        const simboloVar = this.avancarEDevolverAnterior();
+    /**
+     * Este método contempla dois cenários:
+     * 
+     * - A atribuição de variáveis em si (o primeiro símbolo é a palavra reservada `var`);
+     * - Uma reatribuição de uma ou mais variáveis (o primeiro símbolo a ser lido é uma
+     * vírgula, e o primeiro identificador é passado como argumento). Neste caso, não há
+     * a palavra reservada `var`.
+     * @param primeiroIdentificador Um construto de variável. É defiido em reatribuições.
+     * @returns Um vetor de declarações `Var`.
+     */
+    declaracaoDeVariaveisPotigol(primeiroIdentificador?: Variavel): Var[] {
         const identificadores: SimboloInterface[] = [];
+        let simboloVar: SimboloInterface<string>;
+
+        // Se houver primeiro identificador definido (reatribuição), 
+        // o símbolo atual aqui será uma vírgula.
+        if (primeiroIdentificador) {
+            this.avancarEDevolverAnterior();
+            identificadores.push(primeiroIdentificador.simbolo);
+        } else {
+            simboloVar = this.avancarEDevolverAnterior();
+        }
+
         do {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -1091,26 +1114,45 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     atribuir(): any | any[] {
         const expressao = this.ou();
 
-        if (!this.estaNoFinal() && expressao instanceof Constante) {
-            let tipoVariavelOuConstante;
-            // Atribuição constante.
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
-                tipoVariavelOuConstante = this.logicaAtribuicaoComDicaDeTipo(expressao);
-            }
+        if (!this.estaNoFinal()) {
+            let tipoVariavelOuConstante: SimboloInterface<string>;
+            if (expressao instanceof Constante) {
+                // Atribuição constante.
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                    tipoVariavelOuConstante = this.logicaAtribuicaoComDicaDeTipo(expressao);
+                }
 
-            switch (this.simbolos[this.atual].tipo) {
-                case tiposDeSimbolos.VIRGULA:
-                    return this.declaracaoDeConstantes(expressao);
-                case tiposDeSimbolos.IGUAL:
-                    this.avancarEDevolverAnterior();
-                    const valorAtribuicao = this.ou();
-                    return new Const(
-                        (expressao as Constante).simbolo,
-                        valorAtribuicao,
-                        tipoVariavelOuConstante
-                            ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoDadosElementar)
-                            : undefined
-                    );
+                switch (this.simbolos[this.atual].tipo) {
+                    case tiposDeSimbolos.VIRGULA:
+                        return this.declaracaoDeConstantes(expressao);
+                    case tiposDeSimbolos.IGUAL:
+                        this.avancarEDevolverAnterior();
+                        const valorAtribuicao = this.ou();
+                        return new Const(
+                            (expressao as Constante).simbolo,
+                            valorAtribuicao,
+                            tipoVariavelOuConstante
+                                ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoDadosElementar)
+                                : undefined
+                        );
+                }
+            } else if (expressao instanceof Variavel) {
+                // Reatribuição de variável.
+
+                switch (this.simbolos[this.atual].tipo) {
+                    case tiposDeSimbolos.VIRGULA:
+                        return this.declaracaoDeVariaveisPotigol(expressao);
+                    case tiposDeSimbolos.REATRIBUIR:
+                        this.avancarEDevolverAnterior();
+                        const valorAtribuicao = this.ou();
+                        return new ReatribuicaoVariavel(
+                            (expressao as Variavel).simbolo,
+                            valorAtribuicao,
+                            tipoVariavelOuConstante
+                                ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoDadosElementar)
+                                : undefined
+                        );
+                }
             }
         }
 
@@ -1162,7 +1204,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.TIPO:
                 return this.declaracaoTipo();
             case tiposDeSimbolos.VARIAVEL:
-                return this.declaracaoDeVariaveis();
+                return this.declaracaoDeVariaveisPotigol();
             default:
                 return this.expressaoOuDefinicaoFuncao();
         }

@@ -9,6 +9,7 @@ import {
 import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
 import { LeiaMultiplo } from '@designliquido/delegua/declaracoes';
 
+import { ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
@@ -65,6 +66,10 @@ export class InterpretadorPotigol
 
     protected retirarInterpolacao(texto: string, variaveis: any[]): string {
         return comum.retirarInterpolacao(texto, variaveis);
+    }
+
+    async visitarDeclaracaoReatribuicaoVariavel(expressao: ReatribuicaoVariavel): Promise<any> {
+        return comum.visitarDeclaracaoReatribuicaoVariavel(this, expressao);
     }
 
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {

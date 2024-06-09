@@ -2,9 +2,14 @@ import { LeiaMultiplo } from '@designliquido/delegua';
 import { AcessoMetodoOuPropriedade, Construto, QualTipo } from '@designliquido/delegua/construtos';
 import { InterpretadorComDepuracao } from '@designliquido/delegua/interpretador/interpretador-com-depuracao';
 
+import { InterpretadorPotigolInterface } from '../interfaces';
 import * as comum from './comum';
+import { ReatribuicaoVariavel } from 'fontes/declaracoes';
 
-export class InterpretadorPotigolComDepuracao extends InterpretadorComDepuracao {
+export class InterpretadorPotigolComDepuracao 
+    extends InterpretadorComDepuracao
+    implements InterpretadorPotigolInterface
+{
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.expandirPropriedadesDeObjetosEmEspacoVariaveis = true;
@@ -19,6 +24,10 @@ export class InterpretadorPotigolComDepuracao extends InterpretadorComDepuracao 
 
     protected retirarInterpolacao(texto: string, variaveis: any[]): string {
         return comum.retirarInterpolacao(texto, variaveis);
+    }
+
+    async visitarDeclaracaoReatribuicaoVariavel(expressao: ReatribuicaoVariavel): Promise<any> {
+        return comum.visitarDeclaracaoReatribuicaoVariavel(this, expressao);
     }
 
     async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
