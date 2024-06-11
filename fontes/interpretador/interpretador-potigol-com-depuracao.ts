@@ -3,8 +3,9 @@ import { AcessoMetodoOuPropriedade, Construto, QualTipo } from '@designliquido/d
 import { InterpretadorComDepuracao } from '@designliquido/delegua/interpretador/interpretador-com-depuracao';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
+import { ReatribuicaoVariavel } from '../declaracoes';
+
 import * as comum from './comum';
-import { ReatribuicaoVariavel } from 'fontes/declaracoes';
 
 export class InterpretadorPotigolComDepuracao 
     extends InterpretadorComDepuracao
