@@ -304,7 +304,6 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     visitarDeclaracaoPara(declaracao: Para): void {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para `;
-        this.indentacaoAtual += this.tamanhoIndentacao
         this.devePularLinha = false;
         if (declaracao.inicializador) {
             if (Array.isArray(declaracao.inicializador)) {
@@ -323,10 +322,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
         this.codigoFormatado += ` faca${this.quebraLinha}`;
         this.formatarDeclaracaoOuConstruto(declaracao.incrementar);
-
         this.formatarBlocoOuVetorDeclaracoes(declaracao.corpo.declaracoes);
 
-        this.indentacaoAtual -= this.tamanhoIndentacao
         this.codigoFormatado += `${this.quebraLinha}${' '.repeat(this.indentacaoAtual)}fim${this.quebraLinha}`;
     }
 
@@ -541,13 +538,23 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                     this.codigoFormatado += `, `
                 }
             }
-            this.codigoFormatado = `${this.codigoFormatado.slice(0, -2)}): `;
+
+            this.codigoFormatado = `${this.codigoFormatado.slice(0, -2)})`;
         }
 
+        // Se há tipo de retorno definido
+        if (expressao.tipoRetorno) {
+            this.codigoFormatado += `: ${expressao.tipoRetorno}`;
+        }
+
+        this.codigoFormatado += ` = `;
+        this.deveIndentar = false;
+        
         for (let declaracaoCorpo of expressao.corpo) {
             this.formatarDeclaracaoOuConstruto(declaracaoCorpo);
         }
 
+        this.deveIndentar = true;
         this.indentacaoAtual -= this.tamanhoIndentacao;
     }
 

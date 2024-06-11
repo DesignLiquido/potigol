@@ -239,10 +239,10 @@ describe('Formatador > Potigol', () => {
             describe('Estruturas de repetição', () => {
                 it('Enquanto', () => {
                     const retornoLexador = lexador.mapear([
-                        'var i := 0',
-                        'enquanto i <= 10 faça',
-                        '  escreva i',
-                        '  i := i + 1',
+                        'var i    :=  0',
+                        'enquanto     i<= 10     faça',
+                        '       escreva    i',
+                        'i:= i+1',
                         'fim'
                     ], -1);
 
@@ -260,164 +260,157 @@ describe('Formatador > Potigol', () => {
 
                 it('Para', () => {
                     const retornoLexador = lexador.mapear([
-                        'var soma := 0',
-                        'para i de 1 até 10 faça',
-                        '  soma := soma + i',
-                        'fim',
-                        'escreva "A soma é {soma}."'
+                        'var soma:=0',
+                        'para i    de  1     até 10   faça',
+                        '             soma :=soma +     i',
+                        '  fim',
+                        '    escreva       "A soma é {soma}."'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
-                    expect(linhasResultado).toHaveLength(5)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(5);
+                    expect(linhasResultado[0]).toBe('var soma := 0');
+                    expect(linhasResultado[1]).toBe('para i de 1 ate 10 faca');
+                    expect(linhasResultado[2]).toContain('soma := soma + i');
+                    expect(linhasResultado[3]).toBe('fim');
+                    expect(linhasResultado[4]).toBe('escreva "A soma é {soma}."');
                 });
             });
 
             it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', () => {
                 const retornoLexador = lexador.mapear([
-                    'soma(x: Inteiro, y: Inteiro) = x + y'
+                    'soma(  x:    Inteiro,y : Inteiro) =  x    +y'
                 ], -1);
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(linhasResultado).toHaveLength(1)
+                expect(linhasResultado).toHaveLength(1);
+                expect(linhasResultado[0]).toBe('soma(x: Inteiro, y: Inteiro) = x + y');
             });
+
             it('Função de uma linha, argumentos com tipo definido, com dica de retorno', () => {
                 const retornoLexador = lexador.mapear([
-                    'soma(x: Inteiro, y: Inteiro): Inteiro = x + y'
+                    'soma( x :Inteiro,y:Inteiro        )  : Inteiro =  x  +y'
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(linhasResultado).toHaveLength(1);
+                expect(linhasResultado[0]).toBe('soma(x: Inteiro, y: Inteiro): Inteiro = x + y');
             });
 
             describe('Declarações de tuplas', () => {
                 it('Dupla', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2)'
+                        'var   t  :=(1 ,2)'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2)');
                 });
 
                 it('Trio', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2, 3)'
+                        '   var     t:=(1,2,   3 )'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2, 3)');
                 });
 
                 it('Quarteto', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2, 3, 4)'
+                        'var t:=(1,2,3,4)'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4)');
                 });
 
                 it('Quinteto', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2, 3, 4, 5)'
+                        'var t :=( 1 ,   2,   3,4,   5   )'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5)');
                 });
 
                 it('Sexteto', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2, 3, 4, 5, 6)'
+                        '  var   t :=   ( 1, 2  ,  3 , 4 ,5,6)'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6)');
                 });
 
                 it('Septeto', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2, 3, 4, 5, 6, 7)'
+                        'var t:=( 1 ,   2 ,3, 4  ,5, 6  , 7  )'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7)');
                 });
 
                 it('Octeto', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2, 3, 4, 5, 6, 7, 8)'
+                        'var t:=(1,2,3,4,5,6,7,8)'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7, 8)');
                 });
 
                 it('Noneto', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2, 3, 4, 5, 6, 7, 8, 9)'
+                        ' var  t  :=  (  1 , 2 , 3, 4 , 5  , 6  ,  7,    8 , 9    )'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7, 8, 9)');
                 });
 
                 it('Deceto', () => {
                     const retornoLexador = lexador.mapear([
-                        'var t := (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)'
+                        'var t :=( 1, 2  , 3   ,  4,     5,   6 ,  7,8, 9,10  )'
                     ], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
-                    const linhasResultado = resultado.split(sistemaOperacional.EOL)
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
-                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico).toBeTruthy();
-                    expect(linhasResultado).toHaveLength(2)
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)');
                 });
             });
         });

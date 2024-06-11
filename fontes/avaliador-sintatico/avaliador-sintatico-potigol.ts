@@ -64,7 +64,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
     tiposPotigolParaDelegua = {
         Caractere: 'texto',
-        Inteiro: 'numero',
+        Inteiro: 'inteiro',
         Logico: 'lógico',
         Lógico: 'lógico',
         Real: 'numero',
@@ -128,6 +128,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const corpo = new FuncaoConstruto(simboloPrimario.hashArquivo, simboloPrimario.linha, parametros, [
             new Retorna(simboloPrimario, this.expressao()),
         ]);
+
+        if (tipoRetorno) {
+            corpo.tipoRetorno = tipoRetorno.lexema;
+        }
+
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
     }
 
@@ -147,6 +152,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         tipoRetorno?: SimboloInterface
     ): FuncaoDeclaracao {
         const corpo = this.corpoDaFuncao(simboloPrimario.lexema, parenteseEsquerdo, parametros);
+
+        if (tipoRetorno) {
+            corpo.tipoRetorno = tipoRetorno.lexema;
+        }
+
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
     }
 
@@ -269,8 +279,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             indice++;
 
             if (simbolos[indice].tipo === tiposDeSimbolos.DOIS_PONTOS) {
-                // throw this.erro(simbolos[indice], 'Esperado dois-pontos após nome de argumento para função.');
-
                 indice++;
                 this.verificacaoTipo(
                     simbolos[indice],
