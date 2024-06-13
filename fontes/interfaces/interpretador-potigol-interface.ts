@@ -2,9 +2,9 @@ import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-si
 import { Const, ConstMultiplo, Var, VarMultiplo } from '@designliquido/delegua/declaracoes';
 import { InterpretadorInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
 
+import { ReatribuicaoVariavel } from '../declaracoes';
 import { MicroLexadorPotigol } from '../lexador';
 import { VisitanteComumPotigolInterface } from './visitante-comum-potigol-interface';
-import { ReatribuicaoVariavel } from 'fontes/declaracoes';
 
 export interface InterpretadorPotigolInterface extends InterpretadorInterface, VisitanteComumPotigolInterface {
     microLexador: MicroLexadorPotigol;
