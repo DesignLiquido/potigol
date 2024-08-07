@@ -1,5 +1,5 @@
 import { AnalisadorSemanticoBase, PilhaVariaveis } from "@designliquido/delegua/analisador-semantico";
-import { Atribuir, Literal, QualTipo, Vetor } from "@designliquido/delegua/construtos";
+import { QualTipo } from "@designliquido/delegua/construtos";
 import { Const, Declaracao, Var } from "@designliquido/delegua/declaracoes";
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade, SimboloInterface } from "@designliquido/delegua/interfaces";
 import { FuncaoHipoteticaInterface } from '@designliquido/delegua/interfaces/funcao-hipotetica-interface';
