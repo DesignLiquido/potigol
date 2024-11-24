@@ -1,11 +1,5 @@
-
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
-import {
-    AcessoMetodoOuPropriedade,
-    Construto,
-    QualTipo,
-    Tupla
-} from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Construto, QualTipo, Tupla } from '@designliquido/delegua/construtos';
 import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
 import { LeiaMultiplo } from '@designliquido/delegua/declaracoes';
 
@@ -19,10 +13,7 @@ import * as comum from './comum';
 /**
  * Uma implementação do interpretador de Potigol.
  */
-export class InterpretadorPotigol 
-    extends InterpretadorBase 
-    implements InterpretadorPotigolInterface 
-{
+export class InterpretadorPotigol extends InterpretadorBase implements InterpretadorPotigolInterface {
     constructor(
         diretorioBase: string,
         performance = false,
@@ -87,7 +78,7 @@ export class InterpretadorPotigol
     override async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
         return comum.visitarExpressaoQualTipo(this, expressao);
     }
-    
+
     override async visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         return comum.visitarExpressaoTupla(this, expressao);
     }

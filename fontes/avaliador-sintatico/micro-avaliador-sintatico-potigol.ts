@@ -1,4 +1,11 @@
-import { AcessoMetodoOuPropriedade, Agrupamento, Chamada, Constante, Construto, Literal } from '@designliquido/delegua/construtos';
+import {
+    AcessoMetodoOuPropriedade,
+    Agrupamento,
+    Chamada,
+    Constante,
+    Construto,
+    Literal,
+} from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
@@ -10,7 +17,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/micro-lexico';
 
 /**
  * O Micro Avaliador Sintático funciona em dois momentos:
- * 
+ *
  * - Avaliação de elementos dentro de interpolações de texto (interpretador);
  * - Avaliação de argumentos de funções (avaliador sintático).
  */
@@ -51,7 +58,7 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
                 }
 
             case tiposDeSimbolos.FORMATO:
-                
+
             case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
             case tiposDeSimbolos.LOGICO:
@@ -82,20 +89,24 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
             // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
-            const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
+            const simboloMascaraFormato = this.consumir(
+                tiposDeSimbolos.TEXTO,
+                "Esperado máscara de formato após método 'formato'."
+            );
             if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
-                throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
+                throw this.erro(simboloMascaraFormato, 'Máscara para função de formato inválida.');
             }
-            
-            return new Chamada(this.hashArquivo, // new Expressao(new MetodoPrimitiva(expressao, primitivasNumero.formato)), undefined, [expressao]);
+
+            return new Chamada(
+                this.hashArquivo, // new Expressao(new MetodoPrimitiva(expressao, primitivasNumero.formato)), undefined, [expressao]);
                 new AcessoMetodoOuPropriedade(
-                    this.hashArquivo, 
-                    expressao, 
+                    this.hashArquivo,
+                    expressao,
                     new Simbolo(tiposDeSimbolos.FORMATO, 'formato', 'formato', expressao.linha, this.hashArquivo)
                 ),
-                undefined, 
+                undefined,
                 [new Literal(this.hashArquivo, expressao.linha, simboloMascaraFormato.literal)]
-            )
+            );
         }
 
         return expressao;

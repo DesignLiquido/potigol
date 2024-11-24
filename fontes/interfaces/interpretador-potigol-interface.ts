@@ -10,6 +10,8 @@ export interface InterpretadorPotigolInterface extends InterpretadorInterface, V
     microLexador: MicroLexadorPotigol;
     microAvaliadorSintatico: MicroAvaliadorSintaticoBase;
     regexInterpolacao: RegExp;
-    avaliacaoDeclaracaoVarOuConst(declaracao: Const | ConstMultiplo | Var | VarMultiplo | ReatribuicaoVariavel): Promise<any>
-    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean
+    avaliacaoDeclaracaoVarOuConst(
+        declaracao: Const | ConstMultiplo | Var | VarMultiplo | ReatribuicaoVariavel
+    ): Promise<any>;
+    eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean;
 }

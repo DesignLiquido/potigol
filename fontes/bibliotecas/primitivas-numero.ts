@@ -15,7 +15,6 @@ export default {
 
         const casasInteiras = mascara.match(/%(\d+)d/)[1];
         return Promise.resolve(String(numero).padStart(parseInt(casasInteiras), ' '));
-        
     },
     qual_tipo: (interpretador: VisitanteComumInterface, numero: number): Promise<any> =>
         Promise.resolve(Math.floor(numero) === numero ? 'Inteiro' : 'Real'),

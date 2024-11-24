@@ -1,4 +1,4 @@
-import { PilhaInterface } from "@designliquido/delegua/interfaces";
+import { PilhaInterface } from '@designliquido/delegua/interfaces';
 
 export class PilhaEscoposVariaveisConhecidas implements PilhaInterface<string[]> {
     pilha: string[][];
@@ -24,7 +24,7 @@ export class PilhaEscoposVariaveisConhecidas implements PilhaInterface<string[]>
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha.pop();
     }
-    
+
     variavelExiste(nome: string) {
         for (let i = 0; i < this.pilha.length; i++) {
             if (this.pilha[i].includes(nome)) {

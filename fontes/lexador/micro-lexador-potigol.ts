@@ -1,9 +1,9 @@
-import { SimboloInterface } from "@designliquido/delegua/interfaces";
-import { RetornoLexador } from "@designliquido/delegua/interfaces/retornos";
-import { Simbolo } from "@designliquido/delegua/lexador";
-import { ErroLexador } from "@designliquido/delegua/lexador/erro-lexador";
+import { SimboloInterface } from '@designliquido/delegua/interfaces';
+import { RetornoLexador } from '@designliquido/delegua/interfaces/retornos';
+import { Simbolo } from '@designliquido/delegua/lexador';
+import { ErroLexador } from '@designliquido/delegua/lexador/erro-lexador';
 
-import { palavrasReservadas } from "./palavras-reservadas";
+import { palavrasReservadas } from './palavras-reservadas';
 import tiposDeSimbolos from '../tipos-de-simbolos/micro-lexico';
 
 /**

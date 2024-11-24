@@ -60,6 +60,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
  * transformar o retorno de `primario()` em um vetor.
  */
 export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
+
     microAvaliadorSintatico: MicroAvaliadorSintaticoPotigol;
 
     tiposPotigolParaDelegua = {
@@ -79,6 +80,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         super();
         this.declaracoes = [];
         this.pilhaEscoposVariaveisConhecidas = new PilhaEscoposVariaveisConhecidas();
+    }
+
+    /**
+     * Com não há um `leia()` genérico em Potigol, mas sim três tipos de `leia` fortemente
+     * tipados, consideramos que este dialeto não implementa `leia`.
+     * @see primario
+     */
+    protected declaracaoLeia(): Leia {
+        throw new Error('Método não implementado.');
     }
 
     /**
@@ -114,7 +124,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     /**
      * Retorna uma declaração de função iniciada por igual,
      * ou seja, com apenas uma instrução.
-     * @param simboloPrimario O símbolo que identifica a função (nome), 
+     * @param simboloPrimario O símbolo que identifica a função (nome),
      *                        também usado para fins de pragma.
      * @param parametros A lista de parâmetros da função.
      * @param tipoRetorno O tipo de retorno da função.
@@ -210,7 +220,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         );
     }
 
-    finalizarChamada(entidadeChamada: Construto): Construto {
+    finalizarChamada(entidadeChamada: Construto): Chamada {
         const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
@@ -405,27 +415,31 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
             // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
-            const simboloMascaraFormato = this.consumir(tiposDeSimbolos.TEXTO, "Esperado máscara de formato após método 'formato'.");
+            const simboloMascaraFormato = this.consumir(
+                tiposDeSimbolos.TEXTO,
+                "Esperado máscara de formato após método 'formato'."
+            );
             if (!/%((\d+)d|\.(\d+)f)/gi.test(simboloMascaraFormato.literal)) {
-                throw this.erro(simboloMascaraFormato, "Máscara para função de formato inválida.");
+                throw this.erro(simboloMascaraFormato, 'Máscara para função de formato inválida.');
             }
-            
-            return new Chamada(this.hashArquivo, // new Expressao(new MetodoPrimitiva(expressao, primitivasNumero.formato)), undefined, [expressao]);
+
+            return new Chamada(
+                this.hashArquivo, // new Expressao(new MetodoPrimitiva(expressao, primitivasNumero.formato)), undefined, [expressao]);
                 new AcessoMetodoOuPropriedade(
-                    this.hashArquivo, 
-                    expressao, 
+                    this.hashArquivo,
+                    expressao,
                     new Simbolo(tiposDeSimbolos.FORMATO, 'formato', 'formato', expressao.linha, this.hashArquivo)
                 ),
-                undefined, 
+                undefined,
                 [new Literal(this.hashArquivo, expressao.linha, simboloMascaraFormato.literal)]
-            )
+            );
         }
 
         return expressao;
     }
 
     /**
-     * Concatenação de lista é expressa por dois símbolos de dois-pontos 
+     * Concatenação de lista é expressa por dois símbolos de dois-pontos
      * em sequência
      * @returns Um construto, ou vindo da continuação da análise, ou um Binário.
      */
@@ -434,7 +448,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         if (this.atual < this.simbolos.length) {
             if (
-                this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS && 
+                this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS &&
                 this.verificarTipoProximoSimbolo(tiposDeSimbolos.DOIS_PONTOS)
             ) {
                 const primeiroDoisPontos = this.avancarEDevolverAnterior();
@@ -444,20 +458,23 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 // e a concatenação funciona para o operando direito apenas como leitura,
                 // é seguro emitir um construto de constante aqui.
                 if (!(ladoDireito instanceof ConstanteOuVariavel)) {
-                    throw this.erro(primeiroDoisPontos, "Operando direito de uma concatenação de lista não parece ser uma constante ou variável.");
+                    throw this.erro(
+                        primeiroDoisPontos,
+                        'Operando direito de uma concatenação de lista não parece ser uma constante ou variável.'
+                    );
                 }
 
                 const ladoDireitoComoConstante = new Constante(ladoDireito.hashArquivo, ladoDireito.simbolo);
                 expressao = new Binario(
-                    this.hashArquivo, 
-                    expressao, 
+                    this.hashArquivo,
+                    expressao,
                     new Simbolo(
-                        tiposDeSimbolos.CONCATENACAO_LISTA, 
-                        '::', 
-                        '::', 
+                        tiposDeSimbolos.CONCATENACAO_LISTA,
+                        '::',
+                        '::',
                         primeiroDoisPontos.linha,
                         primeiroDoisPontos.hashArquivo
-                    ), 
+                    ),
                     ladoDireitoComoConstante
                 );
             }
@@ -506,7 +523,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             } else {
                 if (expressao instanceof ConstanteOuVariavel) {
                     // Neste ponto, precisamos resolver se identificador é uma variável ou
-                    // constante. 
+                    // constante.
                     // Se houver menções a variáveis neste escopo ou em escopos anteriores,
                     // consideramos a expressão como variável.
                     // Caso contrário, consideramos como constante.
@@ -866,7 +883,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        // TODO: Aparentemente, não é possível definir tipo para atribuição 
+        // TODO: Aparentemente, não é possível definir tipo para atribuição
         // múltipla de constantes. Se algo mudar nisso, o código abaixo poderá
         // voltar a ser usado.
         /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
@@ -938,7 +955,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
     /**
      * Este método contempla dois cenários:
-     * 
+     *
      * - A atribuição de variáveis em si (o primeiro símbolo é a palavra reservada `var`);
      * - Uma reatribuição de uma ou mais variáveis (o primeiro símbolo a ser lido é uma
      * vírgula, e o primeiro identificador é passado como argumento). Neste caso, não há
@@ -950,7 +967,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const identificadores: SimboloInterface[] = [];
         let simboloVar: SimboloInterface<string>;
 
-        // Se houver primeiro identificador definido (reatribuição), 
+        // Se houver primeiro identificador definido (reatribuição),
         // o símbolo atual aqui será uma vírgula.
         if (primeiroIdentificador) {
             this.avancarEDevolverAnterior();
@@ -1098,7 +1115,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     ({
                         abrangencia: 'padrao',
                         nome: p.nome,
-                    } as ParametroInterface)
+                    }) as ParametroInterface
             ),
             instrucoesConstrutor
         );

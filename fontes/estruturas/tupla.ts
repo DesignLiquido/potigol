@@ -10,7 +10,7 @@ export class EstruturaTupla {
      * @returns {string} A representação do objeto como texto.
      */
     paraTexto(): string {
-        let retorno = "(";
+        let retorno = '(';
         for (let valor of this.valores) {
             retorno += (valor.hasOwnProperty('valor') ? valor.valor : valor) + ',';
         }
@@ -18,8 +18,8 @@ export class EstruturaTupla {
         if (this.valores.length > 0) {
             retorno = retorno.slice(0, -1);
         }
-        
-        retorno += ")";
+
+        retorno += ')';
         return retorno;
     }
 

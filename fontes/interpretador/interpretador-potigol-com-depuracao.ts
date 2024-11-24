@@ -7,7 +7,7 @@ import { ReatribuicaoVariavel } from '../declaracoes';
 
 import * as comum from './comum';
 
-export class InterpretadorPotigolComDepuracao 
+export class InterpretadorPotigolComDepuracao
     extends InterpretadorComDepuracao
     implements InterpretadorPotigolInterface
 {

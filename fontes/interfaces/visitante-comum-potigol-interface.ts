@@ -1,5 +1,5 @@
 import { QualTipo } from '@designliquido/delegua/construtos';
-import { VisitanteComumInterface } from "@designliquido/delegua/interfaces";
+import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
 
 import { ReatribuicaoVariavel } from '../declaracoes/reatribuicao-variavel';
 

@@ -17,10 +17,7 @@ export class ConstanteOuVariavel<TTipoSimbolo extends string = string> implement
 
     simbolo: SimboloInterface<TTipoSimbolo>;
 
-    constructor(
-        hashArquivo: number, 
-        simbolo: SimboloInterface<TTipoSimbolo>
-    ) {
+    constructor(hashArquivo: number, simbolo: SimboloInterface<TTipoSimbolo>) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
 

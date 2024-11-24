@@ -15,7 +15,11 @@ export default {
         copia.splice(0, elementos);
         return Promise.resolve(copia);
     },
-    descarte_enquanto: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+    descarte_enquanto: async (
+        interpretador: VisitanteComumInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
         if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'descarte_enquanto'.");
         }
@@ -32,11 +36,15 @@ export default {
 
         return retorno;
     },
-    divida_quando: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+    divida_quando: async (
+        interpretador: VisitanteComumInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
         if (vetor.length === 0) {
             return vetor;
         }
-        
+
         if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'divida_quando'.");
         }
@@ -112,7 +120,11 @@ export default {
         Promise.resolve(vetor.sort((a, b) => a - b)),
     pegue: (interpretador: VisitanteComumInterface, vetor: Array<any>, elementos: number): Promise<any> =>
         Promise.resolve(vetor.slice(0, elementos)),
-    pegue_enquanto: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+    pegue_enquanto: async (
+        interpretador: VisitanteComumInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
         if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'pegue_enquanto'.");
         }
@@ -137,7 +149,11 @@ export default {
         copia.splice(posicao - 1, 1);
         return Promise.resolve(copia);
     },
-    selecione: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+    selecione: async (
+        interpretador: VisitanteComumInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
         if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'selecione'.");
         }

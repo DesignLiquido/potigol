@@ -1,18 +1,19 @@
-import { AnalisadorSemanticoBase, PilhaVariaveis } from "@designliquido/delegua/analisador-semantico";
-import { QualTipo } from "@designliquido/delegua/construtos";
-import { Const, Declaracao, Var } from "@designliquido/delegua/declaracoes";
-import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade, SimboloInterface } from "@designliquido/delegua/interfaces";
+import { AnalisadorSemanticoBase, PilhaVariaveis } from '@designliquido/delegua/analisador-semantico';
+import { QualTipo } from '@designliquido/delegua/construtos';
+import { Const, Declaracao, Var } from '@designliquido/delegua/declaracoes';
+import {
+    DiagnosticoAnalisadorSemantico,
+    DiagnosticoSeveridade,
+    SimboloInterface,
+} from '@designliquido/delegua/interfaces';
 import { FuncaoHipoteticaInterface } from '@designliquido/delegua/interfaces/funcao-hipotetica-interface';
-import { RetornoAnalisadorSemantico } from "@designliquido/delegua/interfaces/retornos/retorno-analisador-semantico";
+import { RetornoAnalisadorSemantico } from '@designliquido/delegua/interfaces/retornos/retorno-analisador-semantico';
 import { VariavelHipoteticaInterface } from '@designliquido/delegua/interfaces/variavel-hipotetica-interface';
 
-import { ReatribuicaoVariavel } from "../declaracoes";
-import { VisitanteComumPotigolInterface } from "../interfaces";
+import { ReatribuicaoVariavel } from '../declaracoes';
+import { VisitanteComumPotigolInterface } from '../interfaces';
 
-export class AnalisadorSemanticoPotigol 
-    extends AnalisadorSemanticoBase
-    implements VisitanteComumPotigolInterface
-{
+export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implements VisitanteComumPotigolInterface {
     pilhaVariaveis: PilhaVariaveis;
     variaveis: { [nomeVariavel: string]: VariavelHipoteticaInterface };
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
@@ -20,8 +21,8 @@ export class AnalisadorSemanticoPotigol
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
     adicionarDiagnostico(
-        simbolo: SimboloInterface, 
-        mensagem: string, 
+        simbolo: SimboloInterface,
+        mensagem: string,
         severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.ERRO
     ): void {
         this.diagnosticos.push({
@@ -32,7 +33,7 @@ export class AnalisadorSemanticoPotigol
             severidade: severidade,
         });
     }
-    
+
     visitarDeclaracaoReatribuicaoVariavel(declaracao: ReatribuicaoVariavel): void | Promise<any> {
         return Promise.resolve();
     }
@@ -43,15 +44,18 @@ export class AnalisadorSemanticoPotigol
             subtipo: undefined,
             imutavel: false,
             valor: undefined,
-            valorDefinido: true
-        }
+            valorDefinido: true,
+        };
 
         return Promise.resolve();
     }
-    
+
     override visitarExpressaoDeVariavel(expressao: Var | Const): Promise<any> {
         if (!(expressao.simbolo.lexema in this.variaveis)) {
-            this.adicionarDiagnostico(expressao.simbolo, `Variável '${expressao.simbolo.lexema}' ainda não foi declarada.`);
+            this.adicionarDiagnostico(
+                expressao.simbolo,
+                `Variável '${expressao.simbolo.lexema}' ainda não foi declarada.`
+            );
         }
 
         return Promise.resolve();

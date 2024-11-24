@@ -1,9 +1,9 @@
-import { Construto } from "@designliquido/delegua/construtos";
-import { Declaracao } from "@designliquido/delegua/declaracoes";
-import { SimboloInterface } from "@designliquido/delegua/interfaces";
-import { TipoDadosElementar } from "@designliquido/delegua/tipo-dados-elementar";
+import { Construto } from '@designliquido/delegua/construtos';
+import { Declaracao } from '@designliquido/delegua/declaracoes';
+import { SimboloInterface } from '@designliquido/delegua/interfaces';
+import { TipoDadosElementar } from '@designliquido/delegua/tipo-dados-elementar';
 
-import { VisitanteComumPotigolInterface } from "../interfaces";
+import { VisitanteComumPotigolInterface } from '../interfaces';
 
 /**
  * Uma declaração de reatribuição de variável.

@@ -1,4 +1,13 @@
-import { AcessoMetodoOuPropriedade, Binario, Construto, Literal, QualTipo, Tupla, Unario, Variavel } from '@designliquido/delegua/construtos';
+import {
+    AcessoMetodoOuPropriedade,
+    Binario,
+    Construto,
+    Literal,
+    QualTipo,
+    Tupla,
+    Unario,
+    Variavel,
+} from '@designliquido/delegua/construtos';
 import { DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
@@ -17,73 +26,32 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 import { ReatribuicaoVariavel } from 'fontes/declaracoes';
 
-const tiposNumericos = [
-    'inteiro',
-    'numero',
-    'número',
-    'real'
-];
+const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
 
 export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
-    pilhaEscoposExecucao.definirVariavel(
-        'abs',
-        new FuncaoPadrao(1, bibliotecaGlobal.abs)
-    );
+    pilhaEscoposExecucao.definirVariavel('abs', new FuncaoPadrao(1, bibliotecaGlobal.abs));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'aleatório',
-        new FuncaoPadrao(0, bibliotecaGlobal.aleatorio)
-    );
+    pilhaEscoposExecucao.definirVariavel('aleatório', new FuncaoPadrao(0, bibliotecaGlobal.aleatorio));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'arccos',
-        new FuncaoPadrao(1, bibliotecaGlobal.arccos)
-    );
+    pilhaEscoposExecucao.definirVariavel('arccos', new FuncaoPadrao(1, bibliotecaGlobal.arccos));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'arcsen',
-        new FuncaoPadrao(1, bibliotecaGlobal.arcsen)
-    );
+    pilhaEscoposExecucao.definirVariavel('arcsen', new FuncaoPadrao(1, bibliotecaGlobal.arcsen));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'arctg',
-        new FuncaoPadrao(1, bibliotecaGlobal.arctg)
-    );
+    pilhaEscoposExecucao.definirVariavel('arctg', new FuncaoPadrao(1, bibliotecaGlobal.arctg));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'cos',
-        new FuncaoPadrao(1, bibliotecaGlobal.cos)
-    );
+    pilhaEscoposExecucao.definirVariavel('cos', new FuncaoPadrao(1, bibliotecaGlobal.cos));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'log',
-        new FuncaoPadrao(1, bibliotecaGlobal.log)
-    );
+    pilhaEscoposExecucao.definirVariavel('log', new FuncaoPadrao(1, bibliotecaGlobal.log));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'log10',
-        new FuncaoPadrao(1, bibliotecaGlobal.log10)
-    );
+    pilhaEscoposExecucao.definirVariavel('log10', new FuncaoPadrao(1, bibliotecaGlobal.log10));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'pi',
-        new FuncaoPadrao(0, bibliotecaGlobal.pi)
-    );
+    pilhaEscoposExecucao.definirVariavel('pi', new FuncaoPadrao(0, bibliotecaGlobal.pi));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'raiz',
-        new FuncaoPadrao(1, bibliotecaGlobal.raiz)
-    );
+    pilhaEscoposExecucao.definirVariavel('raiz', new FuncaoPadrao(1, bibliotecaGlobal.raiz));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'sen',
-        new FuncaoPadrao(1, bibliotecaGlobal.sen)
-    );
+    pilhaEscoposExecucao.definirVariavel('sen', new FuncaoPadrao(1, bibliotecaGlobal.sen));
 
-    pilhaEscoposExecucao.definirVariavel(
-        'tg',
-        new FuncaoPadrao(1, bibliotecaGlobal.tg)
-    );
+    pilhaEscoposExecucao.definirVariavel('tg', new FuncaoPadrao(1, bibliotecaGlobal.tg));
 }
 
 export async function visitarDeclaracaoReatribuicaoVariavel(
@@ -190,7 +158,6 @@ export async function visitarExpressaoBinaria(
             return Math.pow(valorEsquerdo, valorDireito);
 
         case tiposDeSimbolos.MAIOR:
-            
             if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
                 return Number(valorEsquerdo) > Number(valorDireito);
             }
@@ -217,10 +184,7 @@ export async function visitarExpressaoBinaria(
             return Number(valorEsquerdo) - Number(valorDireito);
 
         case tiposDeSimbolos.ADICAO:
-            if (
-                tiposNumericos.includes(tipoEsquerdo) &&
-                tiposNumericos.includes(tipoDireito)
-            ) {
+            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
                 return Number(valorEsquerdo) + Number(valorDireito);
             }
 
@@ -249,7 +213,10 @@ export async function visitarExpressaoBinaria(
 
         case tiposDeSimbolos.CONCATENACAO_LISTA:
             if (!Array.isArray(valorDireito)) {
-                throw new ErroEmTempoDeExecucao(expressao.operador, "Lado direito da concatenação não parece ser uma lista.");
+                throw new ErroEmTempoDeExecucao(
+                    expressao.operador,
+                    'Lado direito da concatenação não parece ser uma lista.'
+                );
             }
 
             return [valorEsquerdo].concat(valorDireito);
@@ -316,7 +283,7 @@ export async function visitarExpressaoQualTipo(
 }
 
 export async function visitarExpressaoTupla(
-    interpretador: InterpretadorPotigolInterface, 
+    interpretador: InterpretadorPotigolInterface,
     expressao: Tupla
 ): Promise<EstruturaTupla> {
     const chaves = Object.keys(expressao);
@@ -333,8 +300,8 @@ export async function visitarExpressaoTupla(
 /**
  * `escreva` em Potigol tem apenas um argumento.
  * @param interpretador A instância do interpretador.
- * @param argumento 
- * @returns 
+ * @param argumento
+ * @returns
  */
 export async function avaliarArgumentosEscreva(
     interpretador: InterpretadorPotigolInterface,

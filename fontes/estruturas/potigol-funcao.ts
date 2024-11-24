@@ -1,5 +1,3 @@
-import { Chamavel } from "@designliquido/delegua/estruturas";
+import { Chamavel } from '@designliquido/delegua/estruturas';
 
-export class PotigolFuncao extends Chamavel {
-    
-}
+export class PotigolFuncao extends Chamavel {}
