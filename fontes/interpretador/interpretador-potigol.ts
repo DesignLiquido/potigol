@@ -1,9 +1,8 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import { AcessoMetodoOuPropriedade, Construto, QualTipo, Tupla } from '@designliquido/delegua/construtos';
 import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
-import { LeiaMultiplo } from '@designliquido/delegua/declaracoes';
 
-import { ReatribuicaoVariavel } from '../declaracoes';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
@@ -28,6 +27,30 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(-1) as any;
 
         comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
+    }
+
+    visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void {
+        return comum.visitarExpressaoLeiaMultiplo(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaReais(declaracao: LeiaReais): Promise<any> | void {
+        return comum.visitarExpressaoLeiaMultiplo(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaTextos(declaracao: LeiaTextos): Promise<any> | void {
+        return comum.visitarExpressaoLeiaMultiplo(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaInteiro(declaracao: LeiaInteiro): Promise<any> | void {
+        return comum.visitarExpressaoLeia(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaReal(declaracao: LeiaReal): Promise<any> | void {
+        return comum.visitarExpressaoLeia(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaTexto(declaracao: LeiaTexto): Promise<any> | void {
+        return comum.visitarExpressaoLeia(this, declaracao);
     }
 
     paraTexto(objeto: any) {
@@ -63,16 +86,12 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarDeclaracaoReatribuicaoVariavel(this, expressao);
     }
 
-    override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
-        return comum.visitarExpressaoAcessoMetodo(this, expressao);
+    override async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+        return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao);
     }
 
     override async visitarExpressaoBinaria(expressao: any): Promise<any> {
         return comum.visitarExpressaoBinaria(this, expressao);
-    }
-
-    override async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        return comum.visitarExpressaoLeiaMultiplo(this, expressao);
     }
 
     override async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {

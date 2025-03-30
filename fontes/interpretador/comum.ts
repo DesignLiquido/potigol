@@ -11,20 +11,19 @@ import {
 import { DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
-import { LeiaMultiplo } from '@designliquido/delegua';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
 
 import { inferirTipoVariavel } from './inferenciador';
 import { EstruturaTupla } from '../estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
 import { ConstanteOuVariavel } from '../construtos';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
-import { ReatribuicaoVariavel } from 'fontes/declaracoes';
 
 const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
 
@@ -70,7 +69,7 @@ export async function visitarDeclaracaoReatribuicaoVariavel(
  * @param expressao A expressão de acesso.
  * @returns O resultado da execução.
  */
-export async function visitarExpressaoAcessoMetodo(
+export async function visitarExpressaoAcessoMetodoOuPropriedade(
     interpretador: InterpretadorPotigolInterface,
     expressao: AcessoMetodoOuPropriedade
 ): Promise<any> {
@@ -223,16 +222,36 @@ export async function visitarExpressaoBinaria(
     }
 }
 
+export async function visitarExpressaoLeia(
+    interpretador: InterpretadorPotigolInterface,
+    expressao: LeiaInteiro | LeiaReal | LeiaTexto
+): Promise<any> {
+    let _resposta: string = "";
+    await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
+        _resposta = String(resposta);
+    });
+
+    // TODO: Revisar.
+    switch (expressao.constructor.name) {
+        case 'LeiaInteiro':
+            return Promise.resolve(_resposta);
+        case 'LeiaReal':
+            return Promise.resolve(_resposta);
+        case 'LeiaTexto':
+            return Promise.resolve(_resposta);
+    }
+}
+
 export async function visitarExpressaoLeiaMultiplo(
     interpretador: InterpretadorPotigolInterface,
-    expressao: LeiaMultiplo
+    expressao: LeiaInteiros | LeiaReais | LeiaTextos
 ): Promise<any> {
     let respostas = [];
     // O argumento sempre vem preenchido aqui.
     // Se for um literal, o literal contém o número de valores a serem lidos
     // da entrada.
     let valores = 0;
-    const argumento = expressao.argumento;
+    const argumento = expressao.argumentoCardinalidade;
     if (argumento instanceof Literal) {
         switch (argumento.valor) {
             case ',':
