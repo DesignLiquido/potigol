@@ -23,7 +23,6 @@ import {
     Logico,
     Noneto,
     Octeto,
-    QualTipo,
     Quarteto,
     Quinteto,
     Septeto,
@@ -69,9 +68,18 @@ import {
 } from '@designliquido/delegua/declaracoes';
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
-import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
+import {
+    LeiaInteiro,
+    LeiaInteiros,
+    LeiaReais,
+    LeiaReal,
+    LeiaTexto,
+    LeiaTextos,
+    ReatribuicaoVariavel,
+} from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import { QualTipo } from '../construtos';
 
 export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     indentacaoAtual: number;
@@ -89,6 +97,10 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoLeiaInteiro(declaracao: LeiaInteiro): Promise<any> | void {
@@ -157,10 +169,6 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         } */
     }
 
-    visitarExpressaoQualTipo(expressao: QualTipo<string>): void {
-        throw new Error('Método não implementado.');
-    }
-
     /**
      * Aparentemente só existe comentário de uma linha só em Potigol.
      * @param declaracao A declaração de comentário.
@@ -204,35 +212,27 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     visitarDeclaracaoConst(declaracao: Const): void {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${declaracao.simbolo.lexema}`;
 
-        if (declaracao.tipo) {
+        if (declaracao.tipoExplicito) {
             switch (declaracao.tipo.toUpperCase()) {
                 case tiposDeSimbolos.TEXTO:
-                    this.codigoFormatado += ': Caractere = ';
+                    this.codigoFormatado += ': Caractere';
                     break;
                 case tiposDeSimbolos.INTEIRO:
-                    this.codigoFormatado += ': Inteiro = ';
+                    this.codigoFormatado += ': Inteiro';
                     break;
                 case 'NUMERO':
                 case tiposDeSimbolos.REAL:
-                    this.codigoFormatado += ': Real = ';
+                    this.codigoFormatado += ': Real';
                     break;
                 case tiposDeSimbolos.LOGICO:
-                    this.codigoFormatado += ': Logico = ';
-                    break;
                 case tiposDeSimbolos.LÓGICO:
-                    this.codigoFormatado += ': Lógico = ';
-                    break;
-                default:
-                    this.codigoFormatado += ' = ';
+                    this.codigoFormatado += ': Lógico';
                     break;
             }
         }
 
-        if (declaracao.inicializador && !declaracao.tipo) {
-            this.codigoFormatado += ' = ';
-        }
-
         if (declaracao.inicializador) {
+            this.codigoFormatado += ' = ';
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
         }
     }

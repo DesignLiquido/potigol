@@ -3,7 +3,6 @@ import {
     Binario,
     Construto,
     Literal,
-    QualTipo,
     Tupla,
     Unario,
     Variavel,
@@ -16,7 +15,7 @@ import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces
 import { inferirTipoVariavel } from './inferenciador';
 import { EstruturaTupla } from '../estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
-import { ConstanteOuVariavel } from '../construtos';
+import { ConstanteOuVariavel, QualTipo } from '../construtos';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
@@ -109,9 +108,10 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     }
 
     switch (tipoObjeto) {
-        case 'Inteiro':
-        case 'Real':
-        case 'número': // TODO: Remover. Potigol não trabalha com um tipo 'número'.
+        case 'inteiro':
+        case 'Inteiro': // TODO: Remover.
+        case 'Real': // TODO: Remover. 
+        case 'número': 
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
             if (metodoDePrimitivaNumero) {
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
@@ -231,14 +231,14 @@ export async function visitarExpressaoLeia(
         _resposta = String(resposta);
     });
 
-    // TODO: Revisar.
+    // TODO: Ver o que acontece em Potigol quando tipos conflitam.
     switch (expressao.constructor.name) {
         case 'LeiaInteiro':
-            return Promise.resolve(_resposta);
+            return Promise.resolve(parseInt(_resposta));
         case 'LeiaReal':
-            return Promise.resolve(_resposta);
+            return Promise.resolve(Number(_resposta));
         case 'LeiaTexto':
-            return Promise.resolve(_resposta);
+            return Promise.resolve(String(_resposta));
     }
 }
 

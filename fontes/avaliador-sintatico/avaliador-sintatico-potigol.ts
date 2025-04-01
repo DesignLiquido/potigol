@@ -12,7 +12,6 @@ import {
     FuncaoConstruto,
     Isto,
     Literal,
-    QualTipo,
     Unario,
     Variavel,
     Vetor,
@@ -53,6 +52,7 @@ import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-poti
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import { QualTipo } from '../construtos/qual-tipo';
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -390,14 +390,28 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.REAL:
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloLiteral.linha), simboloLiteral.literal);
+                const dicionarioTiposDelegua = {
+                    'CARACTERE': 'texto',
+                    'INTEIRO': 'inteiro',
+                    'LOGICO': 'lógico',
+                    'REAL': 'número',
+                    'TEXTO': 'texto'
+                }
+
+                return new Literal(
+                    this.hashArquivo, 
+                    Number(simboloLiteral.linha), 
+                    simboloLiteral.literal, 
+                    dicionarioTiposDelegua[simboloLiteral.tipo]
+                );
             case tiposDeSimbolos.FALSO:
             case tiposDeSimbolos.VERDADEIRO:
                 const simboloVerdadeiroFalso: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloVerdadeiroFalso.linha),
-                    simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO
+                    simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO, 
+                    'lógico'
                 );
             case tiposDeSimbolos.LEIA_INTEIRO:
                 const simboloLeiaInteiro: SimboloInterface = this.avancarEDevolverAnterior();
@@ -955,14 +969,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         if (identificadores.length !== inicializadores.length) {
             // Pode ser que a inicialização seja feita por uma das
             // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
-            if (!(inicializadores.length === 1 && ['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializadores[0].constructor.name))) {
+            if (!(inicializadores.length === 1 && ['LeiaInteiros', 'LeiaReais', 'LeiaTextos'].includes(inicializadores[0].constructor.name))) {
                 throw this.erro(
                     this.simbolos[this.atual],
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             }
-
-            // const inicializadorLeia = <LeiaMultiplo>inicializadores[0];
 
             let tipoConversao: TipoDadosElementar;
             switch (inicializadores[0].constructor.name) {
@@ -994,7 +1006,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new Const(identificador, inicializadores[indice], tipo));
+            retorno.push(
+                new Const(
+                    identificador, 
+                    inicializadores[indice], 
+                    tipo
+                )
+            );
         }
 
         return retorno;

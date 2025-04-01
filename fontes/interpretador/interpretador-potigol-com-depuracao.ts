@@ -1,4 +1,4 @@
-import { AcessoMetodoOuPropriedade, Construto, QualTipo } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Construto } from '@designliquido/delegua/construtos';
 import { InterpretadorComDepuracao } from '@designliquido/delegua/interpretador/interpretador-com-depuracao';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
@@ -11,6 +11,7 @@ import {
     LeiaTextos,
     ReatribuicaoVariavel,
 } from '../declaracoes';
+import { QualTipo } from '../construtos';
 
 import * as comum from './comum';
 
