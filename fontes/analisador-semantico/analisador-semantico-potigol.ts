@@ -1,5 +1,4 @@
 import { AnalisadorSemanticoBase, PilhaVariaveis } from '@designliquido/delegua/analisador-semantico';
-import { QualTipo } from '@designliquido/delegua/construtos';
 import { Const, Declaracao, Var } from '@designliquido/delegua/declaracoes';
 import {
     DiagnosticoAnalisadorSemantico,
@@ -10,8 +9,9 @@ import { FuncaoHipoteticaInterface } from '@designliquido/delegua/interfaces/fun
 import { RetornoAnalisadorSemantico } from '@designliquido/delegua/interfaces/retornos/retorno-analisador-semantico';
 import { VariavelHipoteticaInterface } from '@designliquido/delegua/interfaces/variavel-hipotetica-interface';
 
-import { ReatribuicaoVariavel } from '../declaracoes';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
+import { QualTipo } from '../construtos';
 
 export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implements VisitanteComumPotigolInterface {
     pilhaVariaveis: PilhaVariaveis;
@@ -32,6 +32,30 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
             linha: simbolo.linha,
             severidade: severidade,
         });
+    }
+
+    visitarDeclaracaoLeiaInteiro(declaracao: LeiaInteiro): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoLeiaReais(declaracao: LeiaReais): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoLeiaReal(declaracao: LeiaReal): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoLeiaTexto(declaracao: LeiaTexto): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoLeiaTextos(declaracao: LeiaTextos): Promise<any> | void {
+        return Promise.resolve();
     }
 
     visitarDeclaracaoReatribuicaoVariavel(declaracao: ReatribuicaoVariavel): void | Promise<any> {
