@@ -104,7 +104,6 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
                     expressao,
                     new Simbolo(tiposDeSimbolos.FORMATO, 'formato', 'formato', expressao.linha, this.hashArquivo)
                 ),
-                undefined,
                 [new Literal(this.hashArquivo, expressao.linha, simboloMascaraFormato.literal)]
             );
         }

@@ -12,7 +12,6 @@ import {
     FuncaoConstruto,
     Isto,
     Literal,
-    QualTipo,
     Unario,
     Variavel,
     Vetor,
@@ -34,7 +33,6 @@ import {
     Classe,
     PropriedadeClasse,
     Leia,
-    LeiaMultiplo,
     ConstMultiplo,
     Retorna,
 } from '@designliquido/delegua/declaracoes';
@@ -49,11 +47,12 @@ import { RetornoDeclaracao } from '@designliquido/delegua/avaliador-sintatico/re
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
 
 import { ConstanteOuVariavel } from '../construtos';
-import { ReatribuicaoVariavel } from '../declaracoes';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import { QualTipo } from '../construtos/qual-tipo';
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -143,7 +142,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             corpo.tipoRetorno = tipoRetorno.lexema;
         }
 
-        return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
+        return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno ? tipoRetorno.lexema : 'qualquer');
     }
 
     /**
@@ -167,7 +166,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             corpo.tipoRetorno = tipoRetorno.lexema;
         }
 
-        return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
+        return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno.lexema);
     }
 
     corpoDaFuncao(nomeFuncao: string, simboloPragma?: SimboloInterface, parametros?: any[]): FuncaoConstruto {
@@ -226,7 +225,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
         }
 
-        const parenteseDireito = this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         const argumentos = this.microAvaliadorSintatico.analisar(
             { simbolos: simbolosEntreParenteses } as any,
@@ -236,7 +235,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Chamada(
             this.hashArquivo,
             entidadeChamada,
-            parenteseDireito,
             argumentos.declaracoes.filter((d) => d)
         );
     }
@@ -297,10 +295,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
                 const tipoParametro = simbolos[indice];
                 const resolucaoTipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
-                parametro.tipoDado = {
-                    nome: simbolos[indice - 2].lexema,
-                    tipo: resolucaoTipo,
-                };
+                parametro.tipoDado = resolucaoTipo;
                 tipagemDefinida = true;
             }
 
@@ -324,6 +319,30 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             parametros,
             tipagemDefinida,
         };
+    }
+
+    protected logicaLeiaMultiplo() {
+        const simboloLeiaMultiplo: SimboloInterface = this.avancarEDevolverAnterior();
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            `Esperado parêntese esquerdo após ${simboloLeiaMultiplo.lexema}.`
+        );
+
+        const argumento = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaMultiplo.lexema}.`
+        );
+
+        switch (simboloLeiaMultiplo.tipo) {
+            case tiposDeSimbolos.LEIA_INTEIROS:
+                return new LeiaInteiros(simboloLeiaMultiplo, argumento);
+            case tiposDeSimbolos.LEIA_REAIS:
+                return new LeiaReais(simboloLeiaMultiplo, argumento);
+            case tiposDeSimbolos.LEIA_TEXTOS:
+                return new LeiaTextos(simboloLeiaMultiplo, argumento);
+        }
     }
 
     primario(): Construto {
@@ -371,39 +390,42 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.REAL:
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloLiteral.linha), simboloLiteral.literal);
+                const dicionarioTiposDelegua = {
+                    'CARACTERE': 'texto',
+                    'INTEIRO': 'inteiro',
+                    'LOGICO': 'lógico',
+                    'REAL': 'número',
+                    'TEXTO': 'texto'
+                }
+
+                return new Literal(
+                    this.hashArquivo, 
+                    Number(simboloLiteral.linha), 
+                    simboloLiteral.literal, 
+                    dicionarioTiposDelegua[simboloLiteral.tipo]
+                );
             case tiposDeSimbolos.FALSO:
             case tiposDeSimbolos.VERDADEIRO:
                 const simboloVerdadeiroFalso: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloVerdadeiroFalso.linha),
-                    simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO
+                    simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO, 
+                    'lógico'
                 );
             case tiposDeSimbolos.LEIA_INTEIRO:
+                const simboloLeiaInteiro: SimboloInterface = this.avancarEDevolverAnterior();
+                return new LeiaInteiro(simboloLeiaInteiro, []);
             case tiposDeSimbolos.LEIA_REAL:
+                const simboloLeiaReal: SimboloInterface = this.avancarEDevolverAnterior();
+                return new LeiaReal(simboloLeiaReal, []);
             case tiposDeSimbolos.LEIA_TEXTO:
-                const simboloLeia: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Leia(simboloLeia, []);
+                const simboloLeiaTexto: SimboloInterface = this.avancarEDevolverAnterior();
+                return new LeiaTexto(simboloLeiaTexto, []);
             case tiposDeSimbolos.LEIA_INTEIROS:
             case tiposDeSimbolos.LEIA_REAIS:
             case tiposDeSimbolos.LEIA_TEXTOS:
-                const simboloLeiaDefinido: SimboloInterface = this.avancarEDevolverAnterior();
-                this.consumir(
-                    tiposDeSimbolos.PARENTESE_ESQUERDO,
-                    `Esperado parêntese esquerdo após ${simboloLeiaDefinido.lexema}.`
-                );
-
-                const argumento = this.expressao();
-
-                this.consumir(
-                    tiposDeSimbolos.PARENTESE_DIREITO,
-                    `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaDefinido.lexema}.`
-                );
-
-                const leiaDefinido = new LeiaMultiplo(simboloLeiaDefinido, argumento);
-
-                return leiaDefinido;
+                return this.logicaLeiaMultiplo();
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);
@@ -430,7 +452,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     expressao,
                     new Simbolo(tiposDeSimbolos.FORMATO, 'formato', 'formato', expressao.linha, this.hashArquivo)
                 ),
-                undefined,
                 [new Literal(this.hashArquivo, expressao.linha, simboloMascaraFormato.literal)]
             );
         }
@@ -694,15 +715,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         let operadorCondicao = new Simbolo(
             tiposDeSimbolos.MENOR_IGUAL,
-            '',
-            '',
+            '<=',
+            null,
             Number(simboloPara.linha),
             this.hashArquivo
         );
         let operadorCondicaoIncremento = new Simbolo(
             tiposDeSimbolos.MENOR,
-            '',
-            '',
+            '<',
+            null,
             Number(simboloPara.linha),
             this.hashArquivo
         );
@@ -733,15 +754,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     );
                     operadorCondicao = new Simbolo(
                         tiposDeSimbolos.MAIOR_IGUAL,
-                        '',
-                        '',
+                        '>=',
+                        null,
                         Number(simboloPara.linha),
                         this.hashArquivo
                     );
                     operadorCondicaoIncremento = new Simbolo(
                         tiposDeSimbolos.MAIOR,
-                        '',
-                        '',
+                        '>',
+                        null,
                         Number(simboloPara.linha),
                         this.hashArquivo
                     );
@@ -780,7 +801,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const para = new Para(
             this.hashArquivo,
             Number(simboloPara.linha),
-            new Atribuir(this.hashArquivo, variavelIteracao, literalOuVariavelInicio),
+            new Atribuir(
+                this.hashArquivo, 
+                new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'), 
+                literalOuVariavelInicio
+            ),
             new Binario(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao),
@@ -799,11 +824,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 new Expressao(
                     new Atribuir(
                         this.hashArquivo,
-                        variavelIteracao,
+                        new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
                         new Binario(
                             this.hashArquivo,
                             new Variavel(this.hashArquivo, variavelIteracao),
-                            new Simbolo(tiposDeSimbolos.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', null, Number(simboloPara.linha), this.hashArquivo),
                             passo
                         )
                     )
@@ -900,11 +925,42 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const inicializadores = [];
         do {
             let inicializador = this.expressao();
-            if (inicializador instanceof Leia && identificadores.length > 1) {
-                inicializador = new LeiaMultiplo(
-                    inicializador.simbolo,
-                    new Literal(this.hashArquivo, Number(inicializador.simbolo.linha), identificadores.length)
-                );
+            if (identificadores.length > 1 && ['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializador.constructor.name)) {
+                switch (inicializador.constructor.name) {
+                    case 'LeiaInteiro':
+                        const inicializadorTipadoInteiro = inicializador as LeiaInteiro;
+                        inicializador = new LeiaInteiros(
+                            inicializadorTipadoInteiro.simbolo,
+                            new Literal(
+                                this.hashArquivo, 
+                                Number(inicializadorTipadoInteiro.simbolo.linha), 
+                                identificadores.length
+                            )
+                        );
+                        break;
+                    case 'LeiaReal':
+                        const inicializadorTipadoReal = inicializador as LeiaReal;
+                        inicializador = new LeiaReais(
+                            inicializadorTipadoReal.simbolo,
+                            new Literal(
+                                this.hashArquivo, 
+                                Number(inicializadorTipadoReal.simbolo.linha), 
+                                identificadores.length
+                            )
+                        );
+                        break;
+                    case 'LeiaTexto':
+                        const inicializadorTipadoTexto = inicializador as LeiaTexto;
+                        inicializador = new LeiaTextos(
+                            inicializadorTipadoTexto.simbolo,
+                            new Literal(
+                                this.hashArquivo, 
+                                Number(inicializadorTipadoTexto.simbolo.linha), 
+                                identificadores.length
+                            )
+                        );
+                        break;
+                }            
             }
 
             inicializadores.push(inicializador);
@@ -913,29 +969,35 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         if (identificadores.length !== inicializadores.length) {
             // Pode ser que a inicialização seja feita por uma das
             // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
-            if (!(inicializadores.length === 1 && inicializadores[0] instanceof LeiaMultiplo)) {
+            if (!(inicializadores.length === 1 && ['LeiaInteiros', 'LeiaReais', 'LeiaTextos'].includes(inicializadores[0].constructor.name))) {
                 throw this.erro(
                     this.simbolos[this.atual],
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             }
 
-            const inicializadorLeia = <LeiaMultiplo>inicializadores[0];
-
             let tipoConversao: TipoDadosElementar;
-            switch (inicializadorLeia.simbolo.tipo) {
-                case tiposDeSimbolos.LEIA_INTEIROS:
+            switch (inicializadores[0].constructor.name) {
+                case 'LeiaInteiros':
                     tipoConversao = 'inteiro[]';
                     break;
-                case tiposDeSimbolos.LEIA_INTEIRO:
+                case 'LeiaInteiro':
                     tipoConversao = 'inteiro';
                     break;
-                case tiposDeSimbolos.LEIA_REAL:
-                case tiposDeSimbolos.LEIA_REAIS:
+                case 'LeiaReais':
+                    tipoConversao = 'real[]';
+                    break;
+                case 'LeiaReal':
                     tipoConversao = 'real';
                     break;
-                default:
+                case 'LeiaTextos':
+                    tipoConversao = 'texto[]';
+                    break;
+                case 'LeiaTexto':
                     tipoConversao = 'texto';
+                    break;
+                default:
+                    tipoConversao = 'qualquer';
                     break;
             }
 
@@ -944,10 +1006,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            // const inicializador = inicializadores[indice];
-            // this.verificarTipoAtribuido(tipo, inicializador);
-
-            retorno.push(new Const(identificador, inicializadores[indice], tipo));
+            retorno.push(
+                new Const(
+                    identificador, 
+                    inicializadores[indice], 
+                    tipo
+                )
+            );
         }
 
         return retorno;

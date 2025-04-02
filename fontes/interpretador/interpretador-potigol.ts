@@ -1,14 +1,15 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
-import { AcessoMetodoOuPropriedade, Construto, QualTipo, Tupla } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Construto, Tupla } from '@designliquido/delegua/construtos';
 import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
-import { LeiaMultiplo } from '@designliquido/delegua/declaracoes';
 
-import { ReatribuicaoVariavel } from '../declaracoes';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
 
 import * as comum from './comum';
+import { Const } from '@designliquido/delegua';
+import { QualTipo } from 'fontes/construtos/qual-tipo';
 
 /**
  * Uma implementação do interpretador de Potigol.
@@ -28,6 +29,58 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(-1) as any;
 
         comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
+    }
+
+    /**
+     * Expressões como por exemplo `x = leia_real` dão a dica do tipo
+     * da variável no inicializador, o que nos obriga a reescrever a visita à
+     * declarações de constantes.
+     * @param {Const} declaracao A declaração de constante. 
+     * @returns Nulo.
+     */
+    override async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
+        let tipoResolvido = declaracao.tipo;
+        if (tipoResolvido === 'qualquer') {
+            switch (declaracao.inicializador.constructor.name) {
+                case 'LeiaInteiro':
+                    tipoResolvido = 'inteiro';
+                    break;
+                case 'LeiaReal':
+                    tipoResolvido = 'número';
+                    break;
+                case 'LeiaTexto':
+                    tipoResolvido = 'texto';
+                    break;
+            }
+        }
+
+        this.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, tipoResolvido);
+        return null;
+    }
+
+    visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void {
+        return comum.visitarExpressaoLeiaMultiplo(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaReais(declaracao: LeiaReais): Promise<any> | void {
+        return comum.visitarExpressaoLeiaMultiplo(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaTextos(declaracao: LeiaTextos): Promise<any> | void {
+        return comum.visitarExpressaoLeiaMultiplo(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaInteiro(declaracao: LeiaInteiro): Promise<any> | void {
+        return comum.visitarExpressaoLeia(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaReal(declaracao: LeiaReal): Promise<any> | void {
+        return comum.visitarExpressaoLeia(this, declaracao);
+    }
+
+    visitarDeclaracaoLeiaTexto(declaracao: LeiaTexto): Promise<any> | void {
+        return comum.visitarExpressaoLeia(this, declaracao);
     }
 
     paraTexto(objeto: any) {
@@ -63,19 +116,15 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarDeclaracaoReatribuicaoVariavel(this, expressao);
     }
 
-    override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodoOuPropriedade): Promise<any> {
-        return comum.visitarExpressaoAcessoMetodo(this, expressao);
+    override async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+        return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao);
     }
 
     override async visitarExpressaoBinaria(expressao: any): Promise<any> {
         return comum.visitarExpressaoBinaria(this, expressao);
     }
 
-    override async visitarExpressaoLeiaMultiplo(expressao: LeiaMultiplo): Promise<any> {
-        return comum.visitarExpressaoLeiaMultiplo(this, expressao);
-    }
-
-    override async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
+    async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
         return comum.visitarExpressaoQualTipo(this, expressao);
     }
 

@@ -60,7 +60,7 @@ describe('Primitivas de vetor - Potigol', () => {
                     {
                         abrangencia: 'padrao',
                         nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
-                        tipoDado: { nome: 'x', tipo: 'numero' }
+                        tipoDado: 'numero'
                     } as ParametroInterface
                 ], [
                     new Retorna(
@@ -93,12 +93,12 @@ describe('Primitivas de vetor - Potigol', () => {
                 {
                     abrangencia: 'padrao',
                     nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
-                    tipoDado: { nome: 'x', tipo: 'numero' }
+                    tipoDado: 'numero'
                 } as ParametroInterface,
                 {
                     abrangencia: 'padrao',
                     nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1),
-                    tipoDado: { nome: 'y', tipo: 'numero' }
+                    tipoDado: 'numero'
                 } as ParametroInterface
             ], [
                 new Retorna(
@@ -143,12 +143,12 @@ describe('Primitivas de vetor - Potigol', () => {
                     {
                         abrangencia: 'padrao',
                         nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
-                        tipoDado: { nome: 'x', tipo: 'numero' }
+                        tipoDado: 'numero'
                     } as ParametroInterface,
                     {
                         abrangencia: 'padrao',
                         nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1),
-                        tipoDado: { nome: 'y', tipo: 'numero' }
+                        tipoDado: 'numero'
                     } as ParametroInterface
                 ], [
                     new Retorna(
@@ -210,7 +210,7 @@ describe('Primitivas de vetor - Potigol', () => {
                     {
                         abrangencia: 'padrao',
                         nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
-                        tipoDado: { nome: 'x', tipo: 'numero' }
+                        tipoDado: 'numero'
                     } as ParametroInterface
                 ], [
                     new Retorna(
