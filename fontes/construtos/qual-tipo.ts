@@ -1,6 +1,7 @@
 import { Construto } from '@designliquido/delegua/construtos';
 import { SimboloInterface } from '@designliquido/delegua/interfaces';
-import { VisitanteComumPotigolInterface } from 'fontes/interfaces';
+
+import { VisitanteComumPotigolInterface } from '../interfaces';
 
 // TODO: Depreciado. Priorizar `TipoDe`.
 export class QualTipo<TTipoSimbolo extends string = string> implements Construto {
