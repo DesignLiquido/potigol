@@ -3,6 +3,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
@@ -25,6 +26,7 @@ import {
     Octeto,
     Quarteto,
     Quinteto,
+    ReferenciaFuncao,
     Septeto,
     Sexteto,
     Super,
@@ -97,6 +99,14 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> | void {
@@ -590,8 +600,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
 
         // Se há tipo de retorno definido
-        if (expressao.tipoRetorno) {
-            this.codigoFormatado += `: ${expressao.tipoRetorno}`;
+        if (expressao.tipo) {
+            this.codigoFormatado += `: ${expressao.tipo}`;
         }
 
         this.codigoFormatado += ` = `;

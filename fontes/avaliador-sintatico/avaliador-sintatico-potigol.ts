@@ -50,9 +50,9 @@ import { ConstanteOuVariavel } from '../construtos';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
+import { QualTipo } from '../construtos/qual-tipo';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
-import { QualTipo } from '../construtos/qual-tipo';
 
 /**
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
@@ -139,7 +139,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         ]);
 
         if (tipoRetorno) {
-            corpo.tipoRetorno = tipoRetorno.lexema;
+            corpo.tipo = tipoRetorno.lexema;
         }
 
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno ? tipoRetorno.lexema : 'qualquer');
@@ -163,7 +163,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const corpo = this.corpoDaFuncao(simboloPrimario.lexema, parenteseEsquerdo, parametros);
 
         if (tipoRetorno) {
-            corpo.tipoRetorno = tipoRetorno.lexema;
+            corpo.tipo = tipoRetorno.lexema;
         }
 
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno.lexema);
