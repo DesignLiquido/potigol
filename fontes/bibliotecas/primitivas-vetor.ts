@@ -1,22 +1,22 @@
-import { DeleguaFuncao } from '@designliquido/delegua/estruturas/delegua-funcao';
-import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
+import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
+import { InterpretadorPotigolInterface } from '../interfaces';
 
 export default {
-    cabeça: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor[0]),
-    cauda: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => {
+    cabeça: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor[0]),
+    cauda: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => {
         let copia = [...vetor];
         copia.splice(0, 1);
         return Promise.resolve(copia);
     },
-    contém: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> =>
+    contém: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, elemento: any): Promise<any> =>
         Promise.resolve(vetor.includes(elemento)),
-    descarte: (interpretador: VisitanteComumInterface, vetor: Array<any>, elementos: number): Promise<any> => {
+    descarte: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, elementos: number): Promise<any> => {
         let copia = [...vetor];
         copia.splice(0, elementos);
         return Promise.resolve(copia);
     },
     descarte_enquanto: async (
-        interpretador: VisitanteComumInterface,
+        interpretador: InterpretadorPotigolInterface,
         vetor: Array<any>,
         funcao: DeleguaFuncao
     ): Promise<any> => {
@@ -37,7 +37,7 @@ export default {
         return retorno;
     },
     divida_quando: async (
-        interpretador: VisitanteComumInterface,
+        interpretador: InterpretadorPotigolInterface,
         vetor: Array<any>,
         funcao: DeleguaFuncao
     ): Promise<any> => {
@@ -69,8 +69,8 @@ export default {
 
         return retorno;
     },
-    imutável: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
-    injete: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+    imutável: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
+    injete: async (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
         // TODO: Terminar
         /* if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'injete'.");
@@ -85,7 +85,7 @@ export default {
         return Promise.resolve();
     },
     insira: (
-        interpretador: VisitanteComumInterface,
+        interpretador: InterpretadorPotigolInterface,
         vetor: Array<any[]>,
         posicao: number,
         elemento: any
@@ -94,16 +94,16 @@ export default {
         copia.splice(posicao - 1, 0, elemento);
         return Promise.resolve(copia);
     },
-    inverta: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => {
+    inverta: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => {
         let copia = [];
         for (let elemento of vetor) {
             copia.unshift(elemento);
         }
         return Promise.resolve(copia);
     },
-    junte: (interpretador: VisitanteComumInterface, vetor: Array<any>, separador: string): Promise<any> =>
+    junte: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, separador: string): Promise<any> =>
         Promise.resolve(vetor.join(separador)),
-    mapeie: async (interpretador: VisitanteComumInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+    mapeie: async (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
         if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'mapeie'.");
         }
@@ -116,12 +116,12 @@ export default {
 
         return retorno;
     },
-    ordene: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> =>
+    ordene: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
         Promise.resolve(vetor.sort((a, b) => a - b)),
-    pegue: (interpretador: VisitanteComumInterface, vetor: Array<any>, elementos: number): Promise<any> =>
+    pegue: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, elementos: number): Promise<any> =>
         Promise.resolve(vetor.slice(0, elementos)),
     pegue_enquanto: async (
-        interpretador: VisitanteComumInterface,
+        interpretador: InterpretadorPotigolInterface,
         vetor: Array<any>,
         funcao: DeleguaFuncao
     ): Promise<any> => {
@@ -141,16 +141,16 @@ export default {
 
         return retorno;
     },
-    posição: (interpretador: VisitanteComumInterface, vetor: Array<any>, elemento: any): Promise<any> =>
+    posição: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, elemento: any): Promise<any> =>
         Promise.resolve(vetor.indexOf(elemento) + 1),
-    qual_tipo: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<string> => Promise.resolve('Lista'),
-    remova: (interpretador: VisitanteComumInterface, vetor: Array<any>, posicao: number): Promise<any> => {
+    qual_tipo: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<string> => Promise.resolve('Lista'),
+    remova: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, posicao: number): Promise<any> => {
         let copia = [...vetor];
         copia.splice(posicao - 1, 1);
         return Promise.resolve(copia);
     },
     selecione: async (
-        interpretador: VisitanteComumInterface,
+        interpretador: InterpretadorPotigolInterface,
         vetor: Array<any>,
         funcao: DeleguaFuncao
     ): Promise<any> => {
@@ -167,9 +167,9 @@ export default {
 
         return retorno;
     },
-    tamanho: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length),
-    último: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> =>
+    tamanho: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length),
+    último: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
         Promise.resolve(vetor.length > 0 ? vetor[vetor.length - 1] : undefined),
-    vazia: (interpretador: VisitanteComumInterface, vetor: Array<any>): Promise<any> =>
+    vazia: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
         Promise.resolve(vetor.length === 0),
 };

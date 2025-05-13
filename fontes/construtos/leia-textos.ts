@@ -1,5 +1,4 @@
-import { Construto } from "@designliquido/delegua/construtos";
-import { Leia } from "@designliquido/delegua/declaracoes";
+import { Construto, Leia } from "@designliquido/delegua/construtos";
 import { SimboloInterface } from "@designliquido/delegua/interfaces";
 import { uuidv4 } from "@designliquido/delegua/geracao-identificadores";
 

@@ -1,4 +1,4 @@
-import { DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
 import { Binario, FuncaoConstruto, Literal, Variavel } from '@designliquido/delegua/construtos';
 import { Retorna } from '@designliquido/delegua/declaracoes';
 import { ParametroInterface } from '@designliquido/delegua/interfaces';

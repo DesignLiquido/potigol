@@ -1,7 +1,7 @@
 import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
 
-import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
-import { QualTipo } from '../construtos/qual-tipo';
+import { ReatribuicaoVariavel } from '../declaracoes';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
 
 export interface VisitanteComumPotigolInterface extends VisitanteComumInterface {
     visitarDeclaracaoLeiaInteiro(declaracao: LeiaInteiro): Promise<any> | void;

@@ -7,7 +7,7 @@ import {
     Unario,
     Variavel,
 } from '@designliquido/delegua/construtos';
-import { DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
+import { DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
@@ -15,8 +15,8 @@ import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces
 import { inferirTipoVariavel } from './inferenciador';
 import { EstruturaTupla } from '../estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
-import { ConstanteOuVariavel, QualTipo } from '../construtos';
-import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
+import { ConstanteOuVariavel, LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
+import { ReatribuicaoVariavel } from '../declaracoes';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import primitivasNumero from '../bibliotecas/primitivas-numero';

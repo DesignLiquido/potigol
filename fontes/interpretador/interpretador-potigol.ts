@@ -1,21 +1,16 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import { AcessoMetodoOuPropriedade, Construto, Tupla } from '@designliquido/delegua/construtos';
 import { Const } from '@designliquido/delegua/declaracoes';
-import { ObjetoPadrao } from '@designliquido/delegua/estruturas';
+import { ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 
 import {
-    LeiaInteiro,
-    LeiaInteiros,
-    LeiaReais,
-    LeiaReal,
-    LeiaTexto,
-    LeiaTextos,
     ReatribuicaoVariavel,
 } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
 import { QualTipo } from '../construtos/qual-tipo';
+import { LeiaInteiros, LeiaReais, LeiaTextos, LeiaInteiro, LeiaReal, LeiaTexto } from '../construtos';
 
 import * as comum from './comum';
 

@@ -1,6 +1,3 @@
-import { FuncaoPadrao } from '@designliquido/delegua/estruturas';
-import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
-
 import { InterpretadorPotigolInterface } from '../interfaces';
 
 export async function abs(interpretador: InterpretadorPotigolInterface, valor: number): Promise<number> {

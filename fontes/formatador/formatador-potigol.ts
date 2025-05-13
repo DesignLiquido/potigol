@@ -8,7 +8,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Comentario,
     Constante,
     Construto,
     Deceto,
@@ -20,6 +19,7 @@ import {
     FormatacaoEscrita,
     FuncaoConstruto,
     Isto,
+    Leia,
     Literal,
     Logico,
     Noneto,
@@ -57,7 +57,6 @@ import {
     Bloco,
     Continua,
     EscrevaMesmaLinha,
-    Leia,
     Retorna,
     Sustar,
     Declaracao,
@@ -67,21 +66,17 @@ import {
     TendoComo,
     PropriedadeClasse,
     InicioAlgoritmo,
+    Comentario,
 } from '@designliquido/delegua/declaracoes';
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
 import {
-    LeiaInteiro,
-    LeiaInteiros,
-    LeiaReais,
-    LeiaReal,
-    LeiaTexto,
-    LeiaTextos,
     ReatribuicaoVariavel,
 } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
+
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
-import { QualTipo } from '../construtos';
 
 export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     indentacaoAtual: number;
@@ -308,7 +303,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
         for (let caminho of declaracao.caminhos) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}caso `;
-            this.formatarBlocoOuVetorDeclaracoes(caminho.condicoes);
+            this.formatarDeclaracaoOuConstruto(caminho.condicoes[0]);
             this.codigoFormatado += ` => `;
             this.devePularLinha = false;
             this.deveIndentar = false;

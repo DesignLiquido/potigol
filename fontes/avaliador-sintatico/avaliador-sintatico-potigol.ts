@@ -11,6 +11,7 @@ import {
     FimPara,
     FuncaoConstruto,
     Isto,
+    Leia,
     Literal,
     Unario,
     Variavel,
@@ -32,7 +33,6 @@ import {
     FuncaoDeclaracao,
     Classe,
     PropriedadeClasse,
-    Leia,
     ConstMultiplo,
     Retorna,
 } from '@designliquido/delegua/declaracoes';
@@ -43,11 +43,10 @@ import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/int
 import { TipoDadosElementar } from '@designliquido/delegua/tipo-dados-elementar';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
-import { RetornoDeclaracao } from '@designliquido/delegua/avaliador-sintatico/retornos';
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
 
-import { ConstanteOuVariavel } from '../construtos';
-import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, ReatribuicaoVariavel } from '../declaracoes';
+import { ConstanteOuVariavel, LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
+import { ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 import { QualTipo } from '../construtos/qual-tipo';
@@ -59,6 +58,9 @@ import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
  * transformar o retorno de `primario()` em um vetor.
  */
 export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
+    protected expressaoLeia(): Leia {
+        throw new Error('Method not implemented.');
+    }
 
     microAvaliadorSintatico: MicroAvaliadorSintaticoPotigol;
 
@@ -608,8 +610,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * - Em uma declaração `para`.
      * @returns Um vetor de `Declaracao`.
      */
-    blocoEscopo(): Array<RetornoDeclaracao> {
-        let declaracoes: Array<RetornoDeclaracao> = [];
+    blocoEscopo(): Array<Declaracao> {
+        let declaracoes: Array<Declaracao> = [];
         this.pilhaEscoposVariaveisConhecidas.empilhar([]);
 
         while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
