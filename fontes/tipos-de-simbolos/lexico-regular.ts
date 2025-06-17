@@ -22,6 +22,7 @@ export default {
     FACA: 'FACA',
     FIM: 'FIM',
     FORMATO: 'FORMATO',
+    GERE: 'GERE',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IGUAL: 'IGUAL',
     IGUAL_IGUAL: 'IGUAL_IGUAL',
