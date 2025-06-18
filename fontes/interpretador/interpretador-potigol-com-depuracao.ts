@@ -2,23 +2,15 @@ import { AcessoMetodoOuPropriedade, Construto } from '@designliquido/delegua/con
 import { InterpretadorComDepuracao } from '@designliquido/delegua/interpretador/interpretador-com-depuracao';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
-import {
-    ReatribuicaoVariavel,
-} from '../declaracoes';
-import {
-    LeiaInteiro,
-    LeiaInteiros,
-    LeiaReais,
-    LeiaReal,
-    LeiaTexto,
-    LeiaTextos, QualTipo
-} from '../construtos';
+import { ReatribuicaoVariavel } from '../declaracoes';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
 
 import * as comum from './comum';
 
 export class InterpretadorPotigolComDepuracao
     extends InterpretadorComDepuracao
-    implements InterpretadorPotigolInterface {
+    implements InterpretadorPotigolInterface
+{
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.expandirPropriedadesDeObjetosEmEspacoVariaveis = true;

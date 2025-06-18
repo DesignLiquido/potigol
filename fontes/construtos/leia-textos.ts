@@ -1,8 +1,8 @@
-import { Construto, Leia } from "@designliquido/delegua/construtos";
-import { SimboloInterface } from "@designliquido/delegua/interfaces";
-import { uuidv4 } from "@designliquido/delegua/geracao-identificadores";
+import { Construto, Leia } from '@designliquido/delegua/construtos';
+import { SimboloInterface } from '@designliquido/delegua/interfaces';
+import { uuidv4 } from '@designliquido/delegua/geracao-identificadores';
 
-import { VisitanteComumPotigolInterface } from "../interfaces";
+import { VisitanteComumPotigolInterface } from '../interfaces';
 
 /**
  * Declaração que pede a leitura de várias informações pela entrada

@@ -45,7 +45,15 @@ import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
 
-import { ConstanteOuVariavel, LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
+import {
+    ConstanteOuVariavel,
+    LeiaInteiro,
+    LeiaInteiros,
+    LeiaReais,
+    LeiaReal,
+    LeiaTexto,
+    LeiaTextos,
+} from '../construtos';
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
@@ -393,17 +401,17 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
                 const dicionarioTiposDelegua = {
-                    'CARACTERE': 'texto',
-                    'INTEIRO': 'inteiro',
-                    'LOGICO': 'lógico',
-                    'REAL': 'número',
-                    'TEXTO': 'texto'
-                }
+                    CARACTERE: 'texto',
+                    INTEIRO: 'inteiro',
+                    LOGICO: 'lógico',
+                    REAL: 'número',
+                    TEXTO: 'texto',
+                };
 
                 return new Literal(
-                    this.hashArquivo, 
-                    Number(simboloLiteral.linha), 
-                    simboloLiteral.literal, 
+                    this.hashArquivo,
+                    Number(simboloLiteral.linha),
+                    simboloLiteral.literal,
                     dicionarioTiposDelegua[simboloLiteral.tipo]
                 );
             case tiposDeSimbolos.FALSO:
@@ -412,7 +420,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloVerdadeiroFalso.linha),
-                    simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO, 
+                    simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO,
                     'lógico'
                 );
             case tiposDeSimbolos.LEIA_INTEIRO:
@@ -804,8 +812,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             this.hashArquivo,
             Number(simboloPara.linha),
             new Atribuir(
-                this.hashArquivo, 
-                new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'), 
+                this.hashArquivo,
+                new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
                 literalOuVariavelInicio
             ),
             new Binario(
@@ -927,15 +935,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const inicializadores = [];
         do {
             let inicializador = this.expressao();
-            if (identificadores.length > 1 && ['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializador.constructor.name)) {
+            if (
+                identificadores.length > 1 &&
+                ['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializador.constructor.name)
+            ) {
                 switch (inicializador.constructor.name) {
                     case 'LeiaInteiro':
                         const inicializadorTipadoInteiro = inicializador as LeiaInteiro;
                         inicializador = new LeiaInteiros(
                             inicializadorTipadoInteiro.simbolo,
                             new Literal(
-                                this.hashArquivo, 
-                                Number(inicializadorTipadoInteiro.simbolo.linha), 
+                                this.hashArquivo,
+                                Number(inicializadorTipadoInteiro.simbolo.linha),
                                 identificadores.length
                             )
                         );
@@ -945,8 +956,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         inicializador = new LeiaReais(
                             inicializadorTipadoReal.simbolo,
                             new Literal(
-                                this.hashArquivo, 
-                                Number(inicializadorTipadoReal.simbolo.linha), 
+                                this.hashArquivo,
+                                Number(inicializadorTipadoReal.simbolo.linha),
                                 identificadores.length
                             )
                         );
@@ -956,13 +967,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         inicializador = new LeiaTextos(
                             inicializadorTipadoTexto.simbolo,
                             new Literal(
-                                this.hashArquivo, 
-                                Number(inicializadorTipadoTexto.simbolo.linha), 
+                                this.hashArquivo,
+                                Number(inicializadorTipadoTexto.simbolo.linha),
                                 identificadores.length
                             )
                         );
                         break;
-                }            
+                }
             }
 
             inicializadores.push(inicializador);
@@ -971,7 +982,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         if (identificadores.length !== inicializadores.length) {
             // Pode ser que a inicialização seja feita por uma das
             // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
-            if (!(inicializadores.length === 1 && ['LeiaInteiros', 'LeiaReais', 'LeiaTextos'].includes(inicializadores[0].constructor.name))) {
+            if (
+                !(
+                    inicializadores.length === 1 &&
+                    ['LeiaInteiros', 'LeiaReais', 'LeiaTextos'].includes(inicializadores[0].constructor.name)
+                )
+            ) {
                 throw this.erro(
                     this.simbolos[this.atual],
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
@@ -1008,13 +1024,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(
-                new Const(
-                    identificador, 
-                    inicializadores[indice], 
-                    tipo
-                )
-            );
+            retorno.push(new Const(identificador, inicializadores[indice], tipo));
         }
 
         return retorno;

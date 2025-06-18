@@ -3,9 +3,7 @@ import { AcessoMetodoOuPropriedade, Construto, Tupla } from '@designliquido/dele
 import { Const } from '@designliquido/delegua/declaracoes';
 import { ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 
-import {
-    ReatribuicaoVariavel,
-} from '../declaracoes';
+import { ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';

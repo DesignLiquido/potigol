@@ -71,9 +71,7 @@ import {
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
-import {
-    ReatribuicaoVariavel,
-} from '../declaracoes';
+import { ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';

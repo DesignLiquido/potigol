@@ -22,8 +22,9 @@
     "exclude": [
         "babel.config.js", 
         "coverage",
-        "docs",
         "dist/**/*",
+        "docs",
+        "eslint.config.mjs",
         "jest.config.ts",
         "node_modules",
         "testes/**/*"

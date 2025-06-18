@@ -2,7 +2,8 @@ import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
 
 export default {
-    cabeça: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor[0]),
+    cabeça: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
+        Promise.resolve(vetor[0]),
     cauda: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => {
         let copia = [...vetor];
         copia.splice(0, 1);
@@ -70,7 +71,11 @@ export default {
         return retorno;
     },
     imutável: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
-    injete: async (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+    injete: async (
+        interpretador: InterpretadorPotigolInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
         // TODO: Terminar
         /* if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'injete'.");
@@ -103,7 +108,11 @@ export default {
     },
     junte: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, separador: string): Promise<any> =>
         Promise.resolve(vetor.join(separador)),
-    mapeie: async (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, funcao: DeleguaFuncao): Promise<any> => {
+    mapeie: async (
+        interpretador: InterpretadorPotigolInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
         if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'mapeie'.");
         }
@@ -143,7 +152,8 @@ export default {
     },
     posição: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, elemento: any): Promise<any> =>
         Promise.resolve(vetor.indexOf(elemento) + 1),
-    qual_tipo: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<string> => Promise.resolve('Lista'),
+    qual_tipo: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<string> =>
+        Promise.resolve('Lista'),
     remova: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>, posicao: number): Promise<any> => {
         let copia = [...vetor];
         copia.splice(posicao - 1, 1);
@@ -167,7 +177,8 @@ export default {
 
         return retorno;
     },
-    tamanho: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => Promise.resolve(vetor.length),
+    tamanho: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
+        Promise.resolve(vetor.length),
     último: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
         Promise.resolve(vetor.length > 0 ? vetor[vetor.length - 1] : undefined),
     vazia: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>

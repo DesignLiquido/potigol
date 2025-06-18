@@ -1,7 +1,7 @@
-import { Construto, Leia, SimboloInterface } from "@designliquido/delegua";
-import { uuidv4 } from "@designliquido/delegua/geracao-identificadores";
+import { Construto, Leia, SimboloInterface } from '@designliquido/delegua';
+import { uuidv4 } from '@designliquido/delegua/geracao-identificadores';
 
-import { VisitanteComumPotigolInterface } from "../interfaces";
+import { VisitanteComumPotigolInterface } from '../interfaces';
 
 export class LeiaInteiros extends Leia {
     simbolo: SimboloInterface;
@@ -14,7 +14,7 @@ export class LeiaInteiros extends Leia {
         this.id = uuidv4();
         this.argumentoCardinalidade = argumentoCardinalidade;
     }
-        
+
     async aceitar(visitante: VisitanteComumPotigolInterface): Promise<any> {
         return await visitante.visitarDeclaracaoLeiaInteiros(this);
     }

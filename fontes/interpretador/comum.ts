@@ -7,7 +7,12 @@ import {
     Unario,
     Variavel,
 } from '@designliquido/delegua/construtos';
-import { DeleguaModulo, FuncaoPadrao, MetodoPrimitiva, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
+import {
+    DeleguaModulo,
+    FuncaoPadrao,
+    MetodoPrimitiva,
+    ObjetoDeleguaClasse,
+} from '@designliquido/delegua/interpretador/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
@@ -15,7 +20,16 @@ import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces
 import { inferirTipoVariavel } from './inferenciador';
 import { EstruturaTupla } from '../estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
-import { ConstanteOuVariavel, LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
+import {
+    ConstanteOuVariavel,
+    LeiaInteiro,
+    LeiaInteiros,
+    LeiaReais,
+    LeiaReal,
+    LeiaTexto,
+    LeiaTextos,
+    QualTipo,
+} from '../construtos';
 import { ReatribuicaoVariavel } from '../declaracoes';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
@@ -110,8 +124,8 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     switch (tipoObjeto) {
         case 'inteiro':
         case 'Inteiro': // TODO: Remover.
-        case 'Real': // TODO: Remover. 
-        case 'número': 
+        case 'Real': // TODO: Remover.
+        case 'número':
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
             if (metodoDePrimitivaNumero) {
                 return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
@@ -226,7 +240,7 @@ export async function visitarExpressaoLeia(
     interpretador: InterpretadorPotigolInterface,
     expressao: LeiaInteiro | LeiaReal | LeiaTexto
 ): Promise<any> {
-    let _resposta: string = "";
+    let _resposta: string = '';
     await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
         _resposta = String(resposta);
     });
