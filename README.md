@@ -1,6 +1,21 @@
 # potigol
 
-Nossa implementação do dialeto Potigol, usando TypeScript. 
+Nossa implementação do dialeto Potigol, usando TypeScript.
+
+  <p align="center">
+    <img src="./recursos/imagens/badge-statements.svg" />
+    <img src="./recursos/imagens/badge-lines.svg" />
+    <img src="./recursos/imagens/badge-functions.svg" />
+    <img src="./recursos/imagens/badge-branches.svg" />
+    <a href="https://github.com/DesignLiquido/potigol/issues" target="_blank">
+      <img src="https://img.shields.io/github/issues/Designliquido/potigol" />
+    </a>
+    <a href="https://www.npmjs.com/package/@designliquido/potigol" target="_blank">
+      <img src="https://img.shields.io/npm/v/@designliquido/potigol" />
+    </a>
+    <img src="https://img.shields.io/npm/dw/@designliquido/potigol" />
+    <img src="https://img.shields.io/github/license/Designliquido/potigol" />
+  </p>
 
 ## Sobre este dialeto
 
