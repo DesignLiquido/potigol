@@ -1,7 +1,7 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
-import { AcessoMetodoOuPropriedade, Construto, Tupla } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, Tupla } from '@designliquido/delegua/construtos';
 import { Const } from '@designliquido/delegua/declaracoes';
-import { ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
+import { DeleguaFuncao, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
@@ -123,6 +123,12 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
 
     override async visitarExpressaoBinaria(expressao: any): Promise<any> {
         return comum.visitarExpressaoBinaria(this, expressao);
+    }
+
+    override async visitarExpressaoFuncaoConstruto(
+        funcaoConstruto: FuncaoConstruto
+    ): Promise<DeleguaFuncao> {
+        return comum.visitarExpressaoFuncaoConstruto(this, funcaoConstruto);
     }
 
     async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {

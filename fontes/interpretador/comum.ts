@@ -2,12 +2,14 @@ import {
     AcessoMetodoOuPropriedade,
     Binario,
     Construto,
+    FuncaoConstruto,
     Literal,
     Tupla,
     Unario,
     Variavel,
 } from '@designliquido/delegua/construtos';
 import {
+    DeleguaFuncao,
     DeleguaModulo,
     FuncaoPadrao,
     MetodoPrimitiva,
@@ -37,6 +39,7 @@ import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import { PotigolFuncao } from './estruturas';
 
 const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
 
@@ -234,6 +237,13 @@ export async function visitarExpressaoBinaria(
 
             return [valorEsquerdo].concat(valorDireito);
     }
+}
+
+export async function visitarExpressaoFuncaoConstruto(
+    interpretador: InterpretadorPotigolInterface,
+    funcaoConstruto: FuncaoConstruto
+): Promise<DeleguaFuncao> {
+    return new PotigolFuncao(null, funcaoConstruto);
 }
 
 export async function visitarExpressaoLeia(

@@ -1,4 +1,4 @@
-import { AcessoMetodoOuPropriedade, Construto } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto } from '@designliquido/delegua/construtos';
 import { InterpretadorBaseComDepuracao } from '@designliquido/delegua/interpretador/depuracao/interpretador-base-com-depuracao';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
@@ -6,6 +6,7 @@ import { ReatribuicaoVariavel } from '../declaracoes';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
 
 import * as comum from './comum';
+import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
 
 export class InterpretadorPotigolComDepuracao
     extends InterpretadorBaseComDepuracao
@@ -61,6 +62,12 @@ export class InterpretadorPotigolComDepuracao
 
     override async visitarExpressaoBinaria(expressao: any): Promise<any> {
         return comum.visitarExpressaoBinaria(this, expressao);
+    }
+
+    override async visitarExpressaoFuncaoConstruto(
+        funcaoConstruto: FuncaoConstruto
+    ): Promise<DeleguaFuncao> {
+        return comum.visitarExpressaoFuncaoConstruto(this, funcaoConstruto);
     }
 
     async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
