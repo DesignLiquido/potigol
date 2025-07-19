@@ -11,16 +11,17 @@ import {
 import {
     DeleguaFuncao,
     DeleguaModulo,
+    DescritorTipoClasse,
     FuncaoPadrao,
     MetodoPrimitiva,
     ObjetoDeleguaClasse,
 } from '@designliquido/delegua/interpretador/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
+import { Classe, Const } from '@designliquido/delegua/declaracoes';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
 
 import { inferirTipoVariavel } from './inferenciador';
-import { EstruturaTupla } from '../estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
 import {
     ConstanteOuVariavel,
@@ -33,13 +34,13 @@ import {
     QualTipo,
 } from '../construtos';
 import { ReatribuicaoVariavel } from '../declaracoes';
+import { EstruturaTupla, PotigolFuncao } from './estruturas';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
-import { PotigolFuncao } from './estruturas';
 
 const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
 
@@ -67,6 +68,97 @@ export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecu
     pilhaEscoposExecucao.definirVariavel('sen', new FuncaoPadrao(1, bibliotecaGlobal.sen));
 
     pilhaEscoposExecucao.definirVariavel('tg', new FuncaoPadrao(1, bibliotecaGlobal.tg));
+}
+
+/**
+ * Executa uma declaração de classe.
+ * Uma variável do tipo `DeleguaClasse` é adicionada à pilha de escopos de execução.
+ * @param declaracao A declaração de classe.
+ * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
+ */
+export async function visitarDeclaracaoClasse(
+    interpretador: InterpretadorPotigolInterface,
+    declaracao: Classe
+): Promise<DescritorTipoClasse> {
+    let superClasse = null;
+    if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
+        const variavelSuperClasse: VariavelInterface = await interpretador.avaliar(
+            declaracao.superClasse
+        );
+        superClasse = variavelSuperClasse.valor;
+        if (!(superClasse instanceof DescritorTipoClasse)) {
+            throw new ErroEmTempoDeExecucao(
+                declaracao.superClasse.nome,
+                'Superclasse precisa ser uma classe.',
+                declaracao.linha
+            );
+        }
+    }
+
+    // TODO: Precisamos disso?
+    interpretador.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, declaracao);
+
+    if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
+        interpretador.pilhaEscoposExecucao.definirVariavel('super', superClasse);
+    }
+
+    const metodos = {};
+    const definirMetodos = declaracao.metodos;
+    for (let i = 0; i < declaracao.metodos.length; i++) {
+        const metodoAtual = definirMetodos[i];
+        const eInicializador = metodoAtual.simbolo.lexema === 'construtor';
+        const funcao = new PotigolFuncao(
+            metodoAtual.simbolo.lexema,
+            metodoAtual.funcao,
+            undefined,
+            eInicializador
+        );
+        metodos[metodoAtual.simbolo.lexema] = funcao;
+    }
+
+    const descritorTipoClasse: DescritorTipoClasse = new DescritorTipoClasse(
+        declaracao.simbolo,
+        superClasse,
+        metodos,
+        declaracao.propriedades
+    );
+
+    descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis = true;
+    descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = true;
+
+    interpretador.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
+    return null;
+}
+
+/**
+ * Expressões como por exemplo `x = leia_real` dão a dica do tipo
+ * da variável no inicializador, o que nos obriga a reescrever a visita à
+ * declarações de constantes.
+ * @param {Const} declaracao A declaração de constante.
+ * @returns Nulo.
+ */
+export async function visitarDeclaracaoConst(
+    interpretador: InterpretadorPotigolInterface,
+    declaracao: Const
+): Promise<any> {
+    const valorFinal = await interpretador.avaliacaoDeclaracaoVarOuConst(declaracao);
+    let tipoResolvido = declaracao.tipo;
+    if (tipoResolvido === 'qualquer') {
+        switch (declaracao.inicializador.constructor.name) {
+            case 'LeiaInteiro':
+                tipoResolvido = 'inteiro';
+                break;
+            case 'LeiaReal':
+                tipoResolvido = 'número';
+                break;
+            case 'LeiaTexto':
+                tipoResolvido = 'texto';
+                break;
+        }
+    }
+
+    interpretador.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, tipoResolvido);
+    return null;
 }
 
 export async function visitarDeclaracaoReatribuicaoVariavel(

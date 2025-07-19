@@ -1,12 +1,13 @@
 import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto } from '@designliquido/delegua/construtos';
 import { InterpretadorBaseComDepuracao } from '@designliquido/delegua/interpretador/depuracao/interpretador-base-com-depuracao';
+import { DeleguaFuncao, DescritorTipoClasse } from '@designliquido/delegua/interpretador/estruturas';
+import { Classe, Const } from '@designliquido/delegua/declaracoes';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
 
 import * as comum from './comum';
-import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
 
 export class InterpretadorPotigolComDepuracao
     extends InterpretadorBaseComDepuracao
@@ -18,6 +19,14 @@ export class InterpretadorPotigolComDepuracao
         this.regexInterpolacao = /{(.*?)}/g;
 
         comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
+    }
+
+    override async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        return comum.visitarDeclaracaoConst(this, declaracao);
+    }
+
+    override async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
+        return comum.visitarDeclaracaoClasse(this, declaracao);
     }
 
     visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void {

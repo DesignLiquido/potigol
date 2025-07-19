@@ -1,7 +1,7 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, Tupla } from '@designliquido/delegua/construtos';
-import { Const } from '@designliquido/delegua/declaracoes';
-import { DeleguaFuncao, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
+import { Classe, Const } from '@designliquido/delegua/declaracoes';
+import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
@@ -32,32 +32,12 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
     }
 
-    /**
-     * Expressões como por exemplo `x = leia_real` dão a dica do tipo
-     * da variável no inicializador, o que nos obriga a reescrever a visita à
-     * declarações de constantes.
-     * @param {Const} declaracao A declaração de constante.
-     * @returns Nulo.
-     */
-    override async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
-        const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
-        let tipoResolvido = declaracao.tipo;
-        if (tipoResolvido === 'qualquer') {
-            switch (declaracao.inicializador.constructor.name) {
-                case 'LeiaInteiro':
-                    tipoResolvido = 'inteiro';
-                    break;
-                case 'LeiaReal':
-                    tipoResolvido = 'número';
-                    break;
-                case 'LeiaTexto':
-                    tipoResolvido = 'texto';
-                    break;
-            }
-        }
+    override async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
+        return comum.visitarDeclaracaoClasse(this, declaracao);
+    }
 
-        this.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, tipoResolvido);
-        return null;
+    override async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        return comum.visitarDeclaracaoConst(this, declaracao);
     }
 
     visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void {
