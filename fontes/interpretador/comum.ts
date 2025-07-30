@@ -123,7 +123,7 @@ export async function visitarDeclaracaoClasse(
         declaracao.propriedades
     );
 
-    descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis = true;
+    descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoMemoria = true;
     descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = true;
 
     interpretador.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
@@ -400,7 +400,7 @@ export async function visitarExpressaoQualTipo(
 
     if (expressao?.valor instanceof ConstanteOuVariavel) {
         const nome = expressao?.valor.simbolo.lexema;
-        qualTipo = interpretador.pilhaEscoposExecucao.topoDaPilha().ambiente.valores[nome].valor;
+        qualTipo = interpretador.pilhaEscoposExecucao.topoDaPilha().espacoMemoria.valores[nome].valor;
     }
 
     if (

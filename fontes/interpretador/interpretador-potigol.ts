@@ -23,7 +23,7 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         funcaoDeRetornoMesmaLinha: Function = null
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
-        this.expandirPropriedadesDeObjetosEmEspacoVariaveis = true;
+        this.expandirPropriedadesDeObjetosEmEspacoMemoria = true;
         this.regexInterpolacao = /{(.*?)}/g;
 
         this.microLexador = new MicroLexadorPotigol();

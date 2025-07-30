@@ -25,7 +25,7 @@ export class PotigolFuncao extends DeleguaFuncao {
 
             // Apenas Potigol usa isso até então.
             if (
-                this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoVariaveis &&
+                this.instancia.classe.dialetoRequerExpansaoPropriedadesEspacoMemoria &&
                 this.nome !== 'construtor'
             ) {
                 for (let [nomeCampo, valorCampo] of Object.entries(this.instancia.propriedades)) {

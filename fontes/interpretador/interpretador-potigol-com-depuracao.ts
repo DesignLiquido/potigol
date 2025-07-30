@@ -15,7 +15,7 @@ export class InterpretadorPotigolComDepuracao
 {
     constructor(diretorioBase: string, funcaoDeRetorno: Function = null, funcaoDeRetornoMesmaLinha: Function = null) {
         super(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
-        this.expandirPropriedadesDeObjetosEmEspacoVariaveis = true;
+        this.expandirPropriedadesDeObjetosEmEspacoMemoria = true;
         this.regexInterpolacao = /{(.*?)}/g;
 
         comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
