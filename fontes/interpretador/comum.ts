@@ -1,6 +1,7 @@
 import {
     AcessoMetodoOuPropriedade,
     Binario,
+    Constante,
     Construto,
     FuncaoConstruto,
     Literal,
@@ -68,6 +69,18 @@ export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecu
     pilhaEscoposExecucao.definirVariavel('sen', new FuncaoPadrao(1, bibliotecaGlobal.sen));
 
     pilhaEscoposExecucao.definirVariavel('tg', new FuncaoPadrao(1, bibliotecaGlobal.tg));
+}
+
+function resolverNomeObjectoAcessado(objetoAcessado: Construto): string {
+    if (objetoAcessado instanceof Variavel) {
+        return objetoAcessado.simbolo.lexema;
+    } 
+    
+    if (objetoAcessado instanceof Constante) {
+        return objetoAcessado.simbolo.lexema;
+    }
+
+    return '';
 }
 
 /**
@@ -182,6 +195,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     expressao: AcessoMetodoOuPropriedade
 ): Promise<any> {
     const variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
+    const nomeObjeto: string = resolverNomeObjectoAcessado(expressao.objeto);
     const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
     if (objeto instanceof ObjetoDeleguaClasse) {
@@ -223,19 +237,19 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
         case 'número':
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
             if (metodoDePrimitivaNumero) {
-                return new MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
             }
             break;
         case 'texto':
             const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
             if (metodoDePrimitivaTexto) {
-                return new MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
             }
             break;
         case 'vetor':
             const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
             if (metodoDePrimitivaVetor) {
-                return new MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
             }
             break;
     }
