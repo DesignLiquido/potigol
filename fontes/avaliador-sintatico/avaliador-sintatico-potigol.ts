@@ -559,9 +559,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     // consideramos a expressão como variável.
                     // Caso contrário, consideramos como constante.
                     if (this.pilhaEscoposVariaveisConhecidas.variavelExiste(expressao.simbolo.lexema)) {
-                        expressao = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
+                        expressao = new Variavel(expressao.hashArquivo, expressao.simbolo);
                     } else {
-                        expressao = new Constante(expressao.hashArquivo, (expressao as any).simbolo);
+                        expressao = new Constante(expressao.hashArquivo, expressao.simbolo);
                     }
                 }
 
@@ -1220,8 +1220,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             let tipoVariavelOuConstante: SimboloInterface<string>;
             if (expressao instanceof Constante) {
                 // Atribuição constante.
+                let tipoExplicito = false;
                 if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
                     tipoVariavelOuConstante = this.logicaAtribuicaoComDicaDeTipo(expressao);
+                    tipoExplicito = true;
                 }
 
                 switch (this.simbolos[this.atual].tipo) {
@@ -1235,7 +1237,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                             valorAtribuicao,
                             tipoVariavelOuConstante
                                 ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoDadosElementar)
-                                : undefined
+                                : undefined,
+                            tipoExplicito
                         );
                 }
             } else if (expressao instanceof Variavel) {
