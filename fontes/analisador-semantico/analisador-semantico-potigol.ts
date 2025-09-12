@@ -11,7 +11,8 @@ import { VariavelHipoteticaInterface } from '@designliquido/delegua/interfaces/v
 
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
-import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
+import { TipoDe } from '@designliquido/delegua';
 
 export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implements VisitanteComumPotigolInterface {
     pilhaVariaveis: PilhaVariaveis;
@@ -85,7 +86,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         return Promise.resolve();
     }
 
-    visitarExpressaoQualTipo(expressao: QualTipo<string>): void | Promise<string> {
+    visitarExpressaoTipoDe(expressao: TipoDe<string>): Promise<string> {
         return Promise.resolve('');
     }
 

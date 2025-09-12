@@ -542,7 +542,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         identificador.lexema
                     );
                     this.avancarEDevolverAnterior();
-                    // return new QualTipo(this.hashArquivo, simbolo, valor);
+                    // return new TipoDe(this.hashArquivo, simbolo, valor);
                     return new TipoDe(this.hashArquivo, simbolo, valor);
                 } else {
                     const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");

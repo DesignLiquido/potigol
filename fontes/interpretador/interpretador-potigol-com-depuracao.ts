@@ -83,7 +83,7 @@ export class InterpretadorPotigolComDepuracao
         return comum.visitarExpressaoFuncaoConstruto(this, funcaoConstruto);
     }
 
-    async visitarExpressaoQualTipo(expressao: TipoDe): Promise<string> {
+    async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
         return comum.visitarExpressaoTipoDe(this, expressao);
     }
 
