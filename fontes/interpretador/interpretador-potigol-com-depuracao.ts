@@ -1,11 +1,11 @@
-import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, TipoDe } from '@designliquido/delegua/construtos';
 import { InterpretadorBaseComDepuracao } from '@designliquido/delegua/interpretador/depuracao/interpretador-base-com-depuracao';
 import { DeleguaFuncao, DescritorTipoClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { Classe, Const } from '@designliquido/delegua/declaracoes';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
 import { ReatribuicaoVariavel } from '../declaracoes';
-import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 
 import * as comum from './comum';
 
@@ -19,6 +19,10 @@ export class InterpretadorPotigolComDepuracao
         this.regexInterpolacao = /{(.*?)}/g;
 
         comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
+    }
+
+    override resolverValor(objeto: any) {
+        return comum.resolverValor(objeto);
     }
 
     override async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
@@ -79,8 +83,8 @@ export class InterpretadorPotigolComDepuracao
         return comum.visitarExpressaoFuncaoConstruto(this, funcaoConstruto);
     }
 
-    async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
-        return comum.visitarExpressaoQualTipo(this, expressao);
+    async visitarExpressaoQualTipo(expressao: TipoDe): Promise<string> {
+        return comum.visitarExpressaoTipoDe(this, expressao);
     }
 
     async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {

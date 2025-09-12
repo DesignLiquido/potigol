@@ -26,4 +26,8 @@ export class ReatribuicaoVariavel extends Declaracao {
     async aceitar(visitante: VisitanteComumPotigolInterface): Promise<any> {
         return await visitante.visitarDeclaracaoReatribuicaoVariavel(this);
     }
+
+    paraTexto(): string {
+        return `<reatribuição-variável />`;
+    }
 }

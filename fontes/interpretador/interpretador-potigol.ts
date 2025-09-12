@@ -1,5 +1,5 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
-import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, Tupla } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, TipoDe, Tupla } from '@designliquido/delegua/construtos';
 import { Classe, Const } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 
@@ -7,7 +7,6 @@ import { ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
-import { QualTipo } from '../construtos/qual-tipo';
 import { LeiaInteiros, LeiaReais, LeiaTextos, LeiaInteiro, LeiaReal, LeiaTexto } from '../construtos';
 
 import * as comum from './comum';
@@ -30,6 +29,10 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(-1) as any;
 
         comum.carregarBibliotecaGlobal(this.pilhaEscoposExecucao);
+    }
+
+    override resolverValor(objeto: any) {
+        return comum.resolverValor(objeto);
     }
 
     override async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
@@ -111,8 +114,8 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarExpressaoFuncaoConstruto(this, funcaoConstruto);
     }
 
-    async visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> {
-        return comum.visitarExpressaoQualTipo(this, expressao);
+    async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
+        return comum.visitarExpressaoTipoDe(this, expressao);
     }
 
     override async visitarExpressaoTupla(expressao: Tupla): Promise<any> {

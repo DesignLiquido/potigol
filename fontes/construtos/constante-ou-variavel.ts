@@ -32,4 +32,8 @@ export class ConstanteOuVariavel<TTipoSimbolo extends string = string> implement
             )
         );
     }
+
+    paraTexto(): string {
+        return `<constante-ou-variável />`;
+    }
 }

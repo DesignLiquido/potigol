@@ -29,7 +29,8 @@ export default {
         const retorno = [...vetor];
         for (let elemento of vetor) {
             let resultado = await funcao.chamar(interpretador, [elemento]);
-            if (resultado) {
+            let resultadoResolvido = interpretador.resolverValor(resultado);
+            if (resultadoResolvido) {
                 retorno.shift();
             } else {
                 break;
@@ -57,7 +58,8 @@ export default {
         let retornoAcumulado: any[] = [elementoAnterior];
         for (let elemento of vetor) {
             let resultado = await funcao.chamar(interpretador, [elementoAnterior, elemento]);
-            if (resultado) {
+            let resultadoResolvido = interpretador.resolverValor(resultado);
+            if (resultadoResolvido) {
                 elementoAnterior = elemento;
                 retorno.push(retornoAcumulado);
                 retornoAcumulado = [elemento];
@@ -146,7 +148,8 @@ export default {
         const retorno = [];
         for (let elemento of vetor) {
             let resultado = await funcao.chamar(interpretador, [elemento]);
-            if (resultado) {
+            let resultadoResolvido = interpretador.resolverValor(resultado);
+            if (resultadoResolvido) {
                 retorno.push(elemento);
             } else {
                 break;

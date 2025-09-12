@@ -5,6 +5,7 @@ import {
     Construto,
     FuncaoConstruto,
     Literal,
+    TipoDe,
     Tupla,
     Unario,
     Variavel,
@@ -21,6 +22,7 @@ import { VariavelInterface } from '@designliquido/delegua/interfaces';
 import { Classe, Const } from '@designliquido/delegua/declaracoes';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
+import { RetornoQuebra } from '@designliquido/delegua/quebras';
 
 import { inferirTipoVariavel } from './inferenciador';
 import { InterpretadorPotigolInterface } from '../interfaces';
@@ -32,7 +34,6 @@ import {
     LeiaReal,
     LeiaTexto,
     LeiaTextos,
-    QualTipo,
 } from '../construtos';
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { EstruturaTupla, PotigolFuncao } from './estruturas';
@@ -81,6 +82,39 @@ function resolverNomeObjectoAcessado(objetoAcessado: Construto): string {
     }
 
     return '';
+}
+
+export function resolverValor(objeto: any) {
+    if (objeto === null || objeto === undefined) {
+        return objeto;
+    }
+
+    if (Array.isArray(objeto)) {
+        const vetorResolvido: any[] = [];
+        for (const elemento of objeto) {
+            vetorResolvido.push(resolverValor(elemento));
+        }
+
+        return vetorResolvido;
+    }
+
+    if (objeto instanceof RetornoQuebra) {
+        return resolverValor(objeto.valor);
+    }
+
+    if (objeto.hasOwnProperty && objeto.hasOwnProperty('valorRetornado')) {
+        return resolverValor(objeto.valorRetornado);
+    }
+
+    if (objeto.hasOwnProperty('valor')) {
+        if (Array.isArray(objeto.valor)) {
+            return resolverValor(objeto.valor);
+        }
+
+        return objeto.valor;
+    }
+
+    return objeto;
 }
 
 /**
@@ -406,9 +440,9 @@ export async function visitarExpressaoLeiaMultiplo(
     return Promise.resolve(respostas);
 }
 
-export async function visitarExpressaoQualTipo(
+export async function visitarExpressaoTipoDe(
     interpretador: InterpretadorPotigolInterface,
-    expressao: QualTipo
+    expressao: TipoDe
 ): Promise<string> {
     let qualTipo = expressao.valor;
 
@@ -420,15 +454,15 @@ export async function visitarExpressaoQualTipo(
     if (
         qualTipo instanceof Binario ||
         qualTipo instanceof Literal ||
-        qualTipo instanceof QualTipo ||
+        qualTipo instanceof TipoDe ||
         qualTipo instanceof Unario ||
         qualTipo instanceof Variavel
     ) {
         qualTipo = await interpretador.avaliar(qualTipo);
-        return qualTipo.tipo || inferirTipoVariavel(qualTipo);
+        return qualTipo.tipo || inferirTipoVariavel(qualTipo as any);
     }
 
-    return inferirTipoVariavel(qualTipo?.valores || qualTipo);
+    return inferirTipoVariavel((qualTipo as any)?.valores || qualTipo);
 }
 
 export async function visitarExpressaoTupla(
@@ -462,11 +496,12 @@ export async function avaliarArgumentosEscreva(
     }
 
     const resultadoAvaliacao = await interpretador.avaliar(argumento);
-    if (typeof resultadoAvaliacao.paraTexto === 'function') {
+    const resultadoAvaliacaoResolvido = resolverValor(resultadoAvaliacao);
+    // TODO: Depreciar esta forma. Construtos e declarações usam `paraTexto` com outra finalidade.
+    if (typeof resultadoAvaliacaoResolvido.paraTexto === 'function') {
         formatoTexto = resultadoAvaliacao.paraTexto();
     } else {
-        let valor = resultadoAvaliacao?.hasOwnProperty('valor') ? resultadoAvaliacao.valor : resultadoAvaliacao;
-        formatoTexto = `${interpretador.paraTexto(valor)}`;
+        formatoTexto = `${interpretador.paraTexto(resultadoAvaliacaoResolvido)}`;
     }
 
     return formatoTexto;

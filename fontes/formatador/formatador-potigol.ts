@@ -72,7 +72,7 @@ import {
 } from '@designliquido/delegua/declaracoes';
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
-import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos, QualTipo } from '../construtos';
+import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 
@@ -109,10 +109,6 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     }
 
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    visitarExpressaoQualTipo(expressao: QualTipo): Promise<string> | void {
         throw new Error('Método não implementado.');
     }
 

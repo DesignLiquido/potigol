@@ -5,11 +5,12 @@ import {
     Constante,
     Construto,
     Literal,
+    Tupla,
 } from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
-import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
+import { SeletorTuplas } from '@designliquido/delegua/construtos/tuplas';
 import { SimboloInterface } from '@designliquido/delegua/interfaces';
 import { Simbolo } from '@designliquido/delegua/lexador';
 

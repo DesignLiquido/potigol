@@ -13,6 +13,8 @@ import {
     Isto,
     Leia,
     Literal,
+    TipoDe,
+    Tupla,
     Unario,
     Variavel,
     Vetor,
@@ -43,7 +45,7 @@ import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/int
 import { TipoDadosElementar } from '@designliquido/delegua/tipo-dados-elementar';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
-import { SeletorTuplas, Tupla } from '@designliquido/delegua/construtos/tuplas';
+import { SeletorTuplas } from '@designliquido/delegua/construtos/tuplas';
 
 import {
     ConstanteOuVariavel,
@@ -57,7 +59,6 @@ import {
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
-import { QualTipo } from '../construtos/qual-tipo';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
@@ -535,9 +536,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.QUAL_TIPO)) {
                     const identificador = this.simbolos[this.atual - 2];
                     const simbolo = this.simbolos[this.atual];
-                    const valor = expressao ? expressao : identificador.lexema;
+                    const valor = expressao ? expressao : new Literal(
+                        identificador.hashArquivo,
+                        identificador.linha,
+                        identificador.lexema
+                    );
                     this.avancarEDevolverAnterior();
-                    return new QualTipo(this.hashArquivo, simbolo, valor);
+                    // return new QualTipo(this.hashArquivo, simbolo, valor);
+                    return new TipoDe(this.hashArquivo, simbolo, valor);
                 } else {
                     const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
                     const variavelMetodo = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
@@ -811,11 +817,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const para = new Para(
             this.hashArquivo,
             Number(simboloPara.linha),
-            new Atribuir(
+            new Expressao(new Atribuir(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
                 literalOuVariavelInicio
-            ),
+            )),
             new Binario(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao),
