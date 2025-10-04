@@ -60,6 +60,7 @@ import { ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
+import tipoDeDadosPotigol from '../tipos-de-dados';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
 /**
@@ -590,6 +591,271 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    protected verificarDefinicaoTipoAtual(): string {
+        const tipos = [...Object.values(tipoDeDadosPotigol)];
+
+        // TODO: Habilitar isso no futuro.
+        /* if (this.simbolos[this.atual].lexema in this.tiposDefinidosEmCodigo) {
+            return this.simbolos[this.atual].lexema;
+        } */
+
+        const lexemaElementar = this.simbolos[this.atual].lexema.toLowerCase();
+        const tipoElementarResolvido = tipos.find((tipo) => tipo.toLowerCase() === lexemaElementar);
+        if (!tipoElementarResolvido) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                `Tipo de dados desconhecido: '${this.simbolos[this.atual].lexema}'.`
+            );
+        }
+
+        // TODO: Verificar se precisa de alguma avaliação de vetor.
+        /* if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+            const tiposVetores = [
+                'inteiro[]',
+                'numero[]',
+                'número[]',
+                'qualquer[]',
+                'real[]',
+                'texto[]',
+            ];
+            this.avancarEDevolverAnterior();
+
+            if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    `Esperado símbolo de fechamento do vetor: ']'. Atual: ${this.simbolos[this.atual].lexema}`
+                );
+            }
+
+            const tipoVetor = tiposVetores.find((tipo) => tipo === `${lexemaElementar}[]`);
+            this.avancarEDevolverAnterior();
+            return tipoVetor as TipoDadosElementar;
+        } */
+
+        return tipoElementarResolvido as TipoDadosElementar;
+    }
+
+    protected logicaComumInicializadorLeia(inicializador: Construto, identificadores: SimboloInterface<string>[]) {
+        switch (inicializador.constructor) {
+            case LeiaInteiro:
+                const inicializadorTipadoInteiro = inicializador as LeiaInteiro;
+                return new LeiaInteiros(
+                    inicializadorTipadoInteiro.simbolo,
+                    new Literal(
+                        this.hashArquivo,
+                        Number(inicializadorTipadoInteiro.simbolo.linha),
+                        identificadores.length
+                    )
+                );
+                
+            case LeiaReal:
+                const inicializadorTipadoReal = inicializador as LeiaReal;
+                return new LeiaReais(
+                    inicializadorTipadoReal.simbolo,
+                    new Literal(
+                        this.hashArquivo,
+                        Number(inicializadorTipadoReal.simbolo.linha),
+                        identificadores.length
+                    )
+                );
+
+            case LeiaTexto:
+                const inicializadorTipadoTexto = inicializador as LeiaTexto;
+                return new LeiaTextos(
+                    inicializadorTipadoTexto.simbolo,
+                    new Literal(
+                        this.hashArquivo,
+                        Number(inicializadorTipadoTexto.simbolo.linha),
+                        identificadores.length
+                    )
+                );
+
+        }
+    }
+
+    protected logicaComumInferenciaTiposLeia(inicializador: Construto) {
+        switch (inicializador.constructor) {
+            case LeiaInteiros:
+                return 'inteiro[]';
+            case LeiaInteiro:
+                return 'inteiro';
+            case LeiaReais:
+                return 'real[]';
+            case LeiaReal:
+                return 'real';
+            case LeiaTextos:
+                return 'texto[]';
+            case LeiaTexto:
+                return 'texto';
+            default:
+                return 'qualquer';
+        }
+    }
+
+    /**
+     * Em Potigol, a palavra reservada `val` indica uma constante.
+     */
+    protected declaracaoDeConstanteExplicita(): Const {
+        this.avancarEDevolverAnterior(); // `val`
+
+        const nomeConstante = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.');
+        let tipo: any = null;
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const tipoConstante = this.verificarDefinicaoTipoAtual();
+            if (!tipoConstante) {
+                throw this.erro(this.simbolos[this.atual], 'Tipo definido na constante não é válido.');
+            }
+            tipo = tipoConstante;
+            this.avancarEDevolverAnterior();
+        }
+
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'val'.");
+        let inicializador = this.expressao();
+        if (['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializador.constructor.name)) {
+            inicializador = this.logicaComumInicializadorLeia(inicializador, [nomeConstante]);
+        }
+
+        return new Const(nomeConstante, inicializador, tipo);
+    }
+
+    protected declaracaoDeConstantes(primeiroIdentificador: Constante): ConstMultiplo | Const[] {
+        // Normalmente o símbolo atual aqui será uma vírgula.
+        this.avancarEDevolverAnterior();
+
+        const identificadores: SimboloInterface[] = [primeiroIdentificador.simbolo];
+        let tipo: any = null;
+
+        do {
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        // TODO: Aparentemente, não é possível definir tipo para atribuição
+        // múltipla de constantes. Se algo mudar nisso, o código abaixo poderá
+        // voltar a ser usado.
+        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const tipoConstante = this.verificarDefinicaoTipoAtual();
+            if (!tipoConstante) {
+                throw this.erro(this.simboloAtual(), 'Tipo definido na constante não é válido.');
+            }
+            tipo = tipoConstante;
+            this.avancarEDevolverAnterior();
+        } */
+
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
+
+        const inicializadores = [];
+        do {
+            let inicializador = this.expressao();
+            if (
+                identificadores.length > 1 &&
+                ['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializador.constructor.name)
+            ) {
+                inicializador = this.logicaComumInicializadorLeia(inicializador, identificadores);
+            }
+
+            inicializadores.push(inicializador);
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        if (identificadores.length !== inicializadores.length) {
+            // Pode ser que a inicialização seja feita por uma das
+            // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
+            if (
+                !(
+                    inicializadores.length === 1 &&
+                    ['LeiaInteiros', 'LeiaReais', 'LeiaTextos'].includes(inicializadores[0].constructor.name)
+                )
+            ) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
+                );
+            }
+
+            const tipoConversao: TipoDadosElementar = this.logicaComumInferenciaTiposLeia(inicializadores[0].constructor);
+            return new ConstMultiplo(identificadores, inicializadores[0], tipoConversao);
+        }
+
+        let retorno: Const[] = [];
+        for (let [indice, identificador] of identificadores.entries()) {
+            retorno.push(new Const(identificador, inicializadores[indice], tipo));
+        }
+
+        return retorno;
+    }
+
+    /**
+     * Este método contempla dois cenários:
+     *
+     * - A atribuição de variáveis em si (o primeiro símbolo é a palavra reservada `var`);
+     * - Uma reatribuição de uma ou mais variáveis (o primeiro símbolo a ser lido é uma
+     * vírgula, e o primeiro identificador é passado como argumento). Neste caso, não há
+     * a palavra reservada `var`.
+     * @param primeiroIdentificador Um construto de variável. É defiido em reatribuições.
+     * @returns Um vetor de declarações `Var`.
+     */
+    declaracaoDeVariaveisPotigol(primeiroIdentificador?: Variavel): Var[] {
+        const identificadores: SimboloInterface[] = [];
+        let simboloVar: SimboloInterface<string>;
+
+        // Se houver primeiro identificador definido (reatribuição),
+        // o símbolo atual aqui será uma vírgula.
+        if (primeiroIdentificador) {
+            this.avancarEDevolverAnterior();
+            identificadores.push(primeiroIdentificador.simbolo);
+        } else {
+            simboloVar = this.avancarEDevolverAnterior();
+        }
+
+        do {
+            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        this.consumir(tiposDeSimbolos.REATRIBUIR, "Esperado ':=' após identificador em instrução 'var'.");
+
+        const inicializadores = [];
+        do {
+            inicializadores.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        if (identificadores.length !== inicializadores.length) {
+            throw this.erro(
+                simboloVar,
+                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
+            );
+        }
+
+        const retorno = [];
+        const escopoAtual = this.pilhaEscoposVariaveisConhecidas.topoDaPilha();
+        for (let [indice, identificador] of identificadores.entries()) {
+            retorno.push(new Var(identificador, inicializadores[indice]));
+            escopoAtual.push(identificador.lexema);
+        }
+
+        return retorno;
+    }
+
+    protected logicaAtribuicaoComDicaDeTipo(expressao: Constante) {
+        // A dica de tipo é opcional.
+        // Só que, se a avaliação entra na dica, só
+        // podemos ter uma constante apenas.
+        this.avancarEDevolverAnterior();
+        if (
+            ![
+                tiposDeSimbolos.CARACTERE,
+                tiposDeSimbolos.INTEIRO,
+                tiposDeSimbolos.LOGICO,
+                tiposDeSimbolos.LÓGICO,
+                tiposDeSimbolos.REAL,
+                tiposDeSimbolos.TEXTO,
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            throw this.erro(this.simbolos[this.atual], 'Esperado tipo após dois-pontos e nome de identificador.');
+        }
+
+        return this.avancarEDevolverAnterior();
+    }
+
     /**
      * Em Potigol, `escreva` aceita apenas um argumento.
      * @returns Uma declaração `Escreva`.
@@ -913,201 +1179,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Escolha(condicao, caminhos, caminhoPadrao);
     }
 
-    protected declaracaoDeConstantes(primeiroIdentificador: Constante): ConstMultiplo | Const[] {
-        // Normalmente o símbolo atual aqui será uma vírgula.
-        this.avancarEDevolverAnterior();
-
-        const identificadores: SimboloInterface[] = [primeiroIdentificador.simbolo];
-        let tipo: any = null;
-
-        do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        // TODO: Aparentemente, não é possível definir tipo para atribuição
-        // múltipla de constantes. Se algo mudar nisso, o código abaixo poderá
-        // voltar a ser usado.
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const tipoConstante = this.verificarDefinicaoTipoAtual();
-            if (!tipoConstante) {
-                throw this.erro(this.simboloAtual(), 'Tipo definido na constante não é válido.');
-            }
-            tipo = tipoConstante;
-            this.avancarEDevolverAnterior();
-        } */
-
-        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
-
-        const inicializadores = [];
-        do {
-            let inicializador = this.expressao();
-            if (
-                identificadores.length > 1 &&
-                ['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializador.constructor.name)
-            ) {
-                switch (inicializador.constructor.name) {
-                    case 'LeiaInteiro':
-                        const inicializadorTipadoInteiro = inicializador as LeiaInteiro;
-                        inicializador = new LeiaInteiros(
-                            inicializadorTipadoInteiro.simbolo,
-                            new Literal(
-                                this.hashArquivo,
-                                Number(inicializadorTipadoInteiro.simbolo.linha),
-                                identificadores.length
-                            )
-                        );
-                        break;
-                    case 'LeiaReal':
-                        const inicializadorTipadoReal = inicializador as LeiaReal;
-                        inicializador = new LeiaReais(
-                            inicializadorTipadoReal.simbolo,
-                            new Literal(
-                                this.hashArquivo,
-                                Number(inicializadorTipadoReal.simbolo.linha),
-                                identificadores.length
-                            )
-                        );
-                        break;
-                    case 'LeiaTexto':
-                        const inicializadorTipadoTexto = inicializador as LeiaTexto;
-                        inicializador = new LeiaTextos(
-                            inicializadorTipadoTexto.simbolo,
-                            new Literal(
-                                this.hashArquivo,
-                                Number(inicializadorTipadoTexto.simbolo.linha),
-                                identificadores.length
-                            )
-                        );
-                        break;
-                }
-            }
-
-            inicializadores.push(inicializador);
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        if (identificadores.length !== inicializadores.length) {
-            // Pode ser que a inicialização seja feita por uma das
-            // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
-            if (
-                !(
-                    inicializadores.length === 1 &&
-                    ['LeiaInteiros', 'LeiaReais', 'LeiaTextos'].includes(inicializadores[0].constructor.name)
-                )
-            ) {
-                throw this.erro(
-                    this.simbolos[this.atual],
-                    'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
-                );
-            }
-
-            let tipoConversao: TipoDadosElementar;
-            switch (inicializadores[0].constructor.name) {
-                case 'LeiaInteiros':
-                    tipoConversao = 'inteiro[]';
-                    break;
-                case 'LeiaInteiro':
-                    tipoConversao = 'inteiro';
-                    break;
-                case 'LeiaReais':
-                    tipoConversao = 'real[]';
-                    break;
-                case 'LeiaReal':
-                    tipoConversao = 'real';
-                    break;
-                case 'LeiaTextos':
-                    tipoConversao = 'texto[]';
-                    break;
-                case 'LeiaTexto':
-                    tipoConversao = 'texto';
-                    break;
-                default:
-                    tipoConversao = 'qualquer';
-                    break;
-            }
-
-            return new ConstMultiplo(identificadores, inicializadores[0], tipoConversao);
-        }
-
-        let retorno: Const[] = [];
-        for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new Const(identificador, inicializadores[indice], tipo));
-        }
-
-        return retorno;
-    }
-
-    /**
-     * Este método contempla dois cenários:
-     *
-     * - A atribuição de variáveis em si (o primeiro símbolo é a palavra reservada `var`);
-     * - Uma reatribuição de uma ou mais variáveis (o primeiro símbolo a ser lido é uma
-     * vírgula, e o primeiro identificador é passado como argumento). Neste caso, não há
-     * a palavra reservada `var`.
-     * @param primeiroIdentificador Um construto de variável. É defiido em reatribuições.
-     * @returns Um vetor de declarações `Var`.
-     */
-    declaracaoDeVariaveisPotigol(primeiroIdentificador?: Variavel): Var[] {
-        const identificadores: SimboloInterface[] = [];
-        let simboloVar: SimboloInterface<string>;
-
-        // Se houver primeiro identificador definido (reatribuição),
-        // o símbolo atual aqui será uma vírgula.
-        if (primeiroIdentificador) {
-            this.avancarEDevolverAnterior();
-            identificadores.push(primeiroIdentificador.simbolo);
-        } else {
-            simboloVar = this.avancarEDevolverAnterior();
-        }
-
-        do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        this.consumir(tiposDeSimbolos.REATRIBUIR, "Esperado ':=' após identificador em instrução 'var'.");
-
-        const inicializadores = [];
-        do {
-            inicializadores.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        if (identificadores.length !== inicializadores.length) {
-            throw this.erro(
-                simboloVar,
-                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
-            );
-        }
-
-        const retorno = [];
-        const escopoAtual = this.pilhaEscoposVariaveisConhecidas.topoDaPilha();
-        for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new Var(identificador, inicializadores[indice]));
-            escopoAtual.push(identificador.lexema);
-        }
-
-        return retorno;
-    }
-
-    protected logicaAtribuicaoComDicaDeTipo(expressao: Constante) {
-        // A dica de tipo é opcional.
-        // Só que, se a avaliação entra na dica, só
-        // podemos ter uma constante apenas.
-        this.avancarEDevolverAnterior();
-        if (
-            ![
-                tiposDeSimbolos.CARACTERE,
-                tiposDeSimbolos.INTEIRO,
-                tiposDeSimbolos.LOGICO,
-                tiposDeSimbolos.LÓGICO,
-                tiposDeSimbolos.REAL,
-                tiposDeSimbolos.TEXTO,
-            ].includes(this.simbolos[this.atual].tipo)
-        ) {
-            throw this.erro(this.simbolos[this.atual], 'Esperado tipo após dois-pontos e nome de identificador.');
-        }
-
-        return this.avancarEDevolverAnterior();
-    }
-
     declaracaoFazer(): Fazer {
         throw new Error('Método não implementado.');
     }
@@ -1314,6 +1385,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 return this.declaracaoSe();
             case tiposDeSimbolos.TIPO:
                 return this.declaracaoTipo();
+            case tiposDeSimbolos.VAL:
+                return this.declaracaoDeConstanteExplicita();
             case tiposDeSimbolos.VARIAVEL:
                 return this.declaracaoDeVariaveisPotigol();
             default:

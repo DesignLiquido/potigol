@@ -60,8 +60,9 @@ export default {
     TIPO: 'TIPO',
     TRACO_BAIXO: 'TRACO_BAIXO',
     TEXTO: 'TEXTO',
-    VERDADEIRO: 'VERDADEIRO',
+    VAL: 'VAL',
     VARIAVEL: 'VARIAVEL',
+    VERDADEIRO: 'VERDADEIRO',
     VIRGULA: 'VIRGULA',
     QUAL_TIPO: 'QUAL_TIPO',
 };
