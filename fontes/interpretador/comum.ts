@@ -303,8 +303,8 @@ export async function visitarExpressaoBinaria(
 ): Promise<any> {
     const esquerda: VariavelInterface | any = await interpretador.avaliar(expressao.esquerda);
     const direita: VariavelInterface | any = await interpretador.avaliar(expressao.direita);
-    const valorEsquerdo: any = esquerda?.hasOwnProperty('valor') ? esquerda.valor : esquerda;
-    const valorDireito: any = direita?.hasOwnProperty('valor') ? direita.valor : direita;
+    const valorEsquerdo: any = resolverValor(esquerda);
+    const valorDireito: any = resolverValor(direita);
     const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
     const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
 
@@ -344,7 +344,7 @@ export async function visitarExpressaoBinaria(
                 return Number(valorEsquerdo) + Number(valorDireito);
             }
 
-            return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
+            return String(valorEsquerdo) + String(valorDireito);
 
         case tiposDeSimbolos.DIVISAO:
             this.verificarOperandosNumeros(expressao.operador, esquerda, direita);

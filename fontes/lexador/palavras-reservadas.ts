@@ -6,6 +6,7 @@ export const palavrasReservadas = {
     Caractere: tiposDeSimbolos.CARACTERE,
     caso: tiposDeSimbolos.CASO,
     de: tiposDeSimbolos.DE,
+    def: tiposDeSimbolos.DEF,
     div: tiposDeSimbolos.DIVISAO_INTEIRA,
     e: tiposDeSimbolos.E,
     escolha: tiposDeSimbolos.ESCOLHA,

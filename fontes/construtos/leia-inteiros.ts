@@ -16,6 +16,7 @@ export class LeiaInteiros extends Leia {
     }
 
     async aceitar(visitante: VisitanteComumPotigolInterface): Promise<any> {
-        return await visitante.visitarDeclaracaoLeiaInteiros(this);
+        const resultadosLidos = await visitante.visitarDeclaracaoLeiaInteiros(this);
+        return resultadosLidos.map((numero: string) => parseInt(numero));
     }
 }

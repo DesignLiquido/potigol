@@ -181,15 +181,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno.lexema);
     }
 
-    corpoDaFuncao(nomeFuncao: string, simboloPragma?: SimboloInterface, parametros?: any[]): FuncaoConstruto {
+    corpoDaFuncao(nomeFuncao: string, simboloLocalizacao?: SimboloInterface, parametros?: any[]): FuncaoConstruto {
         const corpo = this.blocoEscopo();
 
-        return new FuncaoConstruto(this.hashArquivo, Number(simboloPragma.linha), parametros, corpo);
+        return new FuncaoConstruto(this.hashArquivo, Number(simboloLocalizacao.linha), parametros, corpo);
     }
 
-    protected declaracaoDeFuncaoOuMetodo(construtoPrimario: ConstanteOuVariavel): FuncaoDeclaracao {
+    protected logicaComumDefinicaoFuncao(simboloNomeFuncao: SimboloInterface<string>) {
         // O parêntese esquerdo é considerado o símbolo inicial para
-        // fins de pragma.
+        // fins de localização.
         const parenteseEsquerdo = this.avancarEDevolverAnterior();
 
         const simbolosEntreParenteses: SimboloInterface[] = [];
@@ -217,18 +217,32 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IGUAL) {
             this.avancarEDevolverAnterior();
             return this.declaracaoFuncaoPotigolIniciadaPorIgual(
-                construtoPrimario.simbolo,
+                simboloNomeFuncao,
                 resolucaoParametros.parametros,
                 tipoRetorno
             );
         }
 
         return this.declaracaoFuncaoPotigolTerminadaPorFim(
-            construtoPrimario.simbolo,
+            simboloNomeFuncao,
             parenteseEsquerdo,
             resolucaoParametros.parametros,
             tipoRetorno
         );
+    }
+
+    protected declaracaoDeFuncaoComDef(): FuncaoDeclaracao {
+        this.avancarEDevolverAnterior(); // `def`
+        const simboloNomeFuncao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR, 
+            `Esperado nome da função após palavra reservada 'def'. Atual: ${this.simbolos[this.atual].tipo}.`
+        );
+
+        return this.logicaComumDefinicaoFuncao(simboloNomeFuncao);
+    }
+
+    protected declaracaoDeFuncaoOuMetodo(construtoPrimario: ConstanteOuVariavel): FuncaoDeclaracao {
+        return this.logicaComumDefinicaoFuncao(construtoPrimario.simbolo);
     }
 
     finalizarChamada(entidadeChamada: Construto): Chamada {
@@ -674,18 +688,20 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     protected logicaComumInferenciaTiposLeia(inicializador: Construto) {
-        switch (inicializador.constructor) {
-            case LeiaInteiros:
+        // Por algum motivo (muito) estranho, `inicializador.constructor.name` não funciona aqui.
+        // O nome da classe vai parar numa propriedade `name`.
+        switch ((inicializador as any).name) {
+            case 'LeiaInteiros':
                 return 'inteiro[]';
-            case LeiaInteiro:
+            case 'LeiaInteiro':
                 return 'inteiro';
-            case LeiaReais:
+            case 'LeiaReais':
                 return 'real[]';
-            case LeiaReal:
+            case 'LeiaReal':
                 return 'real';
-            case LeiaTextos:
+            case 'LeiaTextos':
                 return 'texto[]';
-            case LeiaTexto:
+            case 'LeiaTexto':
                 return 'texto';
             default:
                 return 'qualquer';
@@ -1371,6 +1387,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.DEF:
+                return this.declaracaoDeFuncaoComDef();
             case tiposDeSimbolos.ENQUANTO:
                 return this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCOLHA:

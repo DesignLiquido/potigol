@@ -2,16 +2,21 @@ import { LexadorPotigol } from "../fontes/lexador";
 import { AvaliadorSintaticoPotigol } from "../fontes/avaliador-sintatico";
 import { InterpretadorPotigol } from "../fontes/interpretador";
 
-describe('Interpretador', () => {
+describe('Interpretador (Potigol)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorPotigol;
         let avaliadorSintatico: AvaliadorSintaticoPotigol;
         let interpretador: InterpretadorPotigol;
+        let _saidas: string[] = [];
 
         beforeEach(() => {
+            _saidas = [];
             lexador = new LexadorPotigol();
             avaliadorSintatico = new AvaliadorSintaticoPotigol();
             interpretador = new InterpretadorPotigol(process.cwd());
+            interpretador.funcaoDeRetorno = (saida: any) => {
+                _saidas.push(saida);
+            };
         });
 
         it('Trivial', async () => {
@@ -336,7 +341,6 @@ describe('Interpretador', () => {
             });
 
             it('leia_inteiros, lado esquerdo com constantes', async () => {
-                const saidas: string[] = [];
                 const retornoLexador = lexador.mapear([
                     'a, b = leia_inteiro',
                     'escreva "X = {a + b}"'
@@ -349,15 +353,11 @@ describe('Interpretador', () => {
                     }
                 };
 
-                interpretador.funcaoDeRetorno = (saida: any) => {
-                    saidas.push(saida);
-                };
-
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
-                expect(saidas).toHaveLength(1);
-                expect(saidas[0]).toBe('X = 3');
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('X = 3');
             });
         });
 
