@@ -64,13 +64,11 @@ import tipoDeDadosPotigol from '../tipos-de-dados';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
 /**
+ * 
  * TODO: Pensar numa forma de avaliar múltiplas constantes sem
  * transformar o retorno de `primario()` em um vetor.
  */
 export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
-    protected expressaoLeia(): Leia {
-        throw new Error('Method not implemented.');
-    }
 
     microAvaliadorSintatico: MicroAvaliadorSintaticoPotigol;
 
@@ -133,15 +131,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Retorna uma declaração de função iniciada por igual,
+     * Retorna uma declaração de função iniciada por igual ou seta,
      * ou seja, com apenas uma instrução.
      * @param simboloPrimario O símbolo que identifica a função (nome),
-     *                        também usado para fins de pragma.
+     *                        também usado para fins de localização.
      * @param parametros A lista de parâmetros da função.
      * @param tipoRetorno O tipo de retorno da função.
      * @returns Um construto do tipo `FuncaoDeclaracao`.
      */
-    protected declaracaoFuncaoPotigolIniciadaPorIgual(
+    protected declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
         simboloPrimario: SimboloInterface,
         parametros: ParametroInterface[],
         tipoRetorno?: SimboloInterface
@@ -158,10 +156,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Retorna uma declaração de função terminada por fim,
+     * Retorna uma declaração de função terminada por `fim`,
      * ou seja, com mais de uma instrução.
      * @param simboloPrimario O símbolo que identifica a função (nome).
-     * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de pragma.
+     * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de localização.
      * @param parametros A lista de parâmetros da função.
      * @param tipoRetorno O tipo de retorno da função.
      * @returns Um construto do tipo `FuncaoDeclaracao`.
@@ -187,17 +185,24 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new FuncaoConstruto(this.hashArquivo, Number(simboloLocalizacao.linha), parametros, corpo);
     }
 
-    protected logicaComumDefinicaoFuncao(simboloNomeFuncao: SimboloInterface<string>) {
+    /**
+     * Ponto comum entre declarações de funções com nome. Em Potigol, usar `def` para definir
+     * uma função é opcional. Essa lógica serve tanto para quando a palavra `def` é usada, 
+     * como para casos em que a função começa pelo seu nome, seguida de parênteses.
+     * @param {SimboloInterface} simboloNomeFuncao Normalmente um `Simbolo` do tipo `IDENTIFICADOR`.
+     * @returns 
+     */
+    protected logicaComumDefinicaoFuncaoComNome(simboloNomeFuncao: SimboloInterface<string>): FuncaoDeclaracao {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de localização.
         const parenteseEsquerdo = this.avancarEDevolverAnterior();
-
         const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
         }
 
         const resolucaoParametros = this.logicaComumParametrosPotigol(simbolosEntreParenteses);
+        
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         // Pode haver uma dica do tipo de retorno ou não.
@@ -216,7 +221,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // seja após a dica de retorno, é uma declaração de função.
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IGUAL) {
             this.avancarEDevolverAnterior();
-            return this.declaracaoFuncaoPotigolIniciadaPorIgual(
+            return this.declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
                 simboloNomeFuncao,
                 resolucaoParametros.parametros,
                 tipoRetorno
@@ -238,11 +243,11 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             `Esperado nome da função após palavra reservada 'def'. Atual: ${this.simbolos[this.atual].tipo}.`
         );
 
-        return this.logicaComumDefinicaoFuncao(simboloNomeFuncao);
+        return this.logicaComumDefinicaoFuncaoComNome(simboloNomeFuncao);
     }
 
     protected declaracaoDeFuncaoOuMetodo(construtoPrimario: ConstanteOuVariavel): FuncaoDeclaracao {
-        return this.logicaComumDefinicaoFuncao(construtoPrimario.simbolo);
+        return this.logicaComumDefinicaoFuncaoComNome(construtoPrimario.simbolo);
     }
 
     finalizarChamada(entidadeChamada: Construto): Chamada {
@@ -323,6 +328,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 const resolucaoTipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
                 parametro.tipoDado = resolucaoTipo;
                 tipagemDefinida = true;
+                indice++;
             }
 
             // TODO: Verificar se Potigol trabalha com valores padrão em argumentos.
@@ -333,7 +339,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             parametros.push(parametro as ParametroInterface);
 
             // if (parametro.abrangencia === 'multiplo') break;
-            indice++;
+            // 
             if (indice < simbolos.length && simbolos[indice].tipo !== tiposDeSimbolos.VIRGULA) {
                 throw this.erro(simbolos[indice], 'Esperado vírgula entre parâmetros de função.');
             }
@@ -371,6 +377,90 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
+    /**
+     * Lógica para leitura de argumentos tipados de função. Ocorre em casos de leitura
+     * de funções anônimas.
+     * @param primeiroArgumento O primeiro argumento, já resolvido como construto.
+     */
+    protected logicaArgumentosTipados(primeiroArgumento: Construto) {
+        // Quando esta função executa, já sabemos que o próximo símbolo será um 
+        // dois-pontos.
+
+    }
+
+    protected logicaFuncaoAnonimaOuTupla(primeiroConstruto: Construto) {
+        const simbolosEntreParenteses: SimboloInterface[] = [];
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
+        }
+
+        // Se houver algum dois-pontos nos símbolos lidos, os símbolos devem ser parâmetros.
+        if (simbolosEntreParenteses.some(s => s.tipo === tiposDeSimbolos.DOIS_PONTOS)) {
+            // Colocamos o primeiro símbolo de volta porque se cada parâmetro possui um tipo
+            // definido, precisamos avaliar o primeiro símbolo novamente.
+            const simboloPrimeiroConstruto = (primeiroConstruto as any).simbolo;
+            const todosOsSimbolos = [simboloPrimeiroConstruto, ...simbolosEntreParenteses];
+            const resolucaoParametros = this.logicaComumParametrosPotigol(todosOsSimbolos);
+
+            // Pelo menos o último símbolo precisa ter um tipo.
+            if (!resolucaoParametros.tipagemDefinida) {
+                throw this.erro(simboloPrimeiroConstruto, `Não foi encontrado um tipo válido na definição de parâmetros para função.`);
+            }
+
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros ou argumentos.");
+
+            const tipoUltimoParametro = resolucaoParametros.parametros[resolucaoParametros.parametros.length - 1].tipoDado;
+            for (const parametro of resolucaoParametros.parametros) {
+                if (parametro.tipoDado === undefined) {
+                    parametro.tipoDado = tipoUltimoParametro;
+                }
+            }
+
+            // Pode haver uma dica do tipo de retorno ou não.
+            let tipoRetorno: SimboloInterface = undefined;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                this.verificacaoTipo(
+                    this.simbolos[this.atual],
+                    'Esperado tipo válido após dois-pontos como retorno de função.'
+                );
+
+                tipoRetorno = this.avancarEDevolverAnterior();
+            }
+            
+            // Em funções anônimas, logo após o fechamento dos parênteses, e com ou sem dica de retorno, 
+            // o próximo símbolo precisa ser uma seta.
+            this.consumir(tiposDeSimbolos.SETA, `Esperado seta para definição de corpo de função anônima após leitura de parâmetros. Atual: ${this.simbolos[this.atual].tipo}.`);
+
+            return this.declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
+                { hashArquivo: primeiroConstruto.hashArquivo, linha: primeiroConstruto.linha } as SimboloInterface,
+                resolucaoParametros.parametros,
+                tipoRetorno
+            );
+        } else { // Senão, são tuplas.
+            // Remove a primeira vírgula
+            simbolosEntreParenteses.shift();
+            const retornoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
+                { simbolos: simbolosEntreParenteses } as any, 
+                primeiroConstruto.linha
+            );
+
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros ou argumentos.");
+            return new SeletorTuplas(primeiroConstruto, ...retornoMicroAvaliadorSintatico.declaracoes) as Tupla;
+        }        
+
+        // Se próximo símbolo for fechamento de parênteses, é uma tupla. 
+        // Se for dois-pontos (ou seja, especificação de tipos de parâmetros), provavelmente é uma função anônima.
+        /* switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.DOIS_PONTOS:
+                // TODO: Terminar
+                throw this.erro(this.simbolos[this.atual], 'Terminar.');
+            case tiposDeSimbolos.PARENTESE_DIREITO:
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+                return new SeletorTuplas(...argumentos) as Tupla;
+        } */
+        
+    }
+
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -379,16 +469,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 this.avancarEDevolverAnterior();
                 const expressao = this.ou();
                 switch (this.simbolos[this.atual].tipo) {
+                    case tiposDeSimbolos.DOIS_PONTOS:
+                        const argumentosFuncao = this.logicaArgumentosTipados(expressao);
+                        console.log('argumentosFuncao', argumentosFuncao);
+                        break;
                     case tiposDeSimbolos.VIRGULA:
-                        // Tupla
-                        const argumentos = [expressao];
-                        while (this.simbolos[this.atual].tipo === tiposDeSimbolos.VIRGULA) {
-                            this.avancarEDevolverAnterior();
-                            argumentos.push(this.ou());
-                        }
-
-                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-                        return new SeletorTuplas(...argumentos) as Tupla;
+                        return this.logicaFuncaoAnonimaOuTupla(expressao);
                     default:
                         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
                         return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
@@ -1358,7 +1444,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Em Potigol, uma definição de função normalmente começa com um
+     * Potigol não possui simplesmente um `leia`. Seus comandos `leia` são todos tipados.
+     * São eles: `leia_inteiro`, `leia_inteiros`, `leia_real`, `leia_reais`, `leia_texto` e
+     * `leia_textos`.
+     */
+    protected expressaoLeia(): Leia {
+        throw new Error('Método não implementado.');
+    }
+
+    /**
+     * Em Potigol, uma definição de função pode simplesmente começar com um
      * identificador - que não é uma palavra reservada - seguido de parênteses.
      * Este ponto de entrada verifica o símbolo atual e o próximo.
      *

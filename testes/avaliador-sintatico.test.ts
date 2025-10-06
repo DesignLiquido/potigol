@@ -327,6 +327,19 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
+
+                it('Função anônima', () => {
+                    const retornoLexador = lexador.mapear([
+                        'soma = (x, y: Inteiro) => x + y',
+                        'escreva soma(2, 3)'
+                    ], -1);
+                    
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
             });
 
             describe('Declarações de tuplas', () => {

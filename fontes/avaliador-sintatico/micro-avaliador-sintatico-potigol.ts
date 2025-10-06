@@ -76,6 +76,7 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
                     simboloVerdadeiroFalso.tipo === tiposDeSimbolos.VERDADEIRO
                 );
             case tiposDeSimbolos.VIRGULA:
+                this.avancarEDevolverAnterior();
                 return undefined;
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -129,7 +130,7 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
         }
 
         return {
-            declaracoes: this.declaracoes,
+            declaracoes: this.declaracoes.filter(d => d),
             erros: this.erros,
         } as RetornoAvaliadorSintatico<Declaracao>;
     }
