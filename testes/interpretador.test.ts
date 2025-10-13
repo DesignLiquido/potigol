@@ -35,7 +35,7 @@ describe('Interpretador (Potigol)', () => {
         });
 
         describe('Funções', () => {
-            it.skip('Chamada a funções anônimas', async () => {
+            it('Chamada a funções anônimas', async () => {
                 const retornoLexador = lexador.mapear([
                     'escreva ((x, y: Inteiro) => x + y)(2, 3)'
                 ], -1);

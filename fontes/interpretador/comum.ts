@@ -340,7 +340,7 @@ export async function visitarExpressaoBinaria(
             return Number(valorEsquerdo) - Number(valorDireito);
 
         case tiposDeSimbolos.ADICAO:
-            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+            if (tiposNumericos.includes(tipoEsquerdo.toLowerCase()) && tiposNumericos.includes(tipoDireito.toLowerCase())) {
                 return Number(valorEsquerdo) + Number(valorDireito);
             }
 

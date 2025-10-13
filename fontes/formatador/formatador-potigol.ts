@@ -63,7 +63,6 @@ import {
     Sustar,
     Declaracao,
     Falhar,
-    Aleatorio,
     CabecalhoPrograma,
     TendoComo,
     PropriedadeClasse,
@@ -262,10 +261,6 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     visitarDeclaracaoDeExpressao(declaracao: Expressao): void {
         this.formatarDeclaracaoOuConstruto(declaracao.expressao);
-    }
-
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<void> {
-        throw new Error('Método não implementado.');
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void {
