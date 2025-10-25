@@ -1,7 +1,7 @@
 {
     "name": "@designliquido/potigol",
     "description": "Dialeto de Potigol baseado em Delégua e TypeScript",
-    "version": "0.4.9",
+    "version": "0.4.10",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/DesignLiquido/potigol/issues"
