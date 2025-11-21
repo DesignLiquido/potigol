@@ -1,5 +1,5 @@
 import { AnalisadorSemanticoBase, PilhaVariaveis } from '@designliquido/delegua/analisador-semantico';
-import { Const, Declaracao, Var, VarMultiplo } from '@designliquido/delegua/declaracoes';
+import { Const, Declaracao, Var } from '@designliquido/delegua/declaracoes';
 import {
     DiagnosticoAnalisadorSemantico,
     DiagnosticoSeveridade,
@@ -8,11 +8,11 @@ import {
 import { FuncaoHipoteticaInterface } from '@designliquido/delegua/interfaces/funcao-hipotetica-interface';
 import { RetornoAnalisadorSemantico } from '@designliquido/delegua/interfaces/retornos/retorno-analisador-semantico';
 import { VariavelHipoteticaInterface } from '@designliquido/delegua/interfaces/variavel-hipotetica-interface';
+import { Constante, TipoDe, Variavel } from '@designliquido/delegua';
 
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
-import { Constante, TipoDe, Variavel } from '@designliquido/delegua';
 
 export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implements VisitanteComumPotigolInterface {
     pilhaVariaveis: PilhaVariaveis;
@@ -79,7 +79,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         this.variaveis[declaracao.simbolo.lexema] = {
             tipo: declaracao.tipo as any,
             subtipo: undefined,
-            imutavel: false,
+            imutavel: true,
             valor: undefined,
             valorDefinido: true,
         };
