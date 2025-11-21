@@ -143,7 +143,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         simboloPrimario: SimboloInterface,
         parametros: ParametroInterface[],
         tipoRetorno?: SimboloInterface
-    ): FuncaoDeclaracao {
+    ): FuncaoConstruto {
         const corpo = new FuncaoConstruto(simboloPrimario.hashArquivo, simboloPrimario.linha, parametros, [
             new Retorna(simboloPrimario, this.expressao()),
         ]);
@@ -152,7 +152,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             corpo.tipo = tipoRetorno.lexema;
         }
 
-        return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno ? tipoRetorno.lexema : 'qualquer');
+        // return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno ? tipoRetorno.lexema : 'qualquer');
+        return corpo;
     }
 
     /**
@@ -221,11 +222,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // seja após a dica de retorno, é uma declaração de função.
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IGUAL) {
             this.avancarEDevolverAnterior();
-            return this.declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
+            const corpoFuncao = this.declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
                 simboloNomeFuncao,
                 resolucaoParametros.parametros,
                 tipoRetorno
             );
+            return new FuncaoDeclaracao(simboloNomeFuncao, corpoFuncao, tipoRetorno ? tipoRetorno.lexema : 'qualquer')
         }
 
         return this.declaracaoFuncaoPotigolTerminadaPorFim(
@@ -266,7 +268,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Chamada(
             this.hashArquivo,
             entidadeChamada,
-            argumentos.declaracoes.filter((d) => d)
+            argumentos.declaracoes.filter((d) => d) as any[]
         );
     }
 
@@ -471,6 +473,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 switch (this.simbolos[this.atual].tipo) {
                     case tiposDeSimbolos.DOIS_PONTOS:
                         const argumentosFuncao = this.logicaArgumentosTipados(expressao);
+                        // TODO: Terminar.
                         console.log('argumentosFuncao', argumentosFuncao);
                         break;
                     case tiposDeSimbolos.VIRGULA:

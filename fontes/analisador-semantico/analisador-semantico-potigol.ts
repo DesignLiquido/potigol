@@ -1,5 +1,5 @@
 import { AnalisadorSemanticoBase, PilhaVariaveis } from '@designliquido/delegua/analisador-semantico';
-import { Const, Declaracao, Var } from '@designliquido/delegua/declaracoes';
+import { Const, Declaracao, Var, VarMultiplo } from '@designliquido/delegua/declaracoes';
 import {
     DiagnosticoAnalisadorSemantico,
     DiagnosticoSeveridade,
@@ -12,7 +12,7 @@ import { VariavelHipoteticaInterface } from '@designliquido/delegua/interfaces/v
 import { ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
-import { TipoDe } from '@designliquido/delegua';
+import { Constante, TipoDe, Variavel } from '@designliquido/delegua';
 
 export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implements VisitanteComumPotigolInterface {
     pilhaVariaveis: PilhaVariaveis;
@@ -63,9 +63,9 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         return Promise.resolve();
     }
 
-    override visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+    override visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         this.variaveis[declaracao.simbolo.lexema] = {
-            tipo: 'qualquer',
+            tipo: declaracao.tipo as any,
             subtipo: undefined,
             imutavel: false,
             valor: undefined,
@@ -75,7 +75,19 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         return Promise.resolve();
     }
 
-    override visitarExpressaoDeVariavel(expressao: Var | Const): Promise<any> {
+    override visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        this.variaveis[declaracao.simbolo.lexema] = {
+            tipo: declaracao.tipo as any,
+            subtipo: undefined,
+            imutavel: false,
+            valor: undefined,
+            valorDefinido: true,
+        };
+
+        return Promise.resolve();
+    }
+
+    override visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any> {
         if (!(expressao.simbolo.lexema in this.variaveis)) {
             this.adicionarDiagnostico(
                 expressao.simbolo,
