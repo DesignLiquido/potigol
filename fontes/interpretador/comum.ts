@@ -271,19 +271,19 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
         case 'número':
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
             if (metodoDePrimitivaNumero) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.simbolo.lexema, 'número');
             }
             break;
         case 'texto':
             const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
             if (metodoDePrimitivaTexto) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
             }
             break;
         case 'vetor':
             const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
             if (metodoDePrimitivaVetor) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, 'vetor');
             }
             break;
     }

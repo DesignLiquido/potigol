@@ -68,6 +68,7 @@ import {
     PropriedadeClasse,
     InicioAlgoritmo,
     Comentario,
+    TextoDocumentacao,
 } from '@designliquido/delegua/declaracoes';
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
@@ -93,6 +94,10 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
