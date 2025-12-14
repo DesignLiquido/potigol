@@ -1,5 +1,6 @@
 import {
     AcessoIndiceVariavel,
+    AcessoIntervaloVariavel,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
@@ -95,23 +96,33 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.devePularLinha = true;
         this.deveIndentar = true;
     }
+    
+    /* istanbul ignore next */
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -155,10 +166,12 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -190,18 +203,22 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}# ${declaracao.conteudo}${this.quebraLinha}`;
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTendoComo(declaracao: TendoComo): void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<void> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<void> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoTupla(expressao: Tupla): Promise<void> {
         throw new Error('Método não implementado.');
     }
@@ -250,6 +267,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<void> {
         throw new Error('Método não implementado.');
     }
@@ -350,10 +368,12 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoFazer(declaracao: Fazer): void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoImportar(declaracao: Importar): void {
         throw new Error('Método não implementado.');
     }
@@ -383,6 +403,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += `${this.quebraLinha}${' '.repeat(this.indentacaoAtual)}fim${this.quebraLinha}`;
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<void> {
         throw new Error('Método não implementado.');
     }
@@ -406,6 +427,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fim${this.quebraLinha}`;
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTente(declaracao: Tente): void {
         throw new Error('Método não implementado.');
     }
@@ -426,18 +448,22 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoIndiceVariavel(expressao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error('Método não implementado.');
     }
@@ -448,10 +474,12 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += ')';
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAtribuicaoPorIndice(expressao: any): void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): void {
         throw new Error('Método não implementado.');
     }
@@ -515,18 +543,22 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.formatarBlocoOuVetorDeclaracoes(declaracao.declaracoes);
     }
 
+    /* istanbul ignore next */
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDeChamada(expressao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDefinirValor(expressao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDeleguaFuncao(expressao: any) {
         throw new Error('Método não implementado.');
     }
@@ -539,10 +571,12 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += `${expressao.simbolo.lexema}`;
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDicionario(expressao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
         throw new Error('Método não implementado.');
     }
@@ -559,14 +593,17 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFalhar(expressao: any): void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFimPara(declaracao: FimPara) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
         throw new Error('Método não implementado.');
     }
@@ -614,10 +651,12 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.indentacaoAtual -= this.tamanhoIndentacao;
     }
 
+    /* istanbul ignore next */
     visitarExpressaoIsto(expressao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoLeia(expressao: Leia): void {
         throw new Error('Método não implementado.');
     }
@@ -660,14 +699,17 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.formatarDeclaracaoOuConstruto(declaracao.valor);
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSuper(expressao: Super) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoTipoDe(expressao: TipoDe): void {
         throw new Error('Método não implementado.');
     }
@@ -702,6 +744,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
+    /* istanbul ignore next */
     visitarExpressaoVetor(expressao: any) {
         throw new Error('Método não implementado.');
     }
@@ -762,161 +805,161 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     }
 
     formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
-        switch (declaracaoOuConstruto.constructor.name) {
-            case 'AcessoIndiceVariavel':
+        switch (declaracaoOuConstruto.constructor) {
+            case AcessoIndiceVariavel:
                 this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto as AcessoIndiceVariavel);
                 break;
-            case 'AcessoMetodoOuPropriedade':
+            case AcessoMetodoOuPropriedade:
                 this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
                 break;
-            case 'Agrupamento':
+            case Agrupamento:
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
                 break;
-            case 'AtribuicaoPorIndice':
+            case AtribuicaoPorIndice:
                 this.visitarExpressaoAtribuicaoPorIndice(declaracaoOuConstruto as AtribuicaoPorIndice);
                 break;
-            case 'Atribuir':
+            case Atribuir:
                 this.visitarExpressaoDeAtribuicao(declaracaoOuConstruto as Atribuir);
                 break;
-            case 'Binario':
+            case Binario:
                 this.visitarExpressaoBinaria(declaracaoOuConstruto as Binario);
                 break;
-            case 'Bloco':
+            case Bloco:
                 this.visitarExpressaoBloco(declaracaoOuConstruto as Bloco);
                 break;
-            case 'Chamada':
+            case Chamada:
                 this.visitarExpressaoDeChamada(declaracaoOuConstruto as Chamada);
                 break;
-            case 'Classe':
+            case Classe:
                 this.visitarDeclaracaoClasse(declaracaoOuConstruto as Classe);
                 break;
-            case 'Continua':
+            case Continua:
                 this.visitarExpressaoContinua(declaracaoOuConstruto as Continua);
                 break;
-            case 'DefinirValor':
+            case DefinirValor:
                 this.visitarExpressaoDefinirValor(declaracaoOuConstruto as DefinirValor);
                 break;
-            case 'Dicionario':
+            case Dicionario:
                 this.visitarExpressaoDicionario(declaracaoOuConstruto as Dicionario);
                 break;
-            case 'Dupla':
+            case Dupla:
                 this.visitarExpressaoDupla(declaracaoOuConstruto as Dupla);
                 break;
-            case 'Trio':
+            case Trio:
                 this.visitarExpressaoTrio(declaracaoOuConstruto as Trio);
                 break;
-            case 'Quarteto':
+            case Quarteto:
                 this.visitarExpressaoQuarteto(declaracaoOuConstruto as Quarteto);
                 break;
-            case 'Quinteto':
+            case Quinteto:
                 this.visitarExpressaoQuinteto(declaracaoOuConstruto as Quinteto);
                 break;
-            case 'Sexteto':
+            case Sexteto:
                 this.visitarExpressaoSexteto(declaracaoOuConstruto as Sexteto);
                 break;
-            case 'Septeto':
+            case Septeto:
                 this.visitarExpressaoSepteto(declaracaoOuConstruto as Septeto);
                 break;
-            case 'Octeto':
+            case Octeto:
                 this.visitarExpressaoOcteto(declaracaoOuConstruto as Octeto);
                 break;
-            case 'Noneto':
+            case Noneto:
                 this.visitarExpressaoNoneto(declaracaoOuConstruto as Noneto);
                 break;
-            case 'Deceto':
+            case Deceto:
                 this.visitarExpressaoDeceto(declaracaoOuConstruto as Deceto);
                 break;
-            case 'Escolha':
+            case Escolha:
                 this.visitarDeclaracaoEscolha(declaracaoOuConstruto as Escolha);
                 break;
-            case 'Enquanto':
+            case Enquanto:
                 this.visitarDeclaracaoEnquanto(declaracaoOuConstruto as Enquanto);
                 break;
-            case 'Escreva':
+            case Escreva:
                 this.visitarDeclaracaoEscreva(declaracaoOuConstruto as Escreva);
                 break;
-            case 'EscrevaMesmaLinha':
+            case EscrevaMesmaLinha:
                 this.visitarDeclaracaoEscrevaMesmaLinha(declaracaoOuConstruto as Escreva);
                 break;
-            case 'Expressao':
+            case Expressao:
                 this.visitarDeclaracaoDeExpressao(declaracaoOuConstruto as Expressao);
                 break;
-            case 'ExpressaoRegular':
+            case ExpressaoRegular:
                 this.visitarExpressaoExpressaoRegular(declaracaoOuConstruto as ExpressaoRegular);
                 break;
-            case 'Falhar':
+            case Falhar:
                 this.visitarExpressaoFalhar(declaracaoOuConstruto as Falhar);
                 break;
-            case 'Fazer':
+            case Fazer:
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);
                 break;
-            case 'FuncaoConstruto':
+            case FuncaoConstruto:
                 this.visitarExpressaoFuncaoConstruto(declaracaoOuConstruto as FuncaoConstruto);
                 break;
-            case 'FuncaoDeclaracao':
+            case FuncaoDeclaracao:
                 this.visitarDeclaracaoDefinicaoFuncao(declaracaoOuConstruto as FuncaoDeclaracao);
                 break;
-            case 'Importar':
+            case Importar:
                 this.visitarDeclaracaoImportar(declaracaoOuConstruto as Importar);
                 break;
-            case 'Isto':
+            case Isto:
                 this.visitarExpressaoIsto(declaracaoOuConstruto as Isto);
                 break;
-            case 'Leia':
+            case Leia:
                 this.visitarExpressaoLeia(declaracaoOuConstruto as Leia);
                 break;
-            case 'Literal':
+            case Literal:
                 this.visitarExpressaoLiteral(declaracaoOuConstruto as Literal);
                 break;
-            case 'Logico':
+            case Logico:
                 this.visitarExpressaoLogica(declaracaoOuConstruto as Logico);
                 break;
-            case 'Para':
+            case Para:
                 this.visitarDeclaracaoPara(declaracaoOuConstruto as Para);
                 break;
-            case 'ParaCada':
+            case ParaCada:
                 this.visitarDeclaracaoParaCada(declaracaoOuConstruto as ParaCada);
                 break;
-            case 'ReatribuicaoVariavel':
+            case ReatribuicaoVariavel:
                 this.visitarDeclaracaoReatribuicaoVariavel(declaracaoOuConstruto as ReatribuicaoVariavel);
                 break;
-            case 'Retorna':
+            case Retorna:
                 this.visitarExpressaoRetornar(declaracaoOuConstruto as Retorna);
                 break;
-            case 'Se':
+            case Se:
                 this.visitarDeclaracaoSe(declaracaoOuConstruto as Se);
                 break;
-            case 'Super':
+            case Super:
                 this.visitarExpressaoSuper(declaracaoOuConstruto as Super);
                 break;
-            case 'Sustar':
+            case Sustar:
                 this.visitarExpressaoSustar(declaracaoOuConstruto as Sustar);
                 break;
-            case 'Tente':
+            case Tente:
                 this.visitarDeclaracaoTente(declaracaoOuConstruto as Tente);
                 break;
-            case 'TipoDe':
+            case TipoDe:
                 this.visitarExpressaoTipoDe(declaracaoOuConstruto as TipoDe);
                 break;
-            case 'Unario':
+            case Unario:
                 this.visitarExpressaoUnaria(declaracaoOuConstruto as Unario);
                 break;
-            case 'Const':
+            case Const:
                 this.visitarDeclaracaoConst(declaracaoOuConstruto as Const);
                 break;
-            case 'Var':
+            case Var:
                 this.visitarDeclaracaoVar(declaracaoOuConstruto as Var);
                 break;
-            case 'Variavel':
+            case Variavel:
                 this.visitarExpressaoDeVariavel(declaracaoOuConstruto as Variavel);
                 break;
-            case 'Vetor':
+            case Vetor:
                 this.visitarExpressaoVetor(declaracaoOuConstruto as Vetor);
                 break;
-            case 'Constante':
+            case Constante:
                 this.visitarDeclaracaoConstante(declaracaoOuConstruto as Constante);
                 break;
-            case 'PropriedadeClasse':
+            case PropriedadeClasse:
                 this.visitarExpressaoPropriedadeClasse(declaracaoOuConstruto as any);
                 break;
             default:
