@@ -36,6 +36,7 @@ import {
     TipoDe,
     Trio,
     Tupla,
+    TuplaN,
     Unario,
     Variavel,
     Vetor,
@@ -95,6 +96,11 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+    }
+
+    /* istanbul ignore next */
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
     
     /* istanbul ignore next */
@@ -240,7 +246,11 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     }
 
     visitarDeclaracaoConst(declaracao: Const): void {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${declaracao.simbolo.lexema}`;
+        if (this.deveIndentar) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
+        }
+
+        this.codigoFormatado += `${declaracao.simbolo.lexema}`;
 
         if (declaracao.tipoExplicito) {
             switch (declaracao.tipo.toUpperCase()) {
@@ -263,7 +273,13 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
         if (declaracao.inicializador) {
             this.codigoFormatado += ' = ';
+            this.deveIndentar = false;
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
+            this.deveIndentar = true;
+        }
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
         }
     }
 
@@ -335,7 +351,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
             this.deveIndentar = true;
         }
 
-        if (declaracao.caminhoPadrao.declaracoes.length > 0) {
+        if (declaracao.caminhoPadrao && declaracao.caminhoPadrao.declaracoes.length > 0) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}caso _ => `;
             this.devePularLinha = false;
             this.deveIndentar = false;
@@ -598,9 +614,12 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         throw new Error('Método não implementado.');
     }
 
-    /* istanbul ignore next */
     visitarExpressaoFimPara(declaracao: FimPara) {
-        throw new Error('Método não implementado.');
+        // FimPara representa o incremento em loops 'para'
+        // Não adiciona formatação extra, apenas processa o conteúdo
+        if (declaracao.incremento) {
+            this.formatarDeclaracaoOuConstruto(declaracao.incremento);
+        }
     }
 
     /* istanbul ignore next */
@@ -633,6 +652,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
             }
 
             this.codigoFormatado = `${this.codigoFormatado.slice(0, -2)})`;
+        } else {
+            // Função sem parâmetros - fecha os parênteses
+            this.codigoFormatado += ')';
         }
 
         // Se há tipo de retorno definido
@@ -833,6 +855,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
             case Classe:
                 this.visitarDeclaracaoClasse(declaracaoOuConstruto as Classe);
                 break;
+            case Comentario:
+                this.visitarDeclaracaoComentario(declaracaoOuConstruto as Comentario);
+                break;
             case Continua:
                 this.visitarExpressaoContinua(declaracaoOuConstruto as Continua);
                 break;
@@ -893,6 +918,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
             case Fazer:
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);
                 break;
+            case FimPara:
+                this.visitarExpressaoFimPara(declaracaoOuConstruto as FimPara);
+                break;
             case FuncaoConstruto:
                 this.visitarExpressaoFuncaoConstruto(declaracaoOuConstruto as FuncaoConstruto);
                 break;
@@ -907,6 +935,24 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 break;
             case Leia:
                 this.visitarExpressaoLeia(declaracaoOuConstruto as Leia);
+                break;
+            case LeiaInteiro:
+                this.visitarDeclaracaoLeiaInteiro(declaracaoOuConstruto as LeiaInteiro);
+                break;
+            case LeiaInteiros:
+                this.visitarDeclaracaoLeiaInteiros(declaracaoOuConstruto as LeiaInteiros);
+                break;
+            case LeiaReal:
+                this.visitarDeclaracaoLeiaReal(declaracaoOuConstruto as LeiaReal);
+                break;
+            case LeiaReais:
+                this.visitarDeclaracaoLeiaReais(declaracaoOuConstruto as LeiaReais);
+                break;
+            case LeiaTexto:
+                this.visitarDeclaracaoLeiaTexto(declaracaoOuConstruto as LeiaTexto);
+                break;
+            case LeiaTextos:
+                this.visitarDeclaracaoLeiaTextos(declaracaoOuConstruto as LeiaTextos);
                 break;
             case Literal:
                 this.visitarExpressaoLiteral(declaracaoOuConstruto as Literal);
@@ -960,10 +1006,12 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 this.visitarDeclaracaoConstante(declaracaoOuConstruto as Constante);
                 break;
             case PropriedadeClasse:
-                this.visitarExpressaoPropriedadeClasse(declaracaoOuConstruto as any);
+                this.visitarExpressaoPropriedadeClasse(declaracaoOuConstruto as PropriedadeClasse);
                 break;
             default:
-                console.log(declaracaoOuConstruto.constructor.name);
+                throw new Error(
+                    `Construto ou declaração não implementado no formatador: ${declaracaoOuConstruto.constructor.name}`
+                );
                 break;
         }
     }

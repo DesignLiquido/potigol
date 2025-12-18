@@ -76,7 +76,7 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
     }
 
     avancarParaProximaLinha(): void {
-        while (this.codigo[this.atual] !== '\n') {
+        while (this.atual < this.codigo.length && this.codigo[this.atual] !== '\n') {
             this.atual++;
         }
     }
