@@ -191,14 +191,14 @@ export async function visitarDeclaracaoConst(
     const valorFinal = await interpretador.avaliacaoDeclaracaoVarOuConst(declaracao);
     let tipoResolvido = declaracao.tipo;
     if (tipoResolvido === 'qualquer') {
-        switch (declaracao.inicializador.constructor.name) {
-            case 'LeiaInteiro':
+        switch (declaracao.inicializador.constructor) {
+            case LeiaInteiro:
                 tipoResolvido = 'inteiro';
                 break;
-            case 'LeiaReal':
+            case LeiaReal:
                 tipoResolvido = 'número';
                 break;
-            case 'LeiaTexto':
+            case LeiaTexto:
                 tipoResolvido = 'texto';
                 break;
         }
@@ -396,12 +396,12 @@ export async function visitarExpressaoLeia(
     });
 
     // TODO: Ver o que acontece em Potigol quando tipos conflitam.
-    switch (expressao.constructor.name) {
-        case 'LeiaInteiro':
+    switch (expressao.constructor) {
+        case LeiaInteiro:
             return Promise.resolve(parseInt(_resposta));
-        case 'LeiaReal':
+        case LeiaReal:
             return Promise.resolve(Number(_resposta));
-        case 'LeiaTexto':
+        case LeiaTexto:
             return Promise.resolve(String(_resposta));
     }
 }
