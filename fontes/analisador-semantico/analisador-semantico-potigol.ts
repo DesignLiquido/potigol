@@ -888,7 +888,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     /**
      * Método principal de análise semântica
      */
-    analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
+    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         // Reinicia o gerenciador de escopos
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.funcoes = {};
@@ -896,7 +896,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         this.diagnosticos = [];
 
         while (this.atual < declaracoes.length) {
-            declaracoes[this.atual].aceitar(this);
+            await declaracoes[this.atual].aceitar(this);
             this.atual++;
         }
 
