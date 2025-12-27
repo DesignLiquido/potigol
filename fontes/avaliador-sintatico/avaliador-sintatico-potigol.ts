@@ -139,13 +139,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * @param tipoRetorno O tipo de retorno da função.
      * @returns Um construto do tipo `FuncaoDeclaracao`.
      */
-    protected declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
+    protected async declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
         simboloPrimario: SimboloInterface,
         parametros: ParametroInterface[],
         tipoRetorno?: SimboloInterface
-    ): FuncaoConstruto {
+    ): Promise<FuncaoConstruto> {
         const corpo = new FuncaoConstruto(simboloPrimario.hashArquivo, simboloPrimario.linha, parametros, [
-            new Retorna(simboloPrimario, this.expressao()),
+            new Retorna(simboloPrimario, await this.expressao()),
         ]);
 
         if (tipoRetorno) {
@@ -165,13 +165,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * @param tipoRetorno O tipo de retorno da função.
      * @returns Um construto do tipo `FuncaoDeclaracao`.
      */
-    protected declaracaoFuncaoPotigolTerminadaPorFim(
+    protected async declaracaoFuncaoPotigolTerminadaPorFim(
         simboloPrimario: SimboloInterface,
         parenteseEsquerdo: SimboloInterface,
         parametros: ParametroInterface[],
         tipoRetorno?: SimboloInterface
-    ): FuncaoDeclaracao {
-        const corpo = this.corpoDaFuncao(simboloPrimario.lexema, parenteseEsquerdo, parametros);
+    ): Promise<FuncaoDeclaracao> {
+        const corpo = await this.corpoDaFuncao(simboloPrimario.lexema, parenteseEsquerdo, parametros);
 
         if (tipoRetorno) {
             corpo.tipo = tipoRetorno.lexema;
@@ -180,8 +180,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno.lexema);
     }
 
-    corpoDaFuncao(nomeFuncao: string, simboloLocalizacao?: SimboloInterface, parametros?: any[]): FuncaoConstruto {
-        const corpo = this.blocoEscopo();
+    async corpoDaFuncao(nomeFuncao: string, simboloLocalizacao?: SimboloInterface, parametros?: any[]): Promise<FuncaoConstruto> {
+        const corpo = await this.blocoEscopo();
 
         return new FuncaoConstruto(this.hashArquivo, Number(simboloLocalizacao.linha), parametros, corpo);
     }
@@ -193,7 +193,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * @param {SimboloInterface} simboloNomeFuncao Normalmente um `Simbolo` do tipo `IDENTIFICADOR`.
      * @returns 
      */
-    protected logicaComumDefinicaoFuncaoComNome(simboloNomeFuncao: SimboloInterface<string>): FuncaoDeclaracao {
+    protected async logicaComumDefinicaoFuncaoComNome(simboloNomeFuncao: SimboloInterface<string>): Promise<FuncaoDeclaracao> {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de localização.
         const parenteseEsquerdo = this.avancarEDevolverAnterior();
@@ -222,7 +222,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // seja após a dica de retorno, é uma declaração de função.
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IGUAL) {
             this.avancarEDevolverAnterior();
-            const corpoFuncao = this.declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
+            const corpoFuncao = await this.declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
                 simboloNomeFuncao,
                 resolucaoParametros.parametros,
                 tipoRetorno
@@ -238,21 +238,21 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         );
     }
 
-    protected declaracaoDeFuncaoComDef(): FuncaoDeclaracao {
+    protected async declaracaoDeFuncaoComDef(): Promise<FuncaoDeclaracao> {
         this.avancarEDevolverAnterior(); // `def`
         const simboloNomeFuncao = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR, 
             `Esperado nome da função após palavra reservada 'def'. Atual: ${this.simbolos[this.atual].tipo}.`
         );
 
-        return this.logicaComumDefinicaoFuncaoComNome(simboloNomeFuncao);
+        return await this.logicaComumDefinicaoFuncaoComNome(simboloNomeFuncao);
     }
 
-    protected declaracaoDeFuncaoOuMetodo(construtoPrimario: ConstanteOuVariavel): FuncaoDeclaracao {
-        return this.logicaComumDefinicaoFuncaoComNome(construtoPrimario.simbolo);
+    protected async declaracaoDeFuncaoOuMetodo(construtoPrimario: ConstanteOuVariavel): Promise<FuncaoDeclaracao> {
+        return await this.logicaComumDefinicaoFuncaoComNome(construtoPrimario.simbolo);
     }
 
-    finalizarChamada(entidadeChamada: Construto): Chamada {
+    async finalizarChamada(entidadeChamada: Construto): Promise<Chamada> {
         const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
@@ -260,7 +260,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
-        const argumentos = this.microAvaliadorSintatico.analisar(
+        const argumentos = await this.microAvaliadorSintatico.analisar(
             { simbolos: simbolosEntreParenteses } as any,
             entidadeChamada.linha
         );
@@ -355,14 +355,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         };
     }
 
-    protected logicaLeiaMultiplo() {
+    protected async logicaLeiaMultiplo() {
         const simboloLeiaMultiplo: SimboloInterface = this.avancarEDevolverAnterior();
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             `Esperado parêntese esquerdo após ${simboloLeiaMultiplo.lexema}.`
         );
 
-        const argumento = this.expressao();
+        const argumento = await this.expressao();
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
@@ -463,13 +463,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         
     }
 
-    primario(): Construto {
+    async primario(): Promise<Construto> {
         const simboloAtual = this.simbolos[this.atual];
 
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const expressao = this.ou();
+                const expressao = await this.ou();
                 switch (this.simbolos[this.atual].tipo) {
                     case tiposDeSimbolos.DOIS_PONTOS:
                         const argumentosFuncao = this.logicaArgumentosTipados(expressao);
@@ -491,7 +491,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
+                    const valor = await this.atribuir();
                     valores.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                         this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
@@ -540,15 +540,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.LEIA_INTEIROS:
             case tiposDeSimbolos.LEIA_REAIS:
             case tiposDeSimbolos.LEIA_TEXTOS:
-                return this.logicaLeiaMultiplo();
+                return await this.logicaLeiaMultiplo();
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);
         }
     }
 
-    protected formato(): Construto {
-        const expressao = this.primario();
+    protected async formato(): Promise<Construto> {
+        const expressao = await this.primario();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
             // O próximo símbolo precisa ser um texto no padrão "%Nd" ou "%.Nf", onde N é um inteiro.
@@ -579,8 +579,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * em sequência
      * @returns Um construto, ou vindo da continuação da análise, ou um Binário.
      */
-    protected concatenacaoLista(): Construto {
-        let expressao = this.formato();
+    protected async concatenacaoLista(): Promise<Construto> {
+        let expressao = await this.formato();
 
         if (this.atual < this.simbolos.length) {
             if (
@@ -589,7 +589,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             ) {
                 const primeiroDoisPontos = this.avancarEDevolverAnterior();
                 this.avancarEDevolverAnterior();
-                const ladoDireito = this.formato();
+                const ladoDireito = await this.formato();
                 // Como aqui precisamos resolver se o lado direito é constante ou variável,
                 // e a concatenação funciona para o operando direito apenas como leitura,
                 // é seguro emitir um construto de constante aqui.
@@ -627,15 +627,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * @returns Um construto do tipo `AcessoMetodo`, `AcessoIndiceVariavel` ou `Constante`,
      * dependendo dos símbolos encontrados.
      */
-    chamar(): Construto {
-        let expressao = this.concatenacaoLista();
+    async chamar(): Promise<Construto> {
+        let expressao = await this.concatenacaoLista();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 if (expressao instanceof ConstanteOuVariavel) {
                     expressao = new Constante(expressao.hashArquivo, expressao.simbolo);
                 }
-                expressao = this.finalizarChamada(expressao);
+                expressao = await this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 if (this.verificarTipoSimboloAtual(tiposDeSimbolos.QUAL_TIPO)) {
                     const identificador = this.simbolos[this.atual - 2];
@@ -654,7 +654,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, variavelMetodo, nome);
                 }
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                const indice = this.expressao();
+                const indice = await this.expressao();
                 const simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
@@ -682,12 +682,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    comparacaoIgualdade(): Construto {
-        let expressao = this.comparar();
+    async comparacaoIgualdade(): Promise<Construto> {
+        let expressao = await this.comparar();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.comparar();
+            const direito = await this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
@@ -777,20 +777,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     protected logicaComumInferenciaTiposLeia(inicializador: Construto) {
-        // Por algum motivo (muito) estranho, `inicializador.constructor.name` não funciona aqui.
-        // O nome da classe vai parar numa propriedade `name`.
-        switch ((inicializador as any).name) {
-            case 'LeiaInteiros':
+        switch (inicializador.constructor) {
+            case LeiaInteiros:
                 return 'inteiro[]';
-            case 'LeiaInteiro':
+            case LeiaInteiro:
                 return 'inteiro';
-            case 'LeiaReais':
+            case LeiaReais:
                 return 'real[]';
-            case 'LeiaReal':
+            case LeiaReal:
                 return 'real';
-            case 'LeiaTextos':
+            case LeiaTextos:
                 return 'texto[]';
-            case 'LeiaTexto':
+            case LeiaTexto:
                 return 'texto';
             default:
                 return 'qualquer';
@@ -800,7 +798,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     /**
      * Em Potigol, a palavra reservada `val` indica uma constante.
      */
-    protected declaracaoDeConstanteExplicita(): Const {
+    protected async declaracaoDeConstanteExplicita(): Promise<Const> {
         this.avancarEDevolverAnterior(); // `val`
 
         const nomeConstante = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.');
@@ -816,15 +814,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador em instrução 'val'.");
-        let inicializador = this.expressao();
-        if (['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializador.constructor.name)) {
+        let inicializador = await this.expressao();
+        if (inicializador instanceof LeiaInteiro || inicializador instanceof LeiaReal || inicializador instanceof LeiaTexto) {
             inicializador = this.logicaComumInicializadorLeia(inicializador, [nomeConstante]);
         }
 
         return new Const(nomeConstante, inicializador, tipo);
     }
 
-    protected declaracaoDeConstantes(primeiroIdentificador: Constante): ConstMultiplo | Const[] {
+    protected async declaracaoDeConstantes(primeiroIdentificador: Constante): Promise<ConstMultiplo | Const[]> {
         // Normalmente o símbolo atual aqui será uma vírgula.
         this.avancarEDevolverAnterior();
 
@@ -832,7 +830,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         let tipo: any = null;
 
         do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.'));
+            identificadores.push(
+                this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da constante.')
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         // TODO: Aparentemente, não é possível definir tipo para atribuição
@@ -851,11 +851,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const inicializadores = [];
         do {
-            let inicializador = this.expressao();
-            if (
-                identificadores.length > 1 &&
-                ['LeiaInteiro', 'LeiaReal', 'LeiaTexto'].includes(inicializador.constructor.name)
-            ) {
+            let inicializador = await this.expressao();
+            if (identificadores.length > 1 && (
+                    inicializador instanceof LeiaInteiro || inicializador instanceof LeiaReal || inicializador instanceof LeiaTexto
+            )) {
                 inicializador = this.logicaComumInicializadorLeia(inicializador, identificadores);
             }
 
@@ -868,16 +867,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             if (
                 !(
                     inicializadores.length === 1 &&
-                    ['LeiaInteiros', 'LeiaReais', 'LeiaTextos'].includes(inicializadores[0].constructor.name)
+                    (inicializadores[0] instanceof LeiaInteiro || inicializadores[0] instanceof LeiaInteiros ||
+                     inicializadores[0] instanceof LeiaReal || inicializadores[0] instanceof LeiaReais ||
+                     inicializadores[0] instanceof LeiaTexto || inicializadores[0] instanceof LeiaTextos)
                 )
             ) {
                 throw this.erro(
-                    this.simbolos[this.atual],
+                    identificadores[0],
                     'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             }
 
-            const tipoConversao: TipoDadosElementar = this.logicaComumInferenciaTiposLeia(inicializadores[0].constructor);
+            const tipoConversao: TipoDadosElementar = this.logicaComumInferenciaTiposLeia(inicializadores[0]);
             return new ConstMultiplo(identificadores, inicializadores[0], tipoConversao);
         }
 
@@ -899,7 +900,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * @param primeiroIdentificador Um construto de variável. É defiido em reatribuições.
      * @returns Um vetor de declarações `Var`.
      */
-    declaracaoDeVariaveisPotigol(primeiroIdentificador?: Variavel): Var[] {
+    async declaracaoDeVariaveisPotigol(primeiroIdentificador?: Variavel): Promise<Var[]> {
         const identificadores: SimboloInterface[] = [];
         let simboloVar: SimboloInterface<string>;
 
@@ -913,14 +914,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         do {
-            identificadores.push(this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.'));
+            identificadores.push(
+                this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.')
+            );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.REATRIBUIR, "Esperado ':=' após identificador em instrução 'var'.");
 
         const inicializadores = [];
         do {
-            inicializadores.push(this.expressao());
+            inicializadores.push(await this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (identificadores.length !== inicializadores.length) {
@@ -940,7 +943,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return retorno;
     }
 
-    protected logicaAtribuicaoComDicaDeTipo(expressao: Constante) {
+    protected logicaAtribuicaoComDicaDeTipo() {
         // A dica de tipo é opcional.
         // Só que, se a avaliação entra na dica, só
         // podemos ter uma constante apenas.
@@ -965,9 +968,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * Em Potigol, `escreva` aceita apenas um argumento.
      * @returns Uma declaração `Escreva`.
      */
-    declaracaoEscreva(): Escreva {
+    async declaracaoEscreva(): Promise<Escreva> {
         const simboloAtual = this.avancarEDevolverAnterior();
-        const argumento = this.ou();
+        const argumento = await this.ou();
 
         return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, [argumento]);
     }
@@ -978,9 +981,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * o resultado na saída na mesma linha.
      * @see https://potigol.github.io/docs/basico/entrada_saida.html
      */
-    declaracaoImprima(): EscrevaMesmaLinha {
+    async declaracaoImprima(): Promise<EscrevaMesmaLinha> {
         const simboloAtual = this.avancarEDevolverAnterior();
-        const argumento = this.ou();
+        const argumento = await this.ou();
 
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, [argumento]);
     }
@@ -995,12 +998,12 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * - Em uma declaração `para`.
      * @returns Um vetor de `Declaracao`.
      */
-    blocoEscopo(): Array<Declaracao> {
+    async blocoEscopo(): Promise<Array<Declaracao>> {
         let declaracoes: Array<Declaracao> = [];
         this.pilhaEscoposVariaveisConhecidas.empilhar([]);
 
         while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
-            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+            const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
             } else {
@@ -1012,16 +1015,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return declaracoes;
     }
 
-    declaracaoSe(): Se {
+    async declaracaoSe(): Promise<Se> {
         const simboloSe: SimboloInterface = this.avancarEDevolverAnterior();
 
-        const condicao = this.expressao();
+        const condicao = await this.expressao();
 
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+            declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
         let caminhoSenao = null;
@@ -1030,7 +1033,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             const declaracoesSenao = [];
 
             do {
-                declaracoesSenao.push(this.resolverDeclaracaoForaDeBloco());
+                declaracoesSenao.push(await this.resolverDeclaracaoForaDeBloco());
             } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
             caminhoSenao = new Bloco(
@@ -1054,10 +1057,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         );
     }
 
-    declaracaoEnquanto(): Enquanto {
+    async declaracaoEnquanto(): Promise<Enquanto> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        const condicao = this.expressao();
+        const condicao = await this.expressao();
 
         this.consumir(
             tiposDeSimbolos.FACA,
@@ -1066,7 +1069,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const declaracoes = [];
         do {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+            declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
         } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fim' para fechamento de declaração 'enquanto'.");
@@ -1081,7 +1084,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         );
     }
 
-    declaracaoPara(): Para {
+    async declaracaoPara(): Promise<Para> {
         const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
 
         const variavelIteracao = this.consumir(
@@ -1091,14 +1094,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variável de controle de 'para'.");
 
-        const literalOuVariavelInicio = this.adicaoOuSubtracao();
+        const literalOuVariavelInicio = await this.adicaoOuSubtracao();
 
         this.consumir(
             tiposDeSimbolos.ATE,
             "Esperado palavra reservada 'ate' após valor inicial do laço de repetição 'para'."
         );
 
-        const literalOuVariavelFim = this.adicaoOuSubtracao();
+        const literalOuVariavelFim = await this.adicaoOuSubtracao();
 
         let operadorCondicao = new Simbolo(
             tiposDeSimbolos.MENOR_IGUAL,
@@ -1123,7 +1126,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         let passo: Construto;
         let resolverIncrementoEmExecucao = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
-            passo = this.unario();
+            passo = await this.unario();
         } else {
             if (literalOuVariavelInicio instanceof Literal && literalOuVariavelFim instanceof Literal) {
                 if (literalOuVariavelInicio.valor > literalOuVariavelFim.valor) {
@@ -1173,7 +1176,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const declaracoesBlocoPara = [];
         let simboloAtualBlocoPara: SimboloInterface = this.simbolos[this.atual];
         while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIM) {
-            declaracoesBlocoPara.push(this.resolverDeclaracaoForaDeBloco());
+            declaracoesBlocoPara.push(await this.resolverDeclaracaoForaDeBloco());
             simboloAtualBlocoPara = this.simbolos[this.atual];
         }
 
@@ -1228,10 +1231,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return para;
     }
 
-    declaracaoEscolha(): Escolha {
+    async declaracaoEscolha(): Promise<Escolha> {
         this.avancarEDevolverAnterior();
 
-        const condicao = this.expressao();
+        const condicao = await this.expressao();
 
         const caminhos = [];
         let caminhoPadrao = null;
@@ -1250,7 +1253,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 }
 
                 this.consumir(tiposDeSimbolos.SETA, "Esperado '=>' após palavra reservada 'caso'.");
-                const declaracoesPadrao = [this.resolverDeclaracaoForaDeBloco()];
+                const declaracoesPadrao = [await this.resolverDeclaracaoForaDeBloco()];
 
                 // TODO: Verificar se Potigol admite bloco de escopo para `escolha`.
                 /* const declaracoesPadrao = [];
@@ -1265,9 +1268,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 continue;
             }
 
-            const caminhoCondicoes = [this.expressao()];
+            const caminhoCondicoes = [await this.expressao()];
             this.consumir(tiposDeSimbolos.SETA, "Esperado '=>' após palavra reservada 'caso'.");
-            const declaracoes = [this.resolverDeclaracaoForaDeBloco()];
+            const declaracoes = [await this.resolverDeclaracaoForaDeBloco()];
 
             // TODO: Verificar se Potigol admite bloco de escopo para `escolha`.
             /* const declaracoes = [];
@@ -1294,9 +1297,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      *
      * @returns Um construto do tipo `Classe`.
      */
-    protected declaracaoTipo(): Classe {
+    protected async declaracaoTipo(): Promise<Classe> {
         const simboloTipo = this.avancarEDevolverAnterior();
-        const construto: ConstanteOuVariavel = this.primario() as ConstanteOuVariavel;
+        const construto: ConstanteOuVariavel = await this.primario() as ConstanteOuVariavel;
 
         // TODO: Verificar se Potigol trabalha com herança.
         /* let superClasse = null;
@@ -1307,7 +1310,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const metodos: FuncaoDeclaracao[] = [];
         const propriedades: PropriedadeClasse[] = [];
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM) && !this.estaNoFinal()) {
+        while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
             const identificador: SimboloInterface = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome de propriedade ou método.'
@@ -1316,7 +1319,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_ESQUERDO) {
                 // Método
                 const construtoMetodo = new Constante(identificador.hashArquivo, identificador);
-                metodos.push(this.declaracaoDeFuncaoOuMetodo(construtoMetodo));
+                metodos.push(await this.declaracaoDeFuncaoOuMetodo(construtoMetodo));
             } else {
                 // Propriedade
                 this.consumir(
@@ -1395,8 +1398,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return new Classe(construto.simbolo, undefined, metodos, propriedades);
     }
 
-    atribuir(): any | any[] {
-        const expressao = this.ou();
+    async atribuir(): Promise<any> {
+        const expressao = await this.ou();
 
         if (!this.estaNoFinal()) {
             let tipoVariavelOuConstante: SimboloInterface<string>;
@@ -1404,16 +1407,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 // Atribuição constante.
                 let tipoExplicito = false;
                 if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
-                    tipoVariavelOuConstante = this.logicaAtribuicaoComDicaDeTipo(expressao);
+                    tipoVariavelOuConstante = this.logicaAtribuicaoComDicaDeTipo();
                     tipoExplicito = true;
                 }
 
                 switch (this.simbolos[this.atual].tipo) {
                     case tiposDeSimbolos.VIRGULA:
-                        return this.declaracaoDeConstantes(expressao);
+                        return await this.declaracaoDeConstantes(expressao);
                     case tiposDeSimbolos.IGUAL:
                         this.avancarEDevolverAnterior();
-                        const valorAtribuicao = this.ou();
+                        const valorAtribuicao = await this.ou();
                         return new Const(
                             (expressao as Constante).simbolo,
                             valorAtribuicao,
@@ -1428,10 +1431,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
                 switch (this.simbolos[this.atual].tipo) {
                     case tiposDeSimbolos.VIRGULA:
-                        return this.declaracaoDeVariaveisPotigol(expressao);
+                        return await this.declaracaoDeVariaveisPotigol(expressao);
                     case tiposDeSimbolos.REATRIBUIR:
                         this.avancarEDevolverAnterior();
-                        const valorAtribuicao = this.ou();
+                        const valorAtribuicao = await this.ou();
                         return new ReatribuicaoVariavel(
                             (expressao as Variavel).simbolo,
                             valorAtribuicao,
@@ -1451,7 +1454,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * São eles: `leia_inteiro`, `leia_inteiros`, `leia_real`, `leia_reais`, `leia_texto` e
      * `leia_textos`.
      */
-    protected expressaoLeia(): Leia {
+    protected async expressaoLeia(): Promise<Leia> {
         throw new Error('Método não implementado.');
     }
 
@@ -1468,18 +1471,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * Se o próximo símbolo for parênteses, ou é uma definiçao de função,
      * ou uma chamada de função.
      */
-    expressaoOuDefinicaoFuncao() {
+    async expressaoOuDefinicaoFuncao() {
         if (!this.estaNoFinal() && this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
             if (this.atual + 1 < this.simbolos.length) {
                 switch (this.simbolos[this.atual + 1].tipo) {
                     case tiposDeSimbolos.PARENTESE_ESQUERDO:
-                        const construtoPrimario = this.primario();
+                        const construtoPrimario = await this.primario();
                         return this.declaracaoDeFuncaoOuMetodo(construtoPrimario as ConstanteOuVariavel);
                 }
             }
         }
 
-        return this.atribuir();
+        return await this.atribuir();
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
@@ -1510,10 +1513,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(hashArquivo);
         this.erros = [];
         this.atual = 0;
@@ -1526,7 +1529,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         this.declaracoes = [];
         while (!this.estaNoFinal()) {
-            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+            const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 this.declaracoes = this.declaracoes.concat(retornoDeclaracao);
             } else {

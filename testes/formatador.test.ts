@@ -12,9 +12,9 @@ describe('Formatador > Potigol', () => {
 
         describe('Cenários de sucesso', () => {
             describe('Entrada e saída', () => {
-                it('Sucesso - Escreva Olá Mundo', () => {
+                it('Sucesso - Escreva Olá Mundo', async () => {
                     const retornoLexador = lexador.mapear(['escreva      "Olá mundo"'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -23,9 +23,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva "Olá mundo"');
                 });
 
-                it('Sucesso - Imprima Olá Mundo', () => {
+                it('Sucesso - Imprima Olá Mundo', async () => {
                     const retornoLexador = lexador.mapear(['imprima                      "Olá mundo"'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -36,9 +36,9 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Operações matemáticas', () => {
-                it('Sucesso - Operações encadeadas', () => {
+                it('Sucesso - Operações encadeadas', async () => {
                     const retornoLexador = lexador.mapear(['escreva (2 *8)-(5  / 4^    7)'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -47,9 +47,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva (2 * 8) - (5 / 4 ^ 7)');
                 });
 
-                it('Sucesso - Mod e Div', () => {
+                it('Sucesso - Mod e Div', async () => {
                     const retornoLexador = lexador.mapear(['escreva (100   mod   6  div 2)'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -60,9 +60,9 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Operações lógicas', () => {
-                it('Sucesso - Ou', () => {
+                it('Sucesso - Ou', async () => {
                     const retornoLexador = lexador.mapear(['escreva       verdadeiro   ou     falso'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -71,9 +71,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva verdadeiro ou falso');
                 });
 
-                it('Sucesso - Não (sem acento)', () => {
+                it('Sucesso - Não (sem acento)', async () => {
                     const retornoLexador = lexador.mapear(['escreva    nao         verdadeiro'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -81,9 +81,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva  nao verdadeiro');
                 });
 
-                it('Sucesso - Comparação de igualdade', () => {
+                it('Sucesso - Comparação de igualdade', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2==2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -91,9 +91,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva 2 == 2');
                 });
 
-                it('Sucesso - Comparação de desigualdade', () => {
+                it('Sucesso - Comparação de desigualdade', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2<> 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -102,9 +102,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva 2 <> 2');
                 });
 
-                it('Sucesso - Comparação de menor', () => {
+                it('Sucesso - Comparação de menor', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 <2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -113,9 +113,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva 2 < 2');
                 });
 
-                it('Sucesso - Comparação de menor ou igual', () => {
+                it('Sucesso - Comparação de menor ou igual', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2<=2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -124,9 +124,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva 2 <= 2');
                 });
 
-                it('Sucesso - Comparação de maior', () => {
+                it('Sucesso - Comparação de maior', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2> 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -135,9 +135,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('escreva 2 > 2');
                 });
 
-                it('Sucesso - Comparação de maior ou igual', () => {
+                it('Sucesso - Comparação de maior ou igual', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 >=2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -148,9 +148,9 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Atribuição de variáveis', () => {
-                it('Sucesso - Declaração de inteiro constante, inferência', () => {
+                it('Sucesso - Declaração de inteiro constante, inferência', async () => {
                     const retornoLexador = lexador.mapear(['a=10'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -158,9 +158,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('a = 10');
                 });
 
-                it('Sucesso - Declaração de caractere constante, dica de tipo', () => {
+                it('Sucesso - Declaração de caractere constante, dica de tipo', async () => {
                     const retornoLexador = lexador.mapear(["c:Real=3.5"], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -168,9 +168,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('c: Real = 3.5');
                 });
 
-                it('Sucesso - Declaração de inteiro variável, inferência', () => {
+                it('Sucesso - Declaração de inteiro variável, inferência', async () => {
                     const retornoLexador = lexador.mapear(['var a:=10'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -179,9 +179,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var a := 10');
                 });
 
-                it('Sucesso - Declaração de múltiplas variáveis inteiras, inferência', () => {
+                it('Sucesso - Declaração de múltiplas variáveis inteiras, inferência', async () => {
                     const retornoLexador = lexador.mapear(['var a, b, c := 10, 20, 30'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
@@ -193,7 +193,7 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Estruturas de decisão', () => {
-                it('Escolha', () => {
+                it('Escolha', async () => {
                     const retornoLexador = lexador.mapear([
                         'escolha                         x',
                         'caso 1 => escreva "Um"',
@@ -202,7 +202,7 @@ describe('Formatador > Potigol', () => {
                         '  caso _=>escreva "Outro valor"',
                         'fim'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -215,7 +215,7 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[5]).toBe('fim');
                 });
 
-                it('Se', () => {
+                it('Se', async () => {
                     const retornoLexador = lexador.mapear([
                         'se    verdadeiro  então',
                         '              escreva "verdadeiro"',
@@ -223,7 +223,7 @@ describe('Formatador > Potigol', () => {
                         '  escreva   "falso"',
                         '     fim'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -237,7 +237,7 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Estruturas de repetição', () => {
-                it('Enquanto', () => {
+                it('Enquanto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var i    :=  0',
                         'enquanto     i<= 10     faça',
@@ -246,7 +246,7 @@ describe('Formatador > Potigol', () => {
                         'fim'
                     ], -1);
 
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -258,7 +258,7 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[4]).toBe('fim');
                 });
 
-                it('Para', () => {
+                it('Para', async () => {
                     const retornoLexador = lexador.mapear([
                         'var soma:=0',
                         'para i    de  1     até 10   faça',
@@ -266,7 +266,7 @@ describe('Formatador > Potigol', () => {
                         '  fim',
                         '    escreva       "A soma é {soma}."'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -279,12 +279,12 @@ describe('Formatador > Potigol', () => {
                 });
             });
 
-            it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', () => {
+            it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', async () => {
                 const retornoLexador = lexador.mapear([
                     'soma(  x:    Inteiro,y : Inteiro) =  x    +y'
                 ], -1);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                 const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -292,11 +292,11 @@ describe('Formatador > Potigol', () => {
                 expect(linhasResultado[0]).toBe('soma(x: Inteiro, y: Inteiro) = x + y');
             });
 
-            it('Função de uma linha, argumentos com tipo definido, com dica de retorno', () => {
+            it('Função de uma linha, argumentos com tipo definido, com dica de retorno', async () => {
                 const retornoLexador = lexador.mapear([
                     'soma( x :Inteiro,y:Inteiro        )  : Inteiro =  x  +y'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                 const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -305,9 +305,9 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Entrada de dados', () => {
-                it('leia_inteiro', () => {
+                it('leia_inteiro', async () => {
                     const retornoLexador = lexador.mapear(['var x := leia_inteiro'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -315,9 +315,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var x := leia_inteiro');
                 });
 
-                it('leia_inteiros com argumento', () => {
+                it('leia_inteiros com argumento', async () => {
                     const retornoLexador = lexador.mapear(['var x := leia_inteiros(5)'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -325,9 +325,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var x := leia_inteiros(5)');
                 });
 
-                it('leia_real', () => {
+                it('leia_real', async () => {
                     const retornoLexador = lexador.mapear(['var x := leia_real'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -335,9 +335,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var x := leia_real');
                 });
 
-                it('leia_reais com argumento', () => {
+                it('leia_reais com argumento', async () => {
                     const retornoLexador = lexador.mapear(['var x := leia_reais(3)'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -345,9 +345,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var x := leia_reais(3)');
                 });
 
-                it('leia_texto', () => {
+                it('leia_texto', async () => {
                     const retornoLexador = lexador.mapear(['var x := leia_texto'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -355,9 +355,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var x := leia_texto');
                 });
 
-                it('leia_textos com argumento', () => {
+                it('leia_textos com argumento', async () => {
                     const retornoLexador = lexador.mapear(['var x := leia_textos(10)'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -367,12 +367,12 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Reatribuição de variáveis', () => {
-                it('Reatribuição simples', () => {
+                it('Reatribuição simples', async () => {
                     const retornoLexador = lexador.mapear([
                         'var x := 10',
                         'x := 20'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -381,12 +381,12 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[1]).toBe('x := 20');
                 });
 
-                it('Reatribuição com expressão', () => {
+                it('Reatribuição com expressão', async () => {
                     const retornoLexador = lexador.mapear([
                         'var x := 10',
                         'x   :=   x   +   5'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -398,9 +398,9 @@ describe('Formatador > Potigol', () => {
 
 
             describe('Constantes com tipos explícitos', () => {
-                it('Constante com tipo Texto/Caractere', () => {
+                it('Constante com tipo Texto/Caractere', async () => {
                     const retornoLexador = lexador.mapear(['nome: Texto = "João"'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -408,9 +408,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('nome: Caractere = "João"');
                 });
 
-                it('Constante com tipo Inteiro', () => {
+                it('Constante com tipo Inteiro', async () => {
                     const retornoLexador = lexador.mapear(['idade:   Inteiro   =   25'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -418,9 +418,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('idade: Inteiro = 25');
                 });
 
-                it('Constante com tipo Logico', () => {
+                it('Constante com tipo Logico', async () => {
                     const retornoLexador = lexador.mapear(['ativo: Logico = verdadeiro'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -428,9 +428,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('ativo: Lógico = verdadeiro');
                 });
 
-                it('Constante com tipo Lógico (com acento)', () => {
+                it('Constante com tipo Lógico (com acento)', async () => {
                     const retornoLexador = lexador.mapear(['ativo: Lógico = falso'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -440,9 +440,9 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Operadores adicionais', () => {
-                it('Operador lógico E (and)', () => {
+                it('Operador lógico E (and)', async () => {
                     const retornoLexador = lexador.mapear(['escreva verdadeiro    e    falso'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -452,12 +452,12 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Referências e constantes', () => {
-                it('Referência a constante', () => {
+                it('Referência a constante', async () => {
                     const retornoLexador = lexador.mapear([
                         'PI = 3.14159',
                         'escreva PI'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -468,9 +468,9 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Casos adicionais', () => {
-                it('Unário com operador de adição antes', () => {
+                it('Unário com operador de adição antes', async () => {
                     const retornoLexador = lexador.mapear(['escreva +5'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -478,9 +478,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toContain('+');
                 });
 
-                it('Unário com operador de subtração antes', () => {
+                it('Unário com operador de subtração antes', async () => {
                     const retornoLexador = lexador.mapear(['escreva -10'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -488,13 +488,13 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toContain('-');
                 });
 
-                it('Escolha sem caminho padrão', () => {
+                it('Escolha sem caminho padrão', async () => {
                     const retornoLexador = lexador.mapear([
                         'escolha x',
                         'caso 1 => escreva "Um"',
                         'fim'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -504,13 +504,13 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[2]).toBe('fim');
                 });
 
-                it('Se sem caminho senao', () => {
+                it('Se sem caminho senao', async () => {
                     const retornoLexador = lexador.mapear([
                         'se verdadeiro então',
                         '  escreva "verdadeiro"',
                         'fim'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -520,9 +520,9 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[2]).toBe('fim');
                 });
 
-                it('Função sem parâmetros e sem tipo de retorno', () => {
+                it('Função sem parâmetros e sem tipo de retorno', async () => {
                     const retornoLexador = lexador.mapear(['ola() = escreva "Olá"'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -532,11 +532,11 @@ describe('Formatador > Potigol', () => {
             });
 
             describe('Declarações de tuplas', () => {
-                it('Dupla', () => {
+                it('Dupla', async () => {
                     const retornoLexador = lexador.mapear([
                         'var   t  :=(1 ,2)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -544,11 +544,11 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2)');
                 });
 
-                it('Trio', () => {
+                it('Trio', async () => {
                     const retornoLexador = lexador.mapear([
                         '   var     t:=(1,2,   3 )'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -556,11 +556,11 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3)');
                 });
 
-                it('Quarteto', () => {
+                it('Quarteto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t:=(1,2,3,4)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -568,11 +568,11 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4)');
                 });
 
-                it('Quinteto', () => {
+                it('Quinteto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t :=( 1 ,   2,   3,4,   5   )'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -580,11 +580,11 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5)');
                 });
 
-                it('Sexteto', () => {
+                it('Sexteto', async () => {
                     const retornoLexador = lexador.mapear([
                         '  var   t :=   ( 1, 2  ,  3 , 4 ,5,6)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -592,11 +592,11 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6)');
                 });
 
-                it('Septeto', () => {
+                it('Septeto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t:=( 1 ,   2 ,3, 4  ,5, 6  , 7  )'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -604,11 +604,11 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7)');
                 });
 
-                it('Octeto', () => {
+                it('Octeto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t:=(1,2,3,4,5,6,7,8)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -616,11 +616,11 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7, 8)');
                 });
 
-                it('Noneto', () => {
+                it('Noneto', async () => {
                     const retornoLexador = lexador.mapear([
                         ' var  t  :=  (  1 , 2 , 3, 4 , 5  , 6  ,  7,    8 , 9    )'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -628,11 +628,11 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7, 8, 9)');
                 });
 
-                it('Deceto', () => {
+                it('Deceto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t :=( 1, 2  , 3   ,  4,     5,   6 ,  7,8, 9,10  )'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 

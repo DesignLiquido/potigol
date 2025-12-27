@@ -9,14 +9,14 @@ describe('Lexador (Potigol)', () => {
         });
 
         describe('Cenário de sucesso', () => {
-            it('Arquivo vazio.', () => {
+            it('Arquivo vazio.', async () => {
                 const resultado = lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
-            it('Olá mundo', () => {
+            it('Olá mundo', async () => {
                 const resultado = lexador.mapear([
                     'escreva "Olá Mundo"'
                 ], -1);

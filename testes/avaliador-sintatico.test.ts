@@ -11,17 +11,17 @@ describe('Avaliador sintático', () => {
 
         describe('Cenários de sucesso', () => {
             describe('Entrada e saída', () => {
-                it('Escreva Olá Mundo', () => {
+                it('Escreva Olá Mundo', async () => {
                     const retornoLexador = lexador.mapear(['escreva "Olá mundo"'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Imprima Olá Mundo', () => {
+                it('Imprima Olá Mundo', async () => {
                     const retornoLexador = lexador.mapear(['imprima "Olá mundo"'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -29,25 +29,25 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Operações matemáticas', () => {
-                it('Soma trivial', () => {
+                it('Soma trivial', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 + 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Operações encadeadas', () => {
+                it('Operações encadeadas', async () => {
                     const retornoLexador = lexador.mapear(['escreva (2 * 8) - (5 / 4 ^ 7)'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Mod e Div', () => {
+                it('Mod e Div', async () => {
                     const retornoLexador = lexador.mapear(['escreva (100 mod 6 div 2)'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -55,81 +55,81 @@ describe('Avaliador sintático', () => {
             });
             
             describe('Operações lógicas', () => {
-                it('Ou', () => {
+                it('Ou', async () => {
                     const retornoLexador = lexador.mapear(['verdadeiro ou falso'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('E', () => {
+                it('E', async () => {
                     const retornoLexador = lexador.mapear(['verdadeiro e falso'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Não (sem acento)', () => {
+                it('Não (sem acento)', async () => {
                     const retornoLexador = lexador.mapear(['nao verdadeiro'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Não (com acento)', () => {
+                it('Não (com acento)', async () => {
                     const retornoLexador = lexador.mapear(['não verdadeiro'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Comparação de igualdade', () => {
+                it('Comparação de igualdade', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 == 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Comparação de desigualdade', () => {
+                it('Comparação de desigualdade', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 <> 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Comparação de menor', () => {
+                it('Comparação de menor', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 < 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Comparação de menor ou igual', () => {
+                it('Comparação de menor ou igual', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 <= 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Comparação de maior', () => {
+                it('Comparação de maior', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 > 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Comparação de maior ou igual', () => {
+                it('Comparação de maior ou igual', async () => {
                     const retornoLexador = lexador.mapear(['escreva 2 >= 2'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -137,98 +137,98 @@ describe('Avaliador sintático', () => {
             });
             
             describe('Atribuição de variáveis', () => {
-                it('Declaração de inteiro constante, inferência', () => {
+                it('Declaração de inteiro constante, inferência', async () => {
                     const retornoLexador = lexador.mapear(['a = 10'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Declaração de inteiro variável, inferência', () => {
+                it('Declaração de inteiro variável, inferência', async () => {
                     const retornoLexador = lexador.mapear(['var a := 10'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Declaração de múltiplas variáveis inteiras, inferência', () => {
+                it('Declaração de múltiplas variáveis inteiras, inferência', async () => {
                     const retornoLexador = lexador.mapear(['var a, b, c := 10, 20, 30'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
                 });
     
-                it('Declaração de caractere constante, dica de tipo', () => {
+                it('Declaração de caractere constante, dica de tipo', async () => {
                     const retornoLexador = lexador.mapear(["c: Caractere = 'z'"], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Declaração de inteiro constante com val, dica de tipo', () => {
+                it('Declaração de inteiro constante com val, dica de tipo', async () => {
                     const retornoLexador = lexador.mapear(['val a: Inteiro = 10'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Declaração de inteiro constante, dica de tipo', () => {
+                it('Declaração de inteiro constante, dica de tipo', async () => {
                     const retornoLexador = lexador.mapear(['a: Inteiro = 10'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Declaração de lógico (com acento) constante, dica de tipo', () => {
+                it('Declaração de lógico (com acento) constante, dica de tipo', async () => {
                     const retornoLexador = lexador.mapear(['b: Lógico = verdadeiro'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Declaração de lógico (sem acento) constante, dica de tipo', () => {
+                it('Declaração de lógico (sem acento) constante, dica de tipo', async () => {
                     const retornoLexador = lexador.mapear(['b: Logico = verdadeiro'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Declaração de real constante, dica de tipo', () => {
+                it('Declaração de real constante, dica de tipo', async () => {
                     const retornoLexador = lexador.mapear(['r: Real = 3.14'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
     
-                it('Declaração de texto constante, dica de tipo', () => {
+                it('Declaração de texto constante, dica de tipo', async () => {
                     const retornoLexador = lexador.mapear(['s: Texto = "Programação"'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Declaração de múltiplas constantes, lado direito usando `leia_inteiro`', () => {
+                it('Declaração de múltiplas constantes, lado direito usando `leia_inteiro`', async () => {
                     const retornoLexador = lexador.mapear(['a, b, c = leia_inteiro'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Declaração de múltiplas constantes, lado direito usando `leia_inteiros`', () => {
+                it('Declaração de múltiplas constantes, lado direito usando `leia_inteiros`', async () => {
                     const retornoLexador = lexador.mapear(['a, b, c = leia_inteiros(3)'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
@@ -237,7 +237,7 @@ describe('Avaliador sintático', () => {
             });
             
             describe('Estruturas de decisão', () => {
-                it('Escolha', () => {
+                it('Escolha', async () => {
                     const retornoLexador = lexador.mapear([
                         'escolha x',
                         '  caso 1 => escreva "Um"',
@@ -246,13 +246,13 @@ describe('Avaliador sintático', () => {
                         '  caso _ => escreva "Outro valor"',
                         'fim'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Se', () => {
+                it('Se', async () => {
                     const retornoLexador = lexador.mapear([
                         'se verdadeiro então',
                         '  escreva "verdadeiro"',
@@ -260,7 +260,7 @@ describe('Avaliador sintático', () => {
                         '  escreva "falso"',
                         'fim'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -268,7 +268,7 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Estruturas de repetição', () => {
-                it('Enquanto', () => {
+                it('Enquanto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var i := 0',
                         'enquanto i <= 10 faça',
@@ -276,13 +276,13 @@ describe('Avaliador sintático', () => {
                         '  i := i + 1',
                         'fim'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 });
 
-                it('Para', () => {
+                it('Para', async () => {
                     const retornoLexador = lexador.mapear([
                         'var soma := 0',
                         'para i de 1 até 10 faça',
@@ -290,7 +290,7 @@ describe('Avaliador sintático', () => {
                         'fim',
                         'escreva "A soma é {soma}."'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -298,43 +298,43 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Declarações de funções', () => {
-                it('Função de uma linha com def, argumentos com tipo definido, sem dica de retorno', () => {
+                it('Função de uma linha com def, argumentos com tipo definido, sem dica de retorno', async () => {
                     const retornoLexador = lexador.mapear([
                         'def soma(x: Inteiro, y: Inteiro) = x + y'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', () => {
+                it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', async () => {
                     const retornoLexador = lexador.mapear([
                         'soma(x: Inteiro, y: Inteiro) = x + y'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Função de uma linha, argumentos com tipo definido, com dica de retorno', () => {
+                it('Função de uma linha, argumentos com tipo definido, com dica de retorno', async () => {
                     const retornoLexador = lexador.mapear([
                         'soma(x: Inteiro, y: Inteiro): Inteiro = x + y'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Função anônima', () => {
+                it('Função anônima', async () => {
                     const retornoLexador = lexador.mapear([
                         'soma = (x, y: Inteiro) => x + y',
                         'escreva soma(2, 3)'
                     ], -1);
                     
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
@@ -343,91 +343,91 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Declarações de tuplas', () => {
-                it('Dupla', () => {
+                it('Dupla', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Trio', () => {
+                it('Trio', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2, 3)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Quarteto', () => {
+                it('Quarteto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2, 3, 4)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Quinteto', () => {
+                it('Quinteto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2, 3, 4, 5)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Sexteto', () => {
+                it('Sexteto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2, 3, 4, 5, 6)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Septeto', () => {
+                it('Septeto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2, 3, 4, 5, 6, 7)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Octeto', () => {
+                it('Octeto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2, 3, 4, 5, 6, 7, 8)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Noneto', () => {
+                it('Noneto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2, 3, 4, 5, 6, 7, 8, 9)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
-                it('Deceto', () => {
+                it('Deceto', async () => {
                     const retornoLexador = lexador.mapear([
                         'var t := (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -435,7 +435,7 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Tipos', () => {
-                it('Trivial', () => {
+                it('Trivial', async () => {
                     const retornoLexador = lexador.mapear([
                         'tipo Quadrado',
                         '  lado: Inteiro',
@@ -443,7 +443,7 @@ describe('Avaliador sintático', () => {
                         '  perimetro() = 4 * lado',
                         'fim'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -451,13 +451,13 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Primitivas', () => {
-                it('formato, trivial', () => {
+                it('formato, trivial', async () => {
                     const retornoLexador = lexador.mapear([
                         'x = leia_real',
                         'area = (x * x) * 3.14159',
                         'escreva "A={area formato "%.4f"}"'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3); 
@@ -478,13 +478,13 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Listas', () => {
-                it('Concatenação de listas', () => {
+                it('Concatenação de listas', async () => {
                     const retornoLexador = lexador.mapear([
                         'lista1 = [1,2,3,4]',
                         'lista2 = 0::lista1',
                         'escreva lista2'
                     ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -493,10 +493,10 @@ describe('Avaliador sintático', () => {
         });
 
         describe('Cenários de Falha', () => {
-            it('Falha - Declaração de múltiplas variáveis inteiras, lado direito diferente de esquerdo', () => {
+            it('Falha - Declaração de múltiplas variáveis inteiras, lado direito diferente de esquerdo', async () => {
                 const retornoLexador = lexador.mapear(['var a, b, c := 10, 20'], -1);
-                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(ErroAvaliadorSintatico);
-                expect(() => avaliadorSintatico.analisar(retornoLexador, -1)).toThrow(
+                await expect(avaliadorSintatico.analisar(retornoLexador, -1)).rejects.toThrow(ErroAvaliadorSintatico);
+                await expect(avaliadorSintatico.analisar(retornoLexador, -1)).rejects.toThrow(
                     expect.objectContaining({
                         message: "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.",
                     })

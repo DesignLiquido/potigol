@@ -426,7 +426,7 @@ export async function visitarExpressaoLeiaMultiplo(
                 });
                 break;
             default:
-                valores = argumento.valor;
+                valores = argumento.valor as number;
                 for (let i = 0; i < valores; i++) {
                     await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
                         respostas.push(resposta);

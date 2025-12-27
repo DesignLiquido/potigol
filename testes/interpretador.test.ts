@@ -23,7 +23,7 @@ describe('Interpretador (Potigol)', () => {
             const retornoLexador = lexador.mapear([
                 'escreva "Olá mundo"'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.funcaoDeRetorno = (saida: any) => {
                 expect(saida).toEqual("Olá mundo")
@@ -40,7 +40,7 @@ describe('Interpretador (Potigol)', () => {
                     'escreva ((x, y: Inteiro) => x + y)(2, 3)'
                 ], -1);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -62,7 +62,7 @@ describe('Interpretador (Potigol)', () => {
                     'escreva q1.perimetro()'
                 ], -1);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -84,7 +84,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual("Inteiro");
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -99,7 +99,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual("Inteiro");
                 }
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -115,7 +115,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual("Real");
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -131,7 +131,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual("Inteiro");
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -147,7 +147,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual("Lista");
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -165,7 +165,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('[3, 4]');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -183,7 +183,7 @@ describe('Interpretador (Potigol)', () => {
                     'escreva lista2'
                 ], -1);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -209,7 +209,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('1');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -231,7 +231,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('1.2');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -253,7 +253,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('texto');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -276,7 +276,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('(1,2,3)');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -299,7 +299,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('1');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
@@ -323,7 +323,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('[1, 2, 3]');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -344,7 +344,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('[1, 2, 3]');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -362,7 +362,7 @@ describe('Interpretador (Potigol)', () => {
                     }
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas).toHaveLength(1);
@@ -387,7 +387,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('[1, 2, 3]');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -408,7 +408,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('[1, 2, 3]');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -431,7 +431,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('[a, b, c]');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -452,7 +452,7 @@ describe('Interpretador (Potigol)', () => {
                     expect(saida).toEqual('[a, b, c]');
                 };
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
@@ -470,7 +470,7 @@ describe('Interpretador (Potigol)', () => {
                         saidas.push(String(saida));
                     };
                     
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(saidas).toHaveLength(1);
@@ -487,7 +487,7 @@ describe('Interpretador (Potigol)', () => {
                         saidas.push(String(saida));
                     };
                     
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(saidas).toHaveLength(1);
@@ -513,7 +513,7 @@ describe('Interpretador (Potigol)', () => {
                         }
                     };
 
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoInterpretador.erros).toHaveLength(0);

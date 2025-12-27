@@ -31,7 +31,7 @@ describe('Interpretador com Depuração (Potigol)', () => {
                 const retornoLexador = lexador.mapear([
                     'escreva "Olá Mundo"'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 let execucaoFinalizada: boolean = false;
                 interpretador.finalizacaoDaExecucao = () => {
