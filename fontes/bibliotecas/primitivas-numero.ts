@@ -1,13 +1,13 @@
 import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
 
 export default {
-    arredonde: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number): Promise<any> =>
+    arredonde: (interpretador: VisitanteComumInterface, numero: number): Promise<any> =>
         Promise.resolve(Math.ceil(numero)),
-    caractere: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number): Promise<any> =>
+    caractere: (interpretador: VisitanteComumInterface, numero: number): Promise<any> =>
         Promise.resolve(String.fromCharCode(numero)),
-    inteiro: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number): Promise<any> =>
+    inteiro: (interpretador: VisitanteComumInterface, numero: number): Promise<any> =>
         Promise.resolve(Math.floor(numero)),
-    formato: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number, mascara: string): Promise<any> => {
+    formato: (interpretador: VisitanteComumInterface, numero: number, mascara: string): Promise<any> => {
         if (mascara.includes('f')) {
             const casasDecimais = mascara.match(/%\.(\d+)f/)[1];
             return Promise.resolve(numero.toFixed(parseInt(casasDecimais)));
@@ -16,10 +16,10 @@ export default {
         const casasInteiras = mascara.match(/%(\d+)d/)[1];
         return Promise.resolve(String(numero).padStart(parseInt(casasInteiras), ' '));
     },
-    qual_tipo: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number): Promise<any> =>
+    qual_tipo: (interpretador: VisitanteComumInterface, numero: number): Promise<any> =>
         Promise.resolve(Math.floor(numero) === numero ? 'Inteiro' : 'Real'),
-    piso: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number): Promise<any> => Promise.resolve(Math.floor(numero)),
-    real: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number): Promise<any> => Promise.resolve(numero),
-    teto: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number): Promise<any> => Promise.resolve(Math.ceil(numero)),
-    texto: (interpretador: VisitanteComumInterface, nomePrimitiva: string, numero: number): Promise<any> => Promise.resolve(String(numero)),
+    piso: (interpretador: VisitanteComumInterface, numero: number): Promise<any> => Promise.resolve(Math.floor(numero)),
+    real: (interpretador: VisitanteComumInterface, numero: number): Promise<any> => Promise.resolve(numero),
+    teto: (interpretador: VisitanteComumInterface, numero: number): Promise<any> => Promise.resolve(Math.ceil(numero)),
+    texto: (interpretador: VisitanteComumInterface, numero: number): Promise<any> => Promise.resolve(String(numero)),
 };
