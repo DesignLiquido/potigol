@@ -23,7 +23,14 @@
         "lint": "yarn eslint . --ext .ts",
         "deixar-codigo-bonito": "yarn prettier --config .prettierrc --write fontes/**/*.ts"
     },
+    "dependencies": {
+        "lodash": "^4.17.21"
+    },
+    "peerDependencies": {
+        "@designliquido/delegua": "^1.4.2"
+    },
     "devDependencies": {
+        "@designliquido/delegua": "^1.4.2",
         "@types/estree": "^1.0.7",
         "@types/jest": "^30.0.0",
         "@types/node": "^25.0.2",
@@ -41,9 +48,5 @@
         "ts-node": "^10.9.2",
         "typedoc": "^0.28.4",
         "typescript": "^5.9.2"
-    },
-    "dependencies": {
-        "@designliquido/delegua": "^1.4.2",
-        "lodash": "^4.17.21"
     }
 }
