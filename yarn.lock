@@ -438,9 +438,9 @@
     "@jridgewell/trace-mapping" "0.3.9"
 
 "@designliquido/delegua@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-1.5.0.tgz#74a147037a038b353fcf0f8e117e4340ee736a6f"
-  integrity sha512-gBcLD2luJg5Ov0TteB2Syjzfti9fmA+4QLbT9eaWUESBK1cQVUAFJOOforb/6pF8xvrm4WAYyp0A9YSjSD5f6g==
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-1.5.1.tgz#6489cb2066c278667ef9f6794849942863220780"
+  integrity sha512-+daUfDpZYWGFadc7i/fu3VvbQtbskeUYT/RLz3EvTgy4SwAjIbVK9ld3xyfKI9MTBch9UO7TazP1PdL9g3AG6A==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
