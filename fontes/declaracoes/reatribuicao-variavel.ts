@@ -1,9 +1,9 @@
 import { Construto } from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
 import { SimboloInterface } from '@designliquido/delegua/interfaces';
-import { TipoDadosElementar } from '@designliquido/delegua/tipo-dados-elementar';
 
 import { VisitanteComumPotigolInterface } from '../interfaces';
+import { TipoInferencia } from '@designliquido/delegua/inferenciador';
 
 /**
  * Uma declaração de reatribuição de variável.
@@ -12,10 +12,10 @@ import { VisitanteComumPotigolInterface } from '../interfaces';
 export class ReatribuicaoVariavel extends Declaracao {
     simbolo: SimboloInterface;
     inicializador: Construto;
-    tipo: TipoDadosElementar;
+    tipo: TipoInferencia;
     referencia: boolean;
 
-    constructor(simbolo: SimboloInterface, inicializador: Construto, tipo: TipoDadosElementar = undefined) {
+    constructor(simbolo: SimboloInterface, inicializador: Construto, tipo: TipoInferencia = undefined) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.inicializador = inicializador;

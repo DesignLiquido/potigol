@@ -42,7 +42,6 @@ import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegu
 import { AvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/avaliador-sintatico-base';
 
 import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
-import { TipoDadosElementar } from '@designliquido/delegua/tipo-dados-elementar';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 import { SeletorTuplas } from '@designliquido/delegua/construtos/tuplas';
@@ -62,6 +61,7 @@ import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhe
 
 import tipoDeDadosPotigol from '../tipos-de-dados';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import { TipoInferencia } from '@designliquido/delegua/inferenciador';
 
 /**
  * 
@@ -732,10 +732,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
             const tipoVetor = tiposVetores.find((tipo) => tipo === `${lexemaElementar}[]`);
             this.avancarEDevolverAnterior();
-            return tipoVetor as TipoDadosElementar;
+            return tipoVetor as TipoInferencia;
         } */
 
-        return tipoElementarResolvido as TipoDadosElementar;
+        return tipoElementarResolvido as TipoInferencia;
     }
 
     protected logicaComumInicializadorLeia(inicializador: Construto, identificadores: SimboloInterface<string>[]) {
@@ -878,7 +878,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 );
             }
 
-            const tipoConversao: TipoDadosElementar = this.logicaComumInferenciaTiposLeia(inicializadores[0]);
+            const tipoConversao: TipoInferencia = this.logicaComumInferenciaTiposLeia(inicializadores[0]);
             return new ConstMultiplo(identificadores, inicializadores[0], tipoConversao);
         }
 
@@ -1421,7 +1421,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                             (expressao as Constante).simbolo,
                             valorAtribuicao,
                             tipoVariavelOuConstante
-                                ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoDadosElementar)
+                                ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoInferencia)
                                 : undefined,
                             tipoExplicito
                         );
@@ -1439,7 +1439,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                             (expressao as Variavel).simbolo,
                             valorAtribuicao,
                             tipoVariavelOuConstante
-                                ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoDadosElementar)
+                                ? (this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] as TipoInferencia)
                                 : undefined
                         );
                 }
