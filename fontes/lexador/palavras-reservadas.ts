@@ -20,6 +20,7 @@ export const palavrasReservadas = {
     falso: tiposDeSimbolos.FALSO,
     fim: tiposDeSimbolos.FIM,
     formato: tiposDeSimbolos.FORMATO,
+    gere: tiposDeSimbolos.GERE,
     imprima: tiposDeSimbolos.IMPRIMA,
     Inteiro: tiposDeSimbolos.INTEIRO,
     leia_inteiro: tiposDeSimbolos.LEIA_INTEIRO,

@@ -34,7 +34,7 @@ import {
 import { FuncaoHipoteticaInterface } from '@designliquido/delegua/interfaces/funcao-hipotetica-interface';
 import { RetornoAnalisadorSemantico } from '@designliquido/delegua/interfaces/retornos/retorno-analisador-semantico';
 
-import { AliasTipo, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 
@@ -792,6 +792,10 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     }
 
     visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoParaGere(declaracao: ParaGere): Promise<any> | void {
         return Promise.resolve();
     }
 

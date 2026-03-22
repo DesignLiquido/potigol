@@ -56,7 +56,7 @@ import {
     LeiaTexto,
     LeiaTextos,
 } from '../construtos';
-import { AliasTipo, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
@@ -1218,9 +1218,42 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             }
         }
 
+        let condicaoGere: Construto = undefined;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
+            condicaoGere = await this.expressao();
+        }
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.GERE)) {
+            const declaracoesGere = [];
+            let simboloAtualBlocoGere: SimboloInterface = this.simbolos[this.atual];
+            while (simboloAtualBlocoGere.tipo !== tiposDeSimbolos.FIM) {
+                declaracoesGere.push(await this.resolverDeclaracaoForaDeBloco());
+                simboloAtualBlocoGere = this.simbolos[this.atual];
+            }
+
+            this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após bloco de 'gere'.");
+            return new ParaGere(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                variavelIteracao,
+                literalOuVariavelInicio,
+                literalOuVariavelFim,
+                declaracoesGere.filter((d) => d),
+                passo,
+                condicaoGere
+            ) as unknown as Para;
+        }
+
+        if (condicaoGere) {
+            throw this.erro(
+                this.simbolos[this.atual] || this.simboloAnterior(),
+                "A guarda 'se' em laço 'para' só é suportada com a forma 'gere' neste dialeto."
+            );
+        }
+
         this.consumir(
             tiposDeSimbolos.FACA,
-            "Esperado palavra reservada 'faca' após valor final do laço de repetição 'para'."
+            "Esperado palavra reservada 'faca' após valor final do laço de repetição 'para', ou 'gere' para compreensão."
         );
 
         const declaracoesBlocoPara = [];

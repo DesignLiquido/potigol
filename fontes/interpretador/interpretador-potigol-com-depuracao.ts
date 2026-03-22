@@ -4,7 +4,7 @@ import { DeleguaFuncao, DescritorTipoClasse } from '@designliquido/delegua/inter
 import { Classe, Const } from '@designliquido/delegua/declaracoes';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
-import { AliasTipo, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 
 import * as comum from './comum';
@@ -34,6 +34,10 @@ export class InterpretadorPotigolComDepuracao
     }
 
     visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoParaGere(declaracao: ParaGere): Promise<any> | void {
         return Promise.resolve();
     }
 

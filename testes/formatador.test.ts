@@ -277,6 +277,22 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[3]).toBe('fim');
                     expect(linhasResultado[4]).toBe('escreva "A soma é {soma}."');
                 });
+
+                it('Para gere', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'para i de 1 até 5   gere',
+                        'escreva i',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(3);
+                    expect(linhasResultado[0]).toBe('para i de 1 ate 5 passo 1 gere');
+                    expect(linhasResultado[1]).toBe('escreva i');
+                    expect(linhasResultado[2]).toBe('fim');
+                });
             });
 
             it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', async () => {

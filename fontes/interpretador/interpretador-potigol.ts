@@ -3,7 +3,7 @@ import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, TipoDe, Tupla } 
 import { Classe, Const } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 
-import { AliasTipo, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
@@ -44,6 +44,10 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
     }
 
     visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoParaGere(declaracao: ParaGere): Promise<any> | void {
         return Promise.resolve();
     }
 
