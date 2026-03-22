@@ -1,6 +1,7 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
 export const palavrasReservadas = {
+    abstrato: tiposDeSimbolos.ABSTRATO,
     ate: tiposDeSimbolos.ATE,
     até: tiposDeSimbolos.ATE,
     Caractere: tiposDeSimbolos.CARACTERE,

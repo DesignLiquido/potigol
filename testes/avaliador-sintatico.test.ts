@@ -486,6 +486,19 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 });
 
+                it('Tipo abstrato', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'tipo abstrato Figura',
+                        '  lados: Inteiro',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
                 it('Importação com use', async () => {
                     const retornoLexador = lexador.mapear([
                         'use "./biblioteca"',

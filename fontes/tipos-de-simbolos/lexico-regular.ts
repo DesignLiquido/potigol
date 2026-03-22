@@ -1,4 +1,5 @@
 export default {
+    ABSTRATO: 'ABSTRATO',
     ADICAO: 'ADICAO',
     ATE: 'ATE',
     CARACTERE: 'CARACTERE',

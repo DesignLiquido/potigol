@@ -1352,12 +1352,20 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
     protected async declaracaoTipoOuAlias(): Promise<Classe | AliasTipo> {
         const simboloTipo = this.avancarEDevolverAnterior();
+        const tipoAbstrato = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO);
         const simboloNomeTipo = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             "Esperado nome após palavra reservada 'tipo'."
         );
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            if (tipoAbstrato) {
+                throw this.erro(
+                    this.simboloAnterior(),
+                    "Não é permitido declarar alias com 'tipo abstrato'. Use 'tipo Nome = Tipo' ou 'tipo abstrato Nome ... fim'."
+                );
+            }
+
             const tipoOriginal = this.verificarDefinicaoTipoAtual();
             this.avancarEDevolverAnterior();
             this.tiposDefinidosEmCodigo[simboloNomeTipo.lexema] = tipoOriginal;
@@ -1447,6 +1455,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             undefined
         );
 
+        // Nesta fase, `tipo abstrato` compartilha a mesma representação sintática
+        // de `tipo`, preservando compatibilidade de execução com o runtime atual.
         metodos.unshift(construtor);
         return new Classe(construto.simbolo, undefined, metodos, propriedades);
     }
