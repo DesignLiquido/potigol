@@ -437,6 +437,26 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
                     expect(linhasResultado[0]).toBe('ativo: Lógico = falso');
                 });
+
+                it('Alias de tipo', async () => {
+                    const retornoLexador = lexador.mapear(['tipo   Medida=Inteiro'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('tipo Medida = Inteiro');
+                });
+
+                it('Importação com use', async () => {
+                    const retornoLexador = lexador.mapear(['use    "./biblioteca"'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('use "./biblioteca"');
+                });
             });
 
             describe('Operadores adicionais', () => {

@@ -33,6 +33,7 @@ export default {
     TIPO: 'TIPO',
     TRACO_BAIXO: 'TRACO_BAIXO',
     TEXTO: 'TEXTO',
+    USE: 'USE',
     VERDADEIRO: 'VERDADEIRO',
     VARIAVEL: 'VARIAVEL',
     VIRGULA: 'VIRGULA',

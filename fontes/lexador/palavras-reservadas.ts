@@ -42,6 +42,7 @@ export const palavrasReservadas = {
     senão: tiposDeSimbolos.SENAO,
     Texto: tiposDeSimbolos.TEXTO,
     tipo: tiposDeSimbolos.TIPO,
+    use: tiposDeSimbolos.USE,
     val: tiposDeSimbolos.VAL,
     var: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,

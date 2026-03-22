@@ -1,9 +1,10 @@
 import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
 
-import { ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, ReatribuicaoVariavel } from '../declaracoes';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 
 export interface VisitanteComumPotigolInterface extends VisitanteComumInterface {
+    visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void;
     visitarDeclaracaoLeiaInteiro(declaracao: LeiaInteiro): Promise<any> | void;
     visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void;
     visitarDeclaracaoLeiaReais(declaracao: LeiaReais): Promise<any> | void;

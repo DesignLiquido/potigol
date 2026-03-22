@@ -37,6 +37,7 @@ import {
     PropriedadeClasse,
     ConstMultiplo,
     Retorna,
+    Importar,
 } from '@designliquido/delegua/declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { AvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/avaliador-sintatico-base';
@@ -55,7 +56,7 @@ import {
     LeiaTexto,
     LeiaTextos,
 } from '../construtos';
-import { ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
@@ -71,6 +72,7 @@ import { TipoInferencia } from '@designliquido/delegua/inferenciador';
 export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
     microAvaliadorSintatico: MicroAvaliadorSintaticoPotigol;
+    tiposDefinidosEmCodigo: Record<string, string>;
 
     tiposPotigolParaDelegua = {
         Caractere: 'texto',
@@ -89,6 +91,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         super();
         this.declaracoes = [];
         this.pilhaEscoposVariaveisConhecidas = new PilhaEscoposVariaveisConhecidas();
+        this.tiposDefinidosEmCodigo = {};
     }
 
     /**
@@ -97,7 +100,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * @see primario
      */
     protected declaracaoLeia(): Leia {
-        throw new Error('Método não implementado.');
+        throw this.erro(
+            this.simbolos[this.atual] || this.simboloAnterior(),
+            "Potigol não possui um comando genérico 'leia'. Use uma das formas tipadas, como 'leia_inteiro', 'leia_real' ou 'leia_texto'."
+        );
     }
 
     /**
@@ -283,6 +289,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             ![tiposDeSimbolos.INTEIRO, tiposDeSimbolos.LOGICO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO].includes(
                 simbolo.tipo
             )
+            && !(simbolo.lexema in this.tiposDefinidosEmCodigo)
         ) {
             throw this.erro(simbolo, mensagemErro);
         }
@@ -387,7 +394,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     protected logicaArgumentosTipados(primeiroArgumento: Construto) {
         // Quando esta função executa, já sabemos que o próximo símbolo será um 
         // dois-pontos.
+        const simboloPrimeiroArgumento = (primeiroArgumento as any).simbolo as SimboloInterface;
+        const simbolosEntreParenteses: SimboloInterface[] = [];
 
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
+        }
+
+        const todosOsSimbolos = [simboloPrimeiroArgumento, ...simbolosEntreParenteses];
+        return this.logicaComumParametrosPotigol(todosOsSimbolos);
     }
 
     protected logicaFuncaoAnonimaOuTupla(primeiroConstruto: Construto) {
@@ -473,9 +488,43 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 switch (this.simbolos[this.atual].tipo) {
                     case tiposDeSimbolos.DOIS_PONTOS:
                         const argumentosFuncao = this.logicaArgumentosTipados(expressao);
-                        // TODO: Terminar.
-                        console.log('argumentosFuncao', argumentosFuncao);
-                        break;
+
+                        if (!argumentosFuncao.tipagemDefinida) {
+                            throw this.erro(
+                                this.simbolos[this.atual],
+                                'Não foi encontrado um tipo válido na definição de parâmetros para função.'
+                            );
+                        }
+
+                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+
+                        const tipoUltimoParametro = argumentosFuncao.parametros[argumentosFuncao.parametros.length - 1].tipoDado;
+                        for (const parametro of argumentosFuncao.parametros) {
+                            if (parametro.tipoDado === undefined) {
+                                parametro.tipoDado = tipoUltimoParametro;
+                            }
+                        }
+
+                        let tipoRetorno: SimboloInterface = undefined;
+                        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                            this.verificacaoTipo(
+                                this.simbolos[this.atual],
+                                'Esperado tipo válido após dois-pontos como retorno de função.'
+                            );
+
+                            tipoRetorno = this.avancarEDevolverAnterior();
+                        }
+
+                        this.consumir(
+                            tiposDeSimbolos.SETA,
+                            `Esperado seta para definição de corpo de função anônima após leitura de parâmetros. Atual: ${this.simbolos[this.atual].tipo}.`
+                        );
+
+                        return this.declaracaoFuncaoPotigolIniciadaPorIgualOuSeta(
+                            { hashArquivo: expressao.hashArquivo, linha: expressao.linha } as SimboloInterface,
+                            argumentosFuncao.parametros,
+                            tipoRetorno
+                        );
                     case tiposDeSimbolos.VIRGULA:
                         return this.logicaFuncaoAnonimaOuTupla(expressao);
                     default:
@@ -697,10 +746,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     protected verificarDefinicaoTipoAtual(): string {
         const tipos = [...Object.values(tipoDeDadosPotigol)];
 
-        // TODO: Habilitar isso no futuro.
-        /* if (this.simbolos[this.atual].lexema in this.tiposDefinidosEmCodigo) {
-            return this.simbolos[this.atual].lexema;
-        } */
+        if (this.simbolos[this.atual].lexema in this.tiposDefinidosEmCodigo) {
+            return this.tiposDefinidosEmCodigo[this.simbolos[this.atual].lexema];
+        }
 
         const lexemaElementar = this.simbolos[this.atual].lexema.toLowerCase();
         const tipoElementarResolvido = tipos.find((tipo) => tipo.toLowerCase() === lexemaElementar);
@@ -948,6 +996,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // Só que, se a avaliação entra na dica, só
         // podemos ter uma constante apenas.
         this.avancarEDevolverAnterior();
+        const simboloTipo = this.simbolos[this.atual];
         if (
             ![
                 tiposDeSimbolos.CARACTERE,
@@ -956,7 +1005,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.LÓGICO,
                 tiposDeSimbolos.REAL,
                 tiposDeSimbolos.TEXTO,
-            ].includes(this.simbolos[this.atual].tipo)
+            ].includes(simboloTipo.tipo)
+            && !(simboloTipo.lexema in this.tiposDefinidosEmCodigo)
         ) {
             throw this.erro(this.simbolos[this.atual], 'Esperado tipo após dois-pontos e nome de identificador.');
         }
@@ -1288,25 +1338,33 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     declaracaoFazer(): Fazer {
-        throw new Error('Método não implementado.');
+        throw this.erro(
+            this.simbolos[this.atual] || this.simboloAnterior(),
+            "A construção iniciada por 'faca' não é suportada como declaração isolada neste dialeto. Use 'enquanto ... faca ... fim' ou 'para ... faca ... fim'."
+        );
     }
 
-    /**
-     * Uma declaração de tipo nada mais é do que um declaração de classe.
-     * Em Potigol, classe e tipo são praticamente a mesma coisa.
-     *
-     * @returns Um construto do tipo `Classe`.
-     */
-    protected async declaracaoTipo(): Promise<Classe> {
-        const simboloTipo = this.avancarEDevolverAnterior();
-        const construto: ConstanteOuVariavel = await this.primario() as ConstanteOuVariavel;
+    protected declaracaoUse(): Importar {
+        this.avancarEDevolverAnterior();
+        const caminho = this.consumir(tiposDeSimbolos.TEXTO, "Esperado caminho textual após 'use'.");
+        return new Importar(new Literal(this.hashArquivo, Number(caminho.linha), caminho.literal, 'texto'));
+    }
 
-        // TODO: Verificar se Potigol trabalha com herança.
-        /* let superClasse = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
-            superClasse = new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
-        } */
+    protected async declaracaoTipoOuAlias(): Promise<Classe | AliasTipo> {
+        const simboloTipo = this.avancarEDevolverAnterior();
+        const simboloNomeTipo = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado nome após palavra reservada 'tipo'."
+        );
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            const tipoOriginal = this.verificarDefinicaoTipoAtual();
+            this.avancarEDevolverAnterior();
+            this.tiposDefinidosEmCodigo[simboloNomeTipo.lexema] = tipoOriginal;
+            return new AliasTipo(simboloNomeTipo, tipoOriginal);
+        }
+
+        const construto = new ConstanteOuVariavel(this.hashArquivo, simboloNomeTipo);
 
         const metodos: FuncaoDeclaracao[] = [];
         const propriedades: PropriedadeClasse[] = [];
@@ -1317,11 +1375,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             );
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_ESQUERDO) {
-                // Método
                 const construtoMetodo = new Constante(identificador.hashArquivo, identificador);
                 metodos.push(await this.declaracaoDeFuncaoOuMetodo(construtoMetodo));
             } else {
-                // Propriedade
                 this.consumir(
                     tiposDeSimbolos.DOIS_PONTOS,
                     'Esperado dois-pontos após nome de propriedade em declaração de tipo.'
@@ -1341,9 +1397,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após o escopo do tipo.");
 
-        // Depois de verificadas todas as propriedades anotadas com tipo,
-        // Precisamos gerar um construtor com todas elas na ordem em que
-        // foram lidas.
         const instrucoesConstrutor = [];
         for (let propriedade of propriedades) {
             instrucoesConstrutor.push(
@@ -1396,6 +1449,24 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         metodos.unshift(construtor);
         return new Classe(construto.simbolo, undefined, metodos, propriedades);
+    }
+
+    /**
+     * Uma declaração de tipo nada mais é do que um declaração de classe.
+     * Em Potigol, classe e tipo são praticamente a mesma coisa.
+     *
+     * @returns Um construto do tipo `Classe`.
+     */
+    protected async declaracaoTipo(): Promise<Classe> {
+        const declaracaoTipo = await this.declaracaoTipoOuAlias();
+        if (declaracaoTipo instanceof AliasTipo) {
+            throw this.erro(
+                declaracaoTipo.simbolo,
+                'Alias de tipo não pode ser usado em um contexto que exige declaração de classe.'
+            );
+        }
+
+        return declaracaoTipo;
     }
 
     async atribuir(): Promise<any> {
@@ -1455,7 +1526,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * `leia_textos`.
      */
     protected async expressaoLeia(): Promise<Leia> {
-        throw new Error('Método não implementado.');
+        throw this.erro(
+            this.simbolos[this.atual] || this.simboloAnterior(),
+            "Potigol não possui uma expressão genérica 'leia'. Use uma das formas tipadas, como 'leia_inteiro', 'leia_real', 'leia_texto', 'leia_inteiros', 'leia_reais' ou 'leia_textos'."
+        );
     }
 
     /**
@@ -1496,6 +1570,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 return this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVA:
                 return this.declaracaoEscreva();
+            case tiposDeSimbolos.FACA:
+                return this.declaracaoFazer();
             case tiposDeSimbolos.IMPRIMA:
                 return this.declaracaoImprima();
             case tiposDeSimbolos.PARA:
@@ -1503,7 +1579,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.SE:
                 return this.declaracaoSe();
             case tiposDeSimbolos.TIPO:
-                return this.declaracaoTipo();
+                return this.declaracaoTipoOuAlias();
+            case tiposDeSimbolos.USE:
+                return this.declaracaoUse();
             case tiposDeSimbolos.VAL:
                 return this.declaracaoDeConstanteExplicita();
             case tiposDeSimbolos.VARIAVEL:
@@ -1523,6 +1601,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         this.blocos = 0;
         this.pilhaEscoposVariaveisConhecidas = new PilhaEscoposVariaveisConhecidas();
         this.pilhaEscoposVariaveisConhecidas.empilhar([]);
+        this.tiposDefinidosEmCodigo = {};
 
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];

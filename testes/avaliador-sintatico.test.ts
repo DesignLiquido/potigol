@@ -340,6 +340,31 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 });
+
+                it('Função anônima com um parâmetro tipado', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'sucessor = (x: Inteiro) => x + 1',
+                        'escreva sucessor(2)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Função anônima imediatamente chamada com um parâmetro tipado', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escreva ((x: Inteiro) => x + 1)(2)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
             });
 
             describe('Declarações de tuplas', () => {
@@ -447,6 +472,30 @@ describe('Avaliador sintático', () => {
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Alias de tipo', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'tipo Medida = Inteiro',
+                        'distancia: Medida = 10'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Importação com use', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'use "./biblioteca"',
+                        'escreva "ok"'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 });
             });
 

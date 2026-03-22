@@ -75,7 +75,7 @@ import {
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
-import { ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
@@ -236,6 +236,10 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += `fim${this.quebraLinha}`;
     }
 
+    visitarDeclaracaoAliasTipo(declaracao: AliasTipo): void {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}tipo ${declaracao.simbolo.lexema} = ${declaracao.tipoOriginal}${this.quebraLinha}`;
+    }
+
     visitarExpressaoPropriedadeClasse(expressao: PropriedadeClasse): void {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${expressao.nome.lexema}: `;
         if (expressao.tipo) {
@@ -389,9 +393,12 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         throw new Error('Método não implementado.');
     }
 
-    /* istanbul ignore next */
     visitarDeclaracaoImportar(declaracao: Importar): void {
-        throw new Error('Método não implementado.');
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}use `;
+        this.formatarDeclaracaoOuConstruto(declaracao.caminho);
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
 
     visitarDeclaracaoPara(declaracao: Para): void {
@@ -854,6 +861,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 break;
             case Classe:
                 this.visitarDeclaracaoClasse(declaracaoOuConstruto as Classe);
+                break;
+            case AliasTipo:
+                this.visitarDeclaracaoAliasTipo(declaracaoOuConstruto as AliasTipo);
                 break;
             case Comentario:
                 this.visitarDeclaracaoComentario(declaracaoOuConstruto as Comentario);

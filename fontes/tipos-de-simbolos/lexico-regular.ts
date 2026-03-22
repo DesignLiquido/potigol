@@ -61,6 +61,7 @@ export default {
     TIPO: 'TIPO',
     TRACO_BAIXO: 'TRACO_BAIXO',
     TEXTO: 'TEXTO',
+    USE: 'USE',
     VAL: 'VAL',
     VARIAVEL: 'VARIAVEL',
     VERDADEIRO: 'VERDADEIRO',
