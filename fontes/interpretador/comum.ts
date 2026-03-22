@@ -19,9 +19,10 @@ import {
     ObjetoDeleguaClasse,
 } from '@designliquido/delegua/interpretador/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
-import { Classe, Const } from '@designliquido/delegua/declaracoes';
+import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
+import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 import { RetornoQuebra } from '@designliquido/delegua/quebras';
 
 import { inferirTipoVariavel } from './inferenciador';
@@ -35,7 +36,7 @@ import {
     LeiaTexto,
     LeiaTextos,
 } from '../construtos';
-import { ReatribuicaoVariavel } from '../declaracoes';
+import { ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { EstruturaTupla, PotigolFuncao } from './estruturas';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
@@ -215,6 +216,109 @@ export async function visitarDeclaracaoReatribuicaoVariavel(
     const valorFinal = await interpretador.avaliacaoDeclaracaoVarOuConst(declaracao);
 
     interpretador.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
+
+    return null;
+}
+
+export async function visitarDeclaracaoParaGere(
+    interpretador: InterpretadorPotigolInterface,
+    declaracao: ParaGere
+): Promise<any> {
+    const inicioAvaliacao = await interpretador.avaliar(declaracao.inicio);
+    const fimAvaliacao = await interpretador.avaliar(declaracao.fim);
+
+    let inicio = Number(resolverValor(inicioAvaliacao));
+    let fim = Number(resolverValor(fimAvaliacao));
+
+    let passo = declaracao.passo ? Number(resolverValor(await interpretador.avaliar(declaracao.passo))) : undefined;
+    if (passo === undefined || Number.isNaN(passo)) {
+        passo = inicio <= fim ? 1 : -1;
+    }
+
+    if (passo === 0) {
+        throw new ErroEmTempoDeExecucao(
+            declaracao.simboloIteracao,
+            "O passo de 'para ... gere' não pode ser zero.",
+            declaracao.linha
+        );
+    }
+
+    const condicaoContinuidade = passo > 0
+        ? (valorAtual: number) => valorAtual <= fim
+        : (valorAtual: number) => valorAtual >= fim;
+
+    const resultados = [];
+    for (let valorAtual = inicio; condicaoContinuidade(valorAtual); valorAtual += passo) {
+        interpretador.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simboloIteracao.lexema,
+            valorAtual,
+            'inteiro'
+        );
+
+        if (declaracao.condicao) {
+            const condicao = await interpretador.avaliar(declaracao.condicao);
+            if (!(interpretador as any).eVerdadeiro(condicao)) {
+                continue;
+            }
+        }
+
+        for (const declaracaoCorpo of declaracao.corpo) {
+            const retorno = await interpretador.executar(declaracaoCorpo);
+            if (retorno instanceof SustarQuebra) {
+                return resultados;
+            }
+
+            if (retorno instanceof ContinuarQuebra) {
+                break;
+            }
+
+            const valorResolvido = resolverValor(retorno);
+            if (valorResolvido !== null && valorResolvido !== undefined) {
+                resultados.push(valorResolvido);
+            }
+        }
+    }
+
+    return resultados;
+}
+
+export async function visitarDeclaracaoEscolhaComGuarda(
+    interpretador: InterpretadorPotigolInterface,
+    declaracao: Escolha
+): Promise<any> {
+    const condicaoEscolha = await interpretador.avaliar(declaracao.identificadorOuLiteral);
+    const valorCondicaoEscolha = resolverValor(condicaoEscolha);
+    let encontrado = false;
+
+    for (let i = 0; i < declaracao.caminhos.length; i++) {
+        const caminho = declaracao.caminhos[i] as any;
+        let condicaoCorresponde = false;
+        for (let j = 0; j < caminho.condicoes.length; j++) {
+            const condicaoAvaliada = await interpretador.avaliar(caminho.condicoes[j]);
+            if (resolverValor(condicaoAvaliada) === valorCondicaoEscolha) {
+                condicaoCorresponde = true;
+                break;
+            }
+        }
+
+        if (!condicaoCorresponde) {
+            continue;
+        }
+
+        if (caminho.guarda) {
+            const guardaAvaliada = await interpretador.avaliar(caminho.guarda);
+            if (!(interpretador as any).eVerdadeiro(guardaAvaliada)) {
+                continue;
+            }
+        }
+
+        encontrado = true;
+        await interpretador.executarBloco(caminho.declaracoes);
+    }
+
+    if (declaracao.caminhoPadrao !== null && !encontrado) {
+        await interpretador.executarBloco(declaracao.caminhoPadrao.declaracoes);
+    }
 
     return null;
 }

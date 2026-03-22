@@ -203,7 +203,44 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('[0, 1, 2, 3, 4]');
             });
+
+            it('Para gere com guarda executa corpo para itens filtrados', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para i de 1 até 5 se i > 2 gere',
+                    'escreva i',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('3');
+                expect(_saidas[1]).toBe('4');
+                expect(_saidas[2]).toBe('5');
+            });
         })
+
+        describe('Escolha com guarda', () => {
+            it('Seleciona próximo caso quando guarda falha', async () => {
+                const retornoLexador = lexador.mapear([
+                    'x = 1',
+                    'escolha x',
+                    '  caso 1 se falso => escreva "invalido"',
+                    '  caso 1 => escreva "valido"',
+                    '  caso _ => escreva "outro"',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('valido');
+            });
+        });
 
         describe('Leia', () => {
             it('Dado um leia_inteiro, escreva deve imprimir o valor lido', async () => {

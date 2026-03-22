@@ -215,6 +215,24 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[5]).toBe('fim');
                 });
 
+                it('Escolha com múltiplos casos e guarda', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escolha x',
+                        'caso 1,2 se x>0 => escreva "Positivo"',
+                        'caso _ => escreva "Outro"',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado).toHaveLength(5);
+                    expect(linhasResultado[0]).toBe('escolha x');
+                    expect(linhasResultado[1]).toContain('caso 1, 2 se x > 0 => escreva "Positivo"');
+                    expect(linhasResultado[2]).toContain('caso _ => escreva "Outro"');
+                    expect(linhasResultado[3]).toBe('fim');
+                });
+
                 it('Se', async () => {
                     const retornoLexador = lexador.mapear([
                         'se    verdadeiro  então',
@@ -290,6 +308,22 @@ describe('Formatador > Potigol', () => {
 
                     expect(linhasResultado.length).toBeGreaterThanOrEqual(3);
                     expect(linhasResultado[0]).toBe('para i de 1 ate 5 passo 1 gere');
+                    expect(linhasResultado[1]).toBe('escreva i');
+                    expect(linhasResultado[2]).toBe('fim');
+                });
+
+                it('Para gere com guarda', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'para i de 1 até 5 se i>2 gere',
+                        'escreva i',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(3);
+                    expect(linhasResultado[0]).toBe('para i de 1 ate 5 passo 1 se i > 2 gere');
                     expect(linhasResultado[1]).toBe('escreva i');
                     expect(linhasResultado[2]).toBe('fim');
                 });

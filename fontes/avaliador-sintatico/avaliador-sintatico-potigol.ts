@@ -1352,6 +1352,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             }
 
             const caminhoCondicoes = [await this.expressao()];
+            while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                caminhoCondicoes.push(await this.expressao());
+            }
+
+            let guarda = null;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
+                guarda = await this.expressao();
+            }
+
             this.consumir(tiposDeSimbolos.SETA, "Esperado '=>' após palavra reservada 'caso'.");
             const declaracoes = [await this.resolverDeclaracaoForaDeBloco()];
 
@@ -1364,6 +1373,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             caminhos.push({
                 condicoes: caminhoCondicoes,
                 declaracoes,
+                guarda,
             });
         }
 

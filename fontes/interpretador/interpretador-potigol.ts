@@ -1,6 +1,6 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, TipoDe, Tupla } from '@designliquido/delegua/construtos';
-import { Classe, Const } from '@designliquido/delegua/declaracoes';
+import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 
 import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
@@ -43,12 +43,16 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarDeclaracaoConst(this, declaracao);
     }
 
+    override async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
+        return comum.visitarDeclaracaoEscolhaComGuarda(this, declaracao);
+    }
+
     visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void {
         return Promise.resolve();
     }
 
     visitarDeclaracaoParaGere(declaracao: ParaGere): Promise<any> | void {
-        return Promise.resolve();
+        return comum.visitarDeclaracaoParaGere(this, declaracao);
     }
 
     visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void {

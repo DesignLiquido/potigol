@@ -252,6 +252,20 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
+                it('Escolha com múltiplos casos e guarda', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escolha x',
+                        '  caso 1, 2 se x > 0 => escreva "Positivo"',
+                        '  caso _ => escreva "Outro"',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
                 it('Se', async () => {
                     const retornoLexador = lexador.mapear([
                         'se verdadeiro então',
@@ -299,6 +313,19 @@ describe('Avaliador sintático', () => {
                 it('Para gere', async () => {
                     const retornoLexador = lexador.mapear([
                         'para i de 1 até 5 gere',
+                        '  escreva i',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
+
+                it('Para gere com guarda', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'para i de 1 até 5 se i > 2 gere',
                         '  escreva i',
                         'fim'
                     ], -1);

@@ -1,7 +1,7 @@
 import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, TipoDe } from '@designliquido/delegua/construtos';
 import { InterpretadorBaseComDepuracao } from '@designliquido/delegua/interpretador/depuracao/interpretador-base-com-depuracao';
 import { DeleguaFuncao, DescritorTipoClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { Classe, Const } from '@designliquido/delegua/declaracoes';
+import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
 import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
@@ -33,12 +33,16 @@ export class InterpretadorPotigolComDepuracao
         return comum.visitarDeclaracaoClasse(this, declaracao);
     }
 
+    override async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
+        return comum.visitarDeclaracaoEscolhaComGuarda(this, declaracao);
+    }
+
     visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void {
         return Promise.resolve();
     }
 
     visitarDeclaracaoParaGere(declaracao: ParaGere): Promise<any> | void {
-        return Promise.resolve();
+        return comum.visitarDeclaracaoParaGere(this, declaracao);
     }
 
     visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void {

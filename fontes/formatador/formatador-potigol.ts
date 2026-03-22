@@ -345,7 +345,18 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
         for (let caminho of declaracao.caminhos) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}caso `;
-            this.formatarDeclaracaoOuConstruto(caminho.condicoes[0]);
+            for (let indice = 0; indice < caminho.condicoes.length; indice++) {
+                this.formatarDeclaracaoOuConstruto(caminho.condicoes[indice]);
+                if (indice < caminho.condicoes.length - 1) {
+                    this.codigoFormatado += ', ';
+                }
+            }
+
+            if ((caminho as any).guarda) {
+                this.codigoFormatado += ` se `;
+                this.formatarDeclaracaoOuConstruto((caminho as any).guarda);
+            }
+
             this.codigoFormatado += ` => `;
             this.devePularLinha = false;
             this.deveIndentar = false;
