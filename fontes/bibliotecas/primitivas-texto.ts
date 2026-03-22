@@ -1,18 +1,75 @@
-import { VisitanteComumInterface } from '@designliquido/delegua/interfaces';
+import { InterpretadorInterface } from '@designliquido/delegua/interfaces';
+import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
+import { InterpretadorPotigolInterface } from '../interfaces';
 
 export default {
-    cabeça: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto[0]),
-    cauda: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.substring(1)),
-    contém: (interpretador: VisitanteComumInterface, texto: string, caractere: string): Promise<any> =>
+    cabeça: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> => Promise.resolve(texto[0]),
+    cauda: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> => Promise.resolve(texto.substring(1)),
+    contém: (interpretador: InterpretadorPotigolInterface, texto: string, caractere: string): Promise<any> =>
         Promise.resolve(texto.includes(caractere)),
-    descarte: (interpretador: VisitanteComumInterface, texto: string, posicao: number): Promise<any> =>
+    descarte: (interpretador: InterpretadorPotigolInterface, texto: string, posicao: number): Promise<any> =>
         Promise.resolve(texto.substring(posicao)),
-    descarte_enquanto: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(''),
-    divida: (interpretador: VisitanteComumInterface, texto: string, separador: string = ' '): Promise<any> =>
+    descarte_enquanto: async (
+        interpretador: InterpretadorPotigolInterface,
+        texto: string,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'descarte_enquanto'.");
+        }
+
+        const vetor = texto.split('');
+        let indice = 0;
+        while (indice < vetor.length) {
+            const resultado = await funcao.chamar(interpretador, [vetor[indice] as any]);
+            const resolvido = interpretador.resolverValor
+                ? interpretador.resolverValor(resultado)
+                : resultado;
+
+            if (!resolvido) {
+                break;
+            }
+
+            indice++;
+        }
+
+        return Promise.resolve(vetor.slice(indice).join(''));
+    },
+    divida: (interpretador: InterpretadorPotigolInterface, texto: string, separador: string = ' '): Promise<any> =>
         Promise.resolve(texto.split(separador)),
-    injete: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(''),
+    injete: async (
+        interpretador: InterpretadorPotigolInterface,
+        texto: string,
+        funcao: DeleguaFuncao,
+        valorInicial?: any
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'injete'.");
+        }
+
+        const vetor = texto.split('');
+        if (vetor.length === 0 && valorInicial === undefined) {
+            return Promise.resolve(undefined);
+        }
+
+        let retorno: any = valorInicial;
+        let indiceInicio = 0;
+        if (retorno === undefined) {
+            retorno = vetor[0];
+            indiceInicio = 1;
+        }
+
+        for (let indice = indiceInicio; indice < vetor.length; indice++) {
+            retorno = await funcao.chamar(interpretador, [retorno, vetor[indice]]);
+            retorno = interpretador.resolverValor
+                ? interpretador.resolverValor(retorno)
+                : retorno;
+        }
+
+        return Promise.resolve(retorno);
+    },
     insira: (
-        interpretador: VisitanteComumInterface,
+        interpretador: InterpretadorPotigolInterface,
         texto: string,
         posicao: number,
         elemento: string
@@ -21,33 +78,81 @@ export default {
         vetor.splice(posicao - 1, 0, elemento);
         return Promise.resolve(vetor.join(''));
     },
-    inteiro: (interpretador: VisitanteComumInterface, texto: string): Promise<any> =>
+    inteiro: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> =>
         Promise.resolve(Math.floor(Number(texto))),
-    inverta: (interpretador: VisitanteComumInterface, texto: string): Promise<any> =>
+    inverta: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> =>
         Promise.resolve(texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')),
-    junte: (interpretador: VisitanteComumInterface, texto: string, separador: string): Promise<any> =>
+    junte: (interpretador: InterpretadorPotigolInterface, texto: string, separador: string): Promise<any> =>
         Promise.resolve(texto.split('').join(separador)),
-    lista: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.split('')),
-    maiúsculo: (interpretador: VisitanteComumInterface, texto: string): Promise<any> =>
+    lista: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> => Promise.resolve(texto.split('')),
+    maiúsculo: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> =>
         Promise.resolve(texto.toUpperCase()),
-    minúsculo: (interpretador: VisitanteComumInterface, texto: string): Promise<any> =>
+    minúsculo: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> =>
         Promise.resolve(texto.toLowerCase()),
-    ordene: (interpretador: VisitanteComumInterface, texto: string): Promise<any> =>
+    ordene: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> =>
         Promise.resolve(texto.split('').sort().join('')),
-    qual_tipo: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve('Texto'),
-    pegue: (interpretador: VisitanteComumInterface, texto: string, caracteres: number): Promise<any> =>
+    qual_tipo: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> => Promise.resolve('Texto'),
+    pegue: (interpretador: InterpretadorPotigolInterface, texto: string, caracteres: number): Promise<any> =>
         Promise.resolve(texto.substring(0, caracteres)),
-    pegue_enquanto: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(''),
-    posição: (interpretador: VisitanteComumInterface, texto: string, caractere: string): Promise<any> =>
+    pegue_enquanto: async (
+        interpretador: InterpretadorPotigolInterface,
+        texto: string,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'pegue_enquanto'.");
+        }
+
+        const vetor = texto.split('');
+        const retorno: string[] = [];
+        for (let indice = 0; indice < vetor.length; indice++) {
+            const resultado = await funcao.chamar(interpretador, [vetor[indice] as any]);
+            const resolvido = interpretador.resolverValor
+                ? interpretador.resolverValor(resultado)
+                : resultado;
+
+            if (!resolvido) {
+                break;
+            }
+
+            retorno.push(vetor[indice]);
+        }
+
+        return Promise.resolve(retorno.join(''));
+    },
+    posição: (interpretador: InterpretadorPotigolInterface, texto: string, caractere: string): Promise<any> =>
         Promise.resolve(texto.indexOf(caractere) + 1),
-    real: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(Number(texto)),
-    remova: (interpretador: VisitanteComumInterface, texto: string, posicao: number): Promise<any> => {
+    real: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> => Promise.resolve(Number(texto)),
+    remova: (interpretador: InterpretadorPotigolInterface, texto: string, posicao: number): Promise<any> => {
         let vetor = texto.split('');
         vetor.splice(posicao - 1, 1);
         return Promise.resolve(vetor.join(''));
     },
-    selecione: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(''),
-    tamanho: (interpretador: VisitanteComumInterface, texto: string): Promise<any> => Promise.resolve(texto.length),
-    último: (interpretador: VisitanteComumInterface, texto: string): Promise<any> =>
+    selecione: async (
+        interpretador: InterpretadorPotigolInterface,
+        texto: string,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'selecione'.");
+        }
+
+        const vetor = texto.split('');
+        const retorno: string[] = [];
+        for (let indice = 0; indice < vetor.length; indice++) {
+            const resultado = await funcao.chamar(interpretador, [vetor[indice] as any]);
+            const resolvido = interpretador.resolverValor
+                ? interpretador.resolverValor(resultado)
+                : resultado;
+
+            if (resolvido) {
+                retorno.push(vetor[indice]);
+            }
+        }
+
+        return Promise.resolve(retorno.join(''));
+    },
+    tamanho: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> => Promise.resolve(texto.length),
+    último: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> =>
         Promise.resolve(texto.length > 0 ? texto[texto.length - 1] : ''),
 };

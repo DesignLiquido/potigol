@@ -136,7 +136,7 @@ describe('Primitivas de vetor - Potigol', () => {
     });
 
     describe('injete()', () => {
-        it.skip('Trivial, apenas um argumento', async () => {
+        it('Trivial, apenas um argumento', async () => {
             const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
                 'funcao', 
                 new FuncaoConstruto(-1, -1, [
@@ -162,7 +162,7 @@ describe('Primitivas de vetor - Potigol', () => {
                         new Binario(
                             -1, 
                             new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
-                            new Simbolo(tiposDeSimbolos.ADICAO, '<', '<', -1, -1), 
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', '+', -1, -1), 
                             new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1))
                         )
                     )
@@ -171,6 +171,43 @@ describe('Primitivas de vetor - Potigol', () => {
             
             const resultado = await primitivasVetor.injete(interpretador, [2, 4, 6], deleguaFuncao);
             expect(resultado).toStrictEqual(12);
+        });
+
+        it('Com valor inicial', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'numero'
+                    } as ParametroInterface,
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1),
+                        tipoDado: 'numero'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        {
+                            linha: -1,
+                            hashArquivo: -1,
+                            lexema: '',
+                            literal: '',
+                            tipo: 'qualquer',
+                        },
+                        new Binario(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', '+', -1, -1),
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1))
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasVetor.injete(interpretador, [2, 4, 6], deleguaFuncao, 10);
+            expect(resultado).toStrictEqual(22);
         });
     });
 

@@ -1,5 +1,11 @@
 import { InterpretadorPotigol } from '../../fontes/interpretador';
 import primitivasTexto from '../../fontes/bibliotecas/primitivas-texto';
+import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
+import { Binario, FuncaoConstruto, Literal, Variavel } from '@designliquido/delegua/construtos';
+import { Retorna } from '@designliquido/delegua/declaracoes';
+import { ParametroInterface } from '@designliquido/delegua/interfaces';
+import { Simbolo } from '@designliquido/delegua/lexador';
+import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/lexico-regular';
 
 describe('Primitivas de texto - Potigol', () => {
     let interpretador: InterpretadorPotigol;
@@ -40,6 +46,34 @@ describe('Primitivas de texto - Potigol', () => {
     describe('descarte()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasTexto.descarte(interpretador, 'abcde', 2);
+            expect(resultado).toStrictEqual('cde');
+        });
+    });
+
+    describe('descarte_enquanto()', () => {
+        it('Trivial', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        { linha: -1, hashArquivo: -1, lexema: '', literal: '', tipo: 'qualquer' },
+                        new Binario(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.DIFERENTE, '<>', '<>', -1, -1),
+                            new Literal(-1, -1, 'c')
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasTexto.descarte_enquanto(interpretador, 'abcde', deleguaFuncao);
             expect(resultado).toStrictEqual('cde');
         });
     });
@@ -89,6 +123,39 @@ describe('Primitivas de texto - Potigol', () => {
         });
     });
 
+    describe('injete()', () => {
+        it('Trivial', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface,
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        { linha: -1, hashArquivo: -1, lexema: '', literal: '', tipo: 'qualquer' },
+                        new Binario(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', '+', -1, -1),
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1))
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasTexto.injete(interpretador, 'abc', deleguaFuncao);
+            expect(resultado).toStrictEqual('abc');
+        });
+    });
+
     describe('lista()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasTexto.lista(interpretador, 'abc');
@@ -124,6 +191,34 @@ describe('Primitivas de texto - Potigol', () => {
         });
     });
 
+    describe('pegue_enquanto()', () => {
+        it('Trivial', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        { linha: -1, hashArquivo: -1, lexema: '', literal: '', tipo: 'qualquer' },
+                        new Binario(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.DIFERENTE, '<>', '<>', -1, -1),
+                            new Literal(-1, -1, 'd')
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasTexto.pegue_enquanto(interpretador, 'abcde', deleguaFuncao);
+            expect(resultado).toStrictEqual('abc');
+        });
+    });
+
     describe('posição()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasTexto.posição(interpretador, 'abcde', 'b');
@@ -148,6 +243,34 @@ describe('Primitivas de texto - Potigol', () => {
     describe('remova()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasTexto.remova(interpretador, 'abc', 2);
+            expect(resultado).toStrictEqual('ac');
+        });
+    });
+
+    describe('selecione()', () => {
+        it('Trivial', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        { linha: -1, hashArquivo: -1, lexema: '', literal: '', tipo: 'qualquer' },
+                        new Binario(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.DIFERENTE, '<>', '<>', -1, -1),
+                            new Literal(-1, -1, 'b')
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasTexto.selecione(interpretador, 'abc', deleguaFuncao);
             expect(resultado).toStrictEqual('ac');
         });
     });

@@ -79,24 +79,35 @@ export default {
         interpretador: InterpretadorPotigolInterface,
         
         vetor: Array<any>,
-        funcao: DeleguaFuncao
+        funcao: DeleguaFuncao,
+        valorInicial?: any
     ): Promise<any> => {
-        // TODO: Terminar
-        /* if (funcao === undefined || funcao === null) {
+        if (funcao === undefined || funcao === null) {
             return Promise.reject("É necessário passar uma função para o método 'injete'.");
         }
 
-        let retorno: any;
-        for (let elemento of vetor) {
-            retorno = await funcao.chamar(interpretador, [retorno, elemento]);
+        if (vetor.length === 0 && valorInicial === undefined) {
+            return Promise.resolve(undefined);
         }
 
-        return retorno; */
-        return Promise.resolve();
+        let retorno: any = valorInicial;
+        let indiceInicio = 0;
+        if (retorno === undefined) {
+            retorno = vetor[0];
+            indiceInicio = 1;
+        }
+
+        for (let indice = indiceInicio; indice < vetor.length; indice++) {
+            const elemento = vetor[indice];
+            retorno = await funcao.chamar(interpretador, [retorno, elemento]);
+            retorno = interpretador.resolverValor(retorno);
+        }
+
+        return retorno;
     },
+
     insira: (
         interpretador: InterpretadorPotigolInterface,
-        
         vetor: Array<any[]>,
         posicao: number,
         elemento: any
