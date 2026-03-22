@@ -1079,22 +1079,31 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
         let caminhoSenao = null;
+        let consumirFimExterno = true;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
-            const simboloSenao = this.simbolos[this.atual - 1];
-            const declaracoesSenao = [];
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.SE) {
+                // "senao se": o Se aninhado vai consumir o próprio fim
+                caminhoSenao = await this.declaracaoSe();
+                consumirFimExterno = false;
+            } else {
+                const simboloSenao = this.simbolos[this.atual - 1];
+                const declaracoesSenao = [];
 
-            do {
-                declaracoesSenao.push(await this.resolverDeclaracaoForaDeBloco());
-            } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
+                do {
+                    declaracoesSenao.push(await this.resolverDeclaracaoForaDeBloco());
+                } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
-            caminhoSenao = new Bloco(
-                this.hashArquivo,
-                Number(simboloSenao.linha),
-                declaracoesSenao.filter((d) => d)
-            );
+                caminhoSenao = new Bloco(
+                    this.hashArquivo,
+                    Number(simboloSenao.linha),
+                    declaracoesSenao.filter((d) => d)
+                );
+            }
         }
 
-        this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fim' para fechamento de declaração 'se'.");
+        if (consumirFimExterno) {
+            this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fim' para fechamento de declaração 'se'.");
+        }
 
         return new Se(
             condicao,

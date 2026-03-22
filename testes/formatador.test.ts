@@ -252,6 +252,48 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[3]).toContain('escreva "falso"');
                     expect(linhasResultado[4]).toBe('fim');
                 });
+
+                it('Se-senao se-senao (cadeia elseif)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'se x > 0 entao',
+                        '  escreva "positivo"',
+                        'senao se x < 0 entao',
+                        '  escreva "negativo"',
+                        'senao',
+                        '  escreva "zero"',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado[0]).toBe('se x > 0 entao');
+                    expect(linhasResultado[1]).toBe('    escreva "positivo"');
+                    expect(linhasResultado[2]).toBe('senao se x < 0 entao');
+                    expect(linhasResultado[3]).toBe('    escreva "negativo"');
+                    expect(linhasResultado[4]).toBe('senao');
+                    expect(linhasResultado[5]).toBe('    escreva "zero"');
+                    expect(linhasResultado[6]).toBe('fim');
+                });
+
+                it('Se-senao se sem senao final', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'se x > 0 entao',
+                        '  escreva "positivo"',
+                        'senao se x < 0 entao',
+                        '  escreva "negativo"',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado[0]).toBe('se x > 0 entao');
+                    expect(linhasResultado[1]).toBe('    escreva "positivo"');
+                    expect(linhasResultado[2]).toBe('senao se x < 0 entao');
+                    expect(linhasResultado[3]).toBe('    escreva "negativo"');
+                    expect(linhasResultado[4]).toBe('fim');
+                });
             });
 
             describe('Estruturas de repetição', () => {
