@@ -35,6 +35,19 @@ describe('Analisador semântico', () => {
             const erros = retornoAnaliseSemantica.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
             expect(erros).toHaveLength(0);
         });
+
+        it('Aceita uso de alias de tipo valido em declaracao', async () => {
+            const retornoLexador = lexador.mapear([
+                'tipo Medida = Inteiro',
+                'valor: Medida = 10',
+                'escreva valor'
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            const erros = retornoAnaliseSemantica.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(0);
+        });
     });
 
     describe('Avisos', () => {
@@ -118,6 +131,20 @@ describe('Analisador semântico', () => {
                 d => d.severidade === DiagnosticoSeveridade.ERRO && d.mensagem?.includes('fatal')
             );
             expect(errosFatais).toHaveLength(0);
+        });
+
+        it('Detecta alias de tipo duplicado', async () => {
+            const retornoLexador = lexador.mapear([
+                'tipo Medida = Inteiro',
+                'tipo Medida = Real'
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            const erro = retornoAnaliseSemantica.diagnosticos.find(
+                d => d.severidade === DiagnosticoSeveridade.ERRO && d.mensagem?.includes('ja existe')
+            );
+            expect(erro).toBeTruthy();
         });
     });
 });

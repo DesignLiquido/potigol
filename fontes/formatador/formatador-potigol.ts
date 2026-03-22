@@ -178,9 +178,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += `.${expressao.simbolo.lexema}`;
     }
 
-    /* istanbul ignore next */
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += `.${expressao.nomePropriedade}`;
     }
 
     visitarDeclaracaoReatribuicaoVariavel(declaracao: ReatribuicaoVariavel): void {
@@ -536,9 +536,16 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += ')';
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAtribuicaoPorIndice(expressao: any): void {
-        throw new Error('Método não implementado.');
+    visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): void {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += '[';
+        this.formatarDeclaracaoOuConstruto(expressao.indice);
+        this.codigoFormatado += '] := ';
+        this.formatarDeclaracaoOuConstruto(expressao.valor);
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
 
     /* istanbul ignore next */
@@ -624,9 +631,14 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += ')';
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoDefinirValor(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoDefinirValor(expressao: DefinirValor) {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += `.${expressao.nome.lexema} := `;
+        this.formatarDeclaracaoOuConstruto(expressao.valor);
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
 
     /* istanbul ignore next */
@@ -905,6 +917,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 break;
             case AcessoMetodo:
                 this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodo);
+                break;
+            case AcessoPropriedade:
+                this.visitarExpressaoAcessoPropriedade(declaracaoOuConstruto as AcessoPropriedade);
                 break;
             case Agrupamento:
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);

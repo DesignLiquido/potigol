@@ -48,6 +48,18 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
+    aliasesTipoNormalizados: Set<string>;
+
+    private readonly tiposBaseNormalizados = new Set<string>([
+        'inteiro',
+        'real',
+        'numero',
+        'logico',
+        'texto',
+        'caractere',
+        'qualquer',
+        'vetor',
+    ]);
 
     constructor() {
         super();
@@ -55,6 +67,27 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
+        this.aliasesTipoNormalizados = new Set<string>();
+    }
+
+    private normalizarTipo(tipo: string): string {
+        return tipo
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+    }
+
+    private tipoEhConhecido(tipo: string): boolean {
+        const tipoNormalizado = this.normalizarTipo(tipo);
+        if (tipoNormalizado.endsWith('[]')) {
+            return this.tipoEhConhecido(tipoNormalizado.slice(0, -2));
+        }
+
+        return (
+            this.tiposBaseNormalizados.has(tipoNormalizado) ||
+            this.aliasesTipoNormalizados.has(tipoNormalizado)
+        );
     }
 
     /**
@@ -715,6 +748,13 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     }
 
     override visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+        if (declaracao.tipo && !this.tipoEhConhecido(declaracao.tipo)) {
+            this.erro(
+                declaracao.simbolo,
+                `Tipo '${declaracao.tipo}' nao existe.`
+            );
+        }
+
         this.gerenciadorEscopos.declarar(
             declaracao.simbolo.lexema,
             {
@@ -737,6 +777,13 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     }
 
     override visitarDeclaracaoVar(declaracao: Var): Promise<any> {
+        if (declaracao.tipo && !this.tipoEhConhecido(declaracao.tipo)) {
+            this.erro(
+                declaracao.simbolo,
+                `Tipo '${declaracao.tipo}' nao existe.`
+            );
+        }
+
         this.gerenciadorEscopos.declarar(
             declaracao.simbolo.lexema,
             {
@@ -792,10 +839,62 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     }
 
     visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void {
+        const aliasNormalizado = this.normalizarTipo(declaracao.simbolo.lexema);
+
+        if (this.tiposBaseNormalizados.has(aliasNormalizado) || this.aliasesTipoNormalizados.has(aliasNormalizado)) {
+            this.erro(
+                declaracao.simbolo,
+                `Alias de tipo '${declaracao.simbolo.lexema}' ja existe.`
+            );
+            return Promise.resolve();
+        }
+
+        if (!this.tipoEhConhecido(declaracao.tipoOriginal)) {
+            this.erro(
+                declaracao.simbolo,
+                `Tipo base '${declaracao.tipoOriginal}' nao existe para alias '${declaracao.simbolo.lexema}'.`
+            );
+            return Promise.resolve();
+        }
+
+        this.aliasesTipoNormalizados.add(aliasNormalizado);
         return Promise.resolve();
     }
 
     visitarDeclaracaoParaGere(declaracao: ParaGere): Promise<any> | void {
+        if (declaracao.inicio instanceof Literal && typeof declaracao.inicio.valor !== 'number') {
+            this.erro(declaracao.simboloIteracao, `Valor inicial de 'para gere' deve ser numerico.`);
+        }
+
+        if (declaracao.fim instanceof Literal && typeof declaracao.fim.valor !== 'number') {
+            this.erro(declaracao.simboloIteracao, `Valor final de 'para gere' deve ser numerico.`);
+        }
+
+        if (declaracao.passo instanceof Literal && typeof declaracao.passo.valor !== 'number') {
+            this.erro(declaracao.simboloIteracao, `Passo de 'para gere' deve ser numerico.`);
+        }
+
+        this.gerenciadorEscopos.empilharEscopo();
+        this.gerenciadorEscopos.declarar(declaracao.simboloIteracao.lexema, {
+            nome: declaracao.simboloIteracao.lexema,
+            tipo: 'inteiro' as any,
+            imutavel: false,
+            valor: undefined,
+            inicializada: true,
+            usada: false,
+            hashArquivo: declaracao.simboloIteracao.hashArquivo,
+            linha: declaracao.simboloIteracao.linha,
+        });
+
+        if (declaracao.condicao) {
+            this.verificarCondicao(declaracao.condicao);
+        }
+
+        for (const declaracaoCorpo of declaracao.corpo) {
+            declaracaoCorpo.aceitar(this);
+        }
+
+        this.gerenciadorEscopos.desempilharEscopo();
         return Promise.resolve();
     }
 
@@ -843,6 +942,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
+        this.aliasesTipoNormalizados = new Set<string>();
 
         while (this.atual < declaracoes.length) {
             await declaracoes[this.atual].aceitar(this);
