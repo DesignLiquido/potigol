@@ -4,8 +4,29 @@ export async function abs(interpretador: InterpretadorPotigolInterface, valor: n
     return Promise.resolve(Math.abs(valor));
 }
 
-export async function aleatorio(): Promise<number> {
-    return Promise.resolve(Math.random());
+export async function aleatorio(
+    interpretadorOuPrimeiro?: InterpretadorPotigolInterface | number,
+    primeiroOuUltimo?: number,
+    ultimo?: number
+): Promise<number> {
+    const primeiroArgumentoEValor = typeof interpretadorOuPrimeiro === 'number';
+    const primeiro = primeiroArgumentoEValor ? interpretadorOuPrimeiro : primeiroOuUltimo;
+    const segundo = primeiroArgumentoEValor ? primeiroOuUltimo : ultimo;
+
+    if (typeof primeiro !== 'number') {
+        return Promise.resolve(Math.random());
+    }
+
+    if (typeof segundo !== 'number') {
+        const maximo = Math.trunc(primeiro);
+        const aleatorioNoIntervalo = Math.floor(Math.random() * maximo) + 1;
+        return Promise.resolve(aleatorioNoIntervalo);
+    }
+
+    const minimo = Math.min(Math.trunc(primeiro), Math.trunc(segundo));
+    const maximo = Math.max(Math.trunc(primeiro), Math.trunc(segundo));
+    const faixa = maximo - minimo + 1;
+    return Promise.resolve(Math.floor(Math.random() * faixa) + minimo);
 }
 
 export async function arccos(interpretador: InterpretadorPotigolInterface, valor: number): Promise<number> {
@@ -36,8 +57,14 @@ export async function pi(): Promise<number> {
     return Promise.resolve(Math.PI);
 }
 
-export async function raiz(interpretador: InterpretadorPotigolInterface, valor: number) {
-    return Promise.resolve(Math.sqrt(valor));
+export async function raiz(
+    interpretadorOuValor: InterpretadorPotigolInterface | number,
+    valorOuIndice: number,
+    indice = 2
+) {
+    const valor = typeof interpretadorOuValor === 'number' ? interpretadorOuValor : valorOuIndice;
+    const indiceEfetivo = typeof interpretadorOuValor === 'number' ? valorOuIndice : indice;
+    return Promise.resolve(Math.pow(valor, 1 / indiceEfetivo));
 }
 
 export async function sen(interpretador: InterpretadorPotigolInterface, valor: number) {

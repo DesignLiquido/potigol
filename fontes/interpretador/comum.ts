@@ -50,7 +50,8 @@ const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
 export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
     pilhaEscoposExecucao.definirVariavel('abs', new FuncaoPadrao(1, bibliotecaGlobal.abs));
 
-    pilhaEscoposExecucao.definirVariavel('aleatório', new FuncaoPadrao(0, bibliotecaGlobal.aleatorio));
+    pilhaEscoposExecucao.definirVariavel('aleatório', new FuncaoPadrao(2, bibliotecaGlobal.aleatorio));
+    pilhaEscoposExecucao.definirVariavel('aleatorio', new FuncaoPadrao(2, bibliotecaGlobal.aleatorio));
 
     pilhaEscoposExecucao.definirVariavel('arccos', new FuncaoPadrao(1, bibliotecaGlobal.arccos));
 
@@ -66,7 +67,7 @@ export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecu
 
     pilhaEscoposExecucao.definirVariavel('pi', new FuncaoPadrao(0, bibliotecaGlobal.pi));
 
-    pilhaEscoposExecucao.definirVariavel('raiz', new FuncaoPadrao(1, bibliotecaGlobal.raiz));
+    pilhaEscoposExecucao.definirVariavel('raiz', new FuncaoPadrao(2, bibliotecaGlobal.raiz));
 
     pilhaEscoposExecucao.definirVariavel('sen', new FuncaoPadrao(1, bibliotecaGlobal.sen));
 

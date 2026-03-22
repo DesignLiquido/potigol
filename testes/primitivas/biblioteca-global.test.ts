@@ -21,6 +21,20 @@ describe('Biblioteca global - Potigol', () => {
             expect(resultado).toBeGreaterThanOrEqual(0);
             expect(resultado).toBeLessThan(1);
         });
+
+        it('Com um argumento, retorna inteiro no intervalo [1, n]', async () => {
+            const resultado = await bibliotecaGlobal.aleatorio(5);
+            expect(Number.isInteger(resultado)).toBe(true);
+            expect(resultado).toBeGreaterThanOrEqual(1);
+            expect(resultado).toBeLessThanOrEqual(5);
+        });
+
+        it('Com dois argumentos, retorna inteiro no intervalo [inicio, fim]', async () => {
+            const resultado = await bibliotecaGlobal.aleatorio(3, 7);
+            expect(Number.isInteger(resultado)).toBe(true);
+            expect(resultado).toBeGreaterThanOrEqual(3);
+            expect(resultado).toBeLessThanOrEqual(7);
+        });
     });
 
     describe('pi()', () => {
@@ -34,6 +48,11 @@ describe('Biblioteca global - Potigol', () => {
         it('Retorna raiz quadrada', async () => {
             const resultado = await bibliotecaGlobal.raiz(interpretador, 81);
             expect(resultado).toBe(9);
+        });
+
+        it('Aceita indice de raiz', async () => {
+            const resultado = await bibliotecaGlobal.raiz(interpretador, 27, 3);
+            expect(resultado).toBeCloseTo(3, 10);
         });
     });
 
