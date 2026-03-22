@@ -1,4 +1,5 @@
 import {
+    AcessoMetodo,
     AcessoIndiceVariavel,
     AcessoIntervaloVariavel,
     AcessoMetodoOuPropriedade,
@@ -74,7 +75,7 @@ import {
 } from '@designliquido/delegua/declaracoes';
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
-import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
+import { ConstanteOuVariavel, LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 
@@ -172,9 +173,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
-    /* istanbul ignore next */
     visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += `.${expressao.simbolo.lexema}`;
     }
 
     /* istanbul ignore next */
@@ -512,9 +513,11 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         throw new Error('Método não implementado.');
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAcessoIndiceVariavel(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel) {
+        this.formatarDeclaracaoOuConstruto(expressao.entidadeChamada);
+        this.codigoFormatado += '[';
+        this.formatarDeclaracaoOuConstruto(expressao.indice);
+        this.codigoFormatado += ']';
     }
 
     /* istanbul ignore next */
@@ -522,9 +525,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         throw new Error('Método não implementado.');
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAcessoMetodo(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo) {
+        this.formatarDeclaracaoOuConstruto(expressao.objeto);
+        this.codigoFormatado += `.${expressao.nomeMetodo}`;
     }
 
     visitarExpressaoAgrupamento(expressao: any): any {
@@ -607,9 +610,18 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         throw new Error('Método não implementado.');
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoDeChamada(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoDeChamada(expressao: Chamada) {
+        this.formatarDeclaracaoOuConstruto(expressao.entidadeChamada);
+        this.codigoFormatado += '(';
+
+        for (let indice = 0; indice < expressao.argumentos.length; indice++) {
+            this.formatarDeclaracaoOuConstruto(expressao.argumentos[indice]);
+            if (indice < expressao.argumentos.length - 1) {
+                this.codigoFormatado += ', ';
+            }
+        }
+
+        this.codigoFormatado += ')';
     }
 
     /* istanbul ignore next */
@@ -774,9 +786,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         throw new Error('Método não implementado.');
     }
 
-    /* istanbul ignore next */
     visitarExpressaoTipoDe(expressao: TipoDe): void {
-        throw new Error('Método não implementado.');
+        this.formatarDeclaracaoOuConstruto(expressao.valor);
+        this.codigoFormatado += `.${expressao.simbolo.lexema}`;
     }
 
     visitarExpressaoUnaria(expressao: Unario) {
@@ -809,12 +821,26 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoVetor(expressao: any) {
-        throw new Error('Método não implementado.');
+    visitarExpressaoVetor(expressao: Vetor) {
+        this.codigoFormatado += '[';
+        for (let indice = 0; indice < expressao.elementos.length; indice++) {
+            this.formatarDeclaracaoOuConstruto(expressao.elementos[indice]);
+            if (indice < expressao.elementos.length - 1) {
+                this.codigoFormatado += ', ';
+            }
+        }
+        this.codigoFormatado += ']';
     }
 
     visitarDeclaracaoConstante(expressao: Constante): any {
+        if (this.deveIndentar) {
+            this.codigoFormatado += ' '.repeat(this.indentacaoAtual);
+        }
+
+        this.codigoFormatado += `${expressao.simbolo.lexema}`;
+    }
+
+    visitarExpressaoConstanteOuVariavel(expressao: ConstanteOuVariavel): void {
         if (this.deveIndentar) {
             this.codigoFormatado += ' '.repeat(this.indentacaoAtual);
         }
@@ -875,7 +901,10 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto as AcessoIndiceVariavel);
                 break;
             case AcessoMetodoOuPropriedade:
-                this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
+                this.visitarExpressaoAcessoMetodoOuPropriedade(declaracaoOuConstruto as AcessoMetodoOuPropriedade);
+                break;
+            case AcessoMetodo:
+                this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodo);
                 break;
             case Agrupamento:
                 this.visitarExpressaoAgrupamento(declaracaoOuConstruto as Agrupamento);
@@ -1053,6 +1082,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 break;
             case Constante:
                 this.visitarDeclaracaoConstante(declaracaoOuConstruto as Constante);
+                break;
+            case ConstanteOuVariavel:
+                this.visitarExpressaoConstanteOuVariavel(declaracaoOuConstruto as ConstanteOuVariavel);
                 break;
             case PropriedadeClasse:
                 this.visitarExpressaoPropriedadeClasse(declaracaoOuConstruto as PropriedadeClasse);

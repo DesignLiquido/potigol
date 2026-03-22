@@ -535,6 +535,44 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('PI = 3.14159');
                     expect(linhasResultado[1]).toContain('PI');
                 });
+
+                it('Chamada de função global com argumentos', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escreva raiz( 27,3)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('escreva raiz(27, 3)');
+                });
+
+                it('Acesso de método/propriedade', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escreva texto.qual_tipo'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('escreva texto.qual_tipo');
+                });
+
+                it('Acesso por índice em vetor', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'a = [1,2, 3]',
+                        'escreva a[0]'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(2);
+                    expect(linhasResultado[0]).toBe('a = [1, 2, 3]');
+                    expect(linhasResultado[1]).toBe('escreva a[0]');
+                });
             });
 
             describe('Casos adicionais', () => {
