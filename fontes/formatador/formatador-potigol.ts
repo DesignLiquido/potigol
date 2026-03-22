@@ -133,32 +133,38 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     
     /* istanbul ignore next */
     visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        // Fatiamento/slicing (a[1:5]) não é uma construção de Potigol. Use pegue() e descarte().
+        throw new Error('Fatiamento de intervalos não é uma construção de Potigol.');
     }
 
     /* istanbul ignore next */
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        // Documentação inline não existe em Potigol.
+        throw new Error('TextoDocumentacao não é uma construção de Potigol.');
     }
 
     /* istanbul ignore next */
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        // Comentário como construto não existe em Potigol.
+        throw new Error('ComentarioComoConstruto não é uma construção de Potigol.');
     }
 
     /* istanbul ignore next */
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        // Separador não existe em Potigol.
+        throw new Error('Separador não é uma construção de Potigol.');
     }
 
     /* istanbul ignore next */
     visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        // Referência de argumento de função como construto não existe em Potigol.
+        throw new Error('ArgumentoReferenciaFuncao não é uma construção de Potigol.');
     }
 
     /* istanbul ignore next */
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        // Referência de função como construto não existe em Potigol.
+        throw new Error('ReferenciaFuncao não é uma construção de Potigol.');
     }
 
     visitarDeclaracaoLeiaInteiro(declaracao: LeiaInteiro): Promise<any> | void {
@@ -239,17 +245,20 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarDeclaracaoTendoComo(declaracao: TendoComo): void {
-        throw new Error('Método não implementado.');
+        // TendoComo (with...as) não existe em Potigol.
+        throw new Error('TendoComo não é uma construção de Potigol.');
     }
 
     /* istanbul ignore next */
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<void> {
-        throw new Error('Método não implementado.');
+        // InicioAlgoritmo não existe em Potigol.
+        throw new Error('InicioAlgoritmo não é uma construção de Potigol.');
     }
 
     /* istanbul ignore next */
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<void> {
-        throw new Error('Método não implementado.');
+        // CabecalhoPrograma não existe em Potigol.
+        throw new Error('CabecalhoPrograma não é uma construção de Potigol.');
     }
 
     visitarExpressaoTupla(expressao: Tupla): void {
@@ -452,7 +461,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarDeclaracaoFazer(declaracao: Fazer): void {
-        throw new Error('Método não implementado.');
+        // Laço faça...enquanto (do-while) não existe em Potigol.
+        throw new Error('O laço faça...enquanto não é uma construção de Potigol.');
     }
 
     visitarDeclaracaoImportar(declaracao: Importar): void {
@@ -546,7 +556,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarDeclaracaoTente(declaracao: Tente): void {
-        throw new Error('Método não implementado.');
+        // Tratamento de exceções (tente...senão) não existe em Potigol.
+        throw new Error('Tratamento de exceções não é uma construção de Potigol.');
     }
 
     visitarDeclaracaoVar(declaracao: Var): void {
@@ -567,7 +578,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): void {
-        throw new Error('Método não implementado.');
+        // VarMultiplo não é produzido pelo avaliador sintático de Potigol.
+        // O parser de Potigol retorna Var[] (um Var por identificador) para declarações múltiplas.
+        throw new Error('VarMultiplo não é produzido pelo avaliador sintático de Potigol.');
     }
 
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel) {
@@ -579,7 +592,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoAcessoElementoMatriz(expressao: any) {
-        throw new Error('Método não implementado.');
+        // Acesso a matrizes multidimensionais não é uma construção de Potigol.
+        throw new Error('Acesso a elemento de matriz não é uma construção de Potigol.');
     }
 
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo) {
@@ -607,7 +621,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): void {
-        throw new Error('Método não implementado.');
+        // Atribuição por índices de matriz não é uma construção de Potigol.
+        throw new Error('Atribuição por índices de matriz não é uma construção de Potigol.');
     }
 
     visitarExpressaoBinaria(expressao: Binario) {
@@ -671,7 +686,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        throw new Error('Método não implementado.');
+        // A instrução 'continua' (continue) não existe em Potigol.
+        throw new Error("A instrução 'continua' não é uma construção de Potigol.");
     }
 
     visitarExpressaoDeChamada(expressao: Chamada) {
@@ -700,7 +716,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoDeleguaFuncao(expressao: any) {
-        throw new Error('Método não implementado.');
+        // Funções Delegua como construto não existem em Potigol.
+        throw new Error('DeleguaFuncao não é uma construção de Potigol.');
     }
 
     visitarExpressaoDeVariavel(expressao: Variavel) {
@@ -713,12 +730,14 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoDicionario(expressao: any) {
-        throw new Error('Método não implementado.');
+        // Dicionários não existem em Potigol.
+        throw new Error('Dicionário não é uma construção de Potigol.');
     }
 
     /* istanbul ignore next */
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
-        throw new Error('Método não implementado.');
+        // Expressões regulares como literais não existem em Potigol.
+        throw new Error('Expressão regular não é uma construção de Potigol.');
     }
 
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha) {
@@ -735,7 +754,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoFalhar(expressao: any): void {
-        throw new Error('Método não implementado.');
+        // A instrução 'falhar' não existe em Potigol.
+        throw new Error("A instrução 'falhar' não é uma construção de Potigol.");
     }
 
     visitarExpressaoFimPara(declaracao: FimPara) {
@@ -748,7 +768,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita) {
-        throw new Error('Método não implementado.');
+        // FormatacaoEscrita não é produzida pelo avaliador sintático de Potigol.
+        // Em Potigol, formatação é feita pelo método .formato() nos valores.
+        throw new Error('FormatacaoEscrita não é produzida pelo avaliador sintático de Potigol.');
     }
 
     visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto) {
@@ -794,7 +816,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoLeia(expressao: Leia): void {
-        throw new Error('Método não implementado.');
+        // Potigol não possui 'leia' genérico — use leia_inteiro, leia_real ou leia_texto.
+        throw new Error("Potigol não possui 'leia' genérico. Use leia_inteiro, leia_real ou leia_texto.");
     }
 
     visitarExpressaoLiteral(expressao: Literal): any {
@@ -837,12 +860,14 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
     /* istanbul ignore next */
     visitarExpressaoSuper(expressao: Super) {
-        throw new Error('Método não implementado.');
+        // A instrução 'super' não existe em Potigol — o dialeto não suporta herança.
+        throw new Error("A instrução 'super' não é uma construção de Potigol.");
     }
 
     /* istanbul ignore next */
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        throw new Error('Método não implementado.');
+        // A instrução 'sustar' (break) não existe em Potigol.
+        throw new Error("A instrução 'sustar' não é uma construção de Potigol.");
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): void {
