@@ -25,6 +25,7 @@ import {
     Se,
     Enquanto,
     Para,
+    ParaCada,
     Escolha,
     Fazer,
     EscrevaMesmaLinha,
@@ -1142,6 +1143,38 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             "Esperado identificador de variável após 'para'."
         );
 
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
+            const colecao = await this.expressao();
+
+            this.consumir(
+                tiposDeSimbolos.FACA,
+                "Esperado palavra reservada 'faca' após coleção em laço 'para ... em'."
+            );
+
+            const declaracoesBloco = [];
+            let simboloAtual: SimboloInterface = this.simbolos[this.atual];
+            while (simboloAtual.tipo !== tiposDeSimbolos.FIM) {
+                declaracoesBloco.push(await this.resolverDeclaracaoForaDeBloco());
+                simboloAtual = this.simbolos[this.atual];
+            }
+
+            this.consumir(tiposDeSimbolos.FIM, '');
+
+            const corpo = new Bloco(
+                this.hashArquivo,
+                Number(simboloPara.linha) + 1,
+                declaracoesBloco.filter((d) => d)
+            );
+
+            return new ParaCada(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                new Variavel(this.hashArquivo, variavelIteracao),
+                colecao,
+                corpo
+            ) as unknown as Para;
+        }
+
         this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variável de controle de 'para'.");
 
         const literalOuVariavelInicio = await this.adicaoOuSubtracao();
@@ -1498,10 +1531,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             undefined
         );
 
-        // Nesta fase, `tipo abstrato` compartilha a mesma representação sintática
-        // de `tipo`, preservando compatibilidade de execução com o runtime atual.
         metodos.unshift(construtor);
-        return new Classe(construto.simbolo, undefined, metodos, propriedades);
+        return new Classe(construto.simbolo, undefined, metodos, propriedades, undefined, tipoAbstrato);
     }
 
     /**

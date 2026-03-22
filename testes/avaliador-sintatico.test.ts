@@ -335,6 +335,33 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
+
+                it('Para cada (for-each sobre lista)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'lista = [1, 2, 3]',
+                        'para x em lista faca',
+                        '  escreva x',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Para cada (for-each sobre vetor literal)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'para nome em ["Ana", "Bia", "Carlos"] faca',
+                        '  escreva nome',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
             });
 
             describe('Declarações de funções', () => {
@@ -537,6 +564,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect((retornoAvaliadorSintatico.declaracoes[0] as any).abstrata).toBe(true);
                 });
 
                 it('Importação com use', async () => {

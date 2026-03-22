@@ -99,6 +99,27 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.deveIndentar = true;
     }
 
+    private normalizarTipo(tipo: string | undefined): string | undefined {
+        if (!tipo) {
+            return undefined;
+        }
+
+        switch (tipo.toUpperCase()) {
+            case tiposDeSimbolos.TEXTO:
+                return 'Caractere';
+            case tiposDeSimbolos.INTEIRO:
+                return 'Inteiro';
+            case 'NUMERO':
+            case tiposDeSimbolos.REAL:
+                return 'Real';
+            case tiposDeSimbolos.LOGICO:
+            case tiposDeSimbolos.LÓGICO:
+                return 'Lógico';
+            default:
+                return tipo;
+        }
+    }
+
     visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
         this.codigoFormatado += '(';
         for (let indice = 0; indice < expressao.elementos.length; indice++) {
@@ -246,9 +267,24 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     }
 
     visitarDeclaracaoClasse(declaracao: Classe): void {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}tipo ${declaracao.simbolo.lexema}${this.quebraLinha}`;
-        this.formatarBlocoOuVetorDeclaracoes(declaracao.propriedades);
-        this.formatarBlocoOuVetorDeclaracoes(declaracao.metodos);
+        const prefixoAbstrato = declaracao.abstrata ? ' abstrato' : '';
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}tipo${prefixoAbstrato} ${declaracao.simbolo.lexema}${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+
+        for (const propriedade of declaracao.propriedades) {
+            this.formatarDeclaracaoOuConstruto(propriedade);
+        }
+
+        for (const metodo of declaracao.metodos) {
+            const tamanhoAntes = this.codigoFormatado.length;
+            this.formatarDeclaracaoOuConstruto(metodo);
+
+            if (this.codigoFormatado.length > tamanhoAntes && !this.codigoFormatado.endsWith(this.quebraLinha)) {
+                this.codigoFormatado += this.quebraLinha;
+            }
+        }
+
+        this.indentacaoAtual -= this.tamanhoIndentacao;
         this.codigoFormatado += `fim${this.quebraLinha}`;
     }
 
@@ -259,7 +295,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     visitarExpressaoPropriedadeClasse(expressao: PropriedadeClasse): void {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${expressao.nome.lexema}: `;
         if (expressao.tipo) {
-            this.codigoFormatado += `${expressao.tipo}`;
+            this.codigoFormatado += `${this.normalizarTipo(expressao.tipo)}`;
         }
 
         this.codigoFormatado += this.quebraLinha;
@@ -273,21 +309,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += `${declaracao.simbolo.lexema}`;
 
         if (declaracao.tipoExplicito) {
-            switch (declaracao.tipo.toUpperCase()) {
-                case tiposDeSimbolos.TEXTO:
-                    this.codigoFormatado += ': Caractere';
-                    break;
-                case tiposDeSimbolos.INTEIRO:
-                    this.codigoFormatado += ': Inteiro';
-                    break;
-                case 'NUMERO':
-                case tiposDeSimbolos.REAL:
-                    this.codigoFormatado += ': Real';
-                    break;
-                case tiposDeSimbolos.LOGICO:
-                case tiposDeSimbolos.LÓGICO:
-                    this.codigoFormatado += ': Lógico';
-                    break;
+            const tipoNormalizado = this.normalizarTipo(declaracao.tipo);
+            if (tipoNormalizado) {
+                this.codigoFormatado += `: ${tipoNormalizado}`;
             }
         }
 
@@ -489,9 +513,16 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.deveIndentar = true;
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<void> {
-        throw new Error('Método não implementado.');
+    visitarDeclaracaoParaCada(declaracao: ParaCada): void {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para ${(declaracao.variavelIteracao as any).simbolo.lexema} em `;
+        this.deveIndentar = false;
+        this.devePularLinha = false;
+        this.formatarDeclaracaoOuConstruto(declaracao.vetorOuDicionario);
+        this.codigoFormatado += ` faca${this.quebraLinha}`;
+        this.deveIndentar = true;
+        this.devePularLinha = true;
+        this.formatarBlocoOuVetorDeclaracoes(declaracao.corpo.declaracoes);
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fim${this.quebraLinha}`;
     }
 
     visitarDeclaracaoSe(declaracao: Se): void {
@@ -727,18 +758,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
             for (let parametro of expressao.parametros) {
                 if (parametro.tipoDado) {
                     this.codigoFormatado += `${parametro.nome.lexema}: `;
-                    switch (parametro.tipoDado.toUpperCase()) {
-                        case tiposDeSimbolos.TEXTO:
-                            this.codigoFormatado += 'Caractere';
-                            break;
-                        case tiposDeSimbolos.REAL:
-                            this.codigoFormatado += 'Real';
-                            break;
-                        case tiposDeSimbolos.INTEIRO:
-                            this.codigoFormatado += 'Inteiro';
-                            break;
-                        default:
-                            break;
+                    const tipoNormalizado = this.normalizarTipo(parametro.tipoDado);
+                    if (tipoNormalizado) {
+                        this.codigoFormatado += tipoNormalizado;
                     }
                     this.codigoFormatado += `, `;
                 }
@@ -752,7 +774,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
 
         // Se há tipo de retorno definido
         if (expressao.tipo) {
-            this.codigoFormatado += `: ${expressao.tipo}`;
+            this.codigoFormatado += `: ${this.normalizarTipo(expressao.tipo)}`;
         }
 
         this.codigoFormatado += ` = `;
@@ -766,9 +788,8 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.indentacaoAtual -= this.tamanhoIndentacao;
     }
 
-    /* istanbul ignore next */
     visitarExpressaoIsto(expressao: any) {
-        throw new Error('Método não implementado.');
+        this.codigoFormatado += 'isto';
     }
 
     /* istanbul ignore next */

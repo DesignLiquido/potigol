@@ -15,6 +15,7 @@ export default {
     DIVISAO: 'DIVISAO',
     DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
     E: 'E',
+    EM: 'EM',
     ENQUANTO: 'ENQUANTO',
     ENTAO: 'ENTAO',
     ESCOLHA: 'ESCOLHA',

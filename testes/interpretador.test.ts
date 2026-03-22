@@ -204,6 +204,40 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[0]).toBe('[0, 1, 2, 3, 4]');
             });
 
+            it('Para cada (for-each) itera sobre lista e escreve cada elemento', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para x em [10, 20, 30] faca',
+                    '  escreva x',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('10');
+                expect(_saidas[1]).toBe('20');
+                expect(_saidas[2]).toBe('30');
+            });
+
+            it('Para cada (for-each) itera sobre variável de lista', async () => {
+                const retornoLexador = lexador.mapear([
+                    'nomes = ["Ana", "Bia"]',
+                    'para nome em nomes faca',
+                    '  escreva nome',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Ana');
+                expect(_saidas[1]).toBe('Bia');
+            });
+
             it('Para gere com guarda executa corpo para itens filtrados', async () => {
                 const retornoLexador = lexador.mapear([
                     'para i de 1 até 5 se i > 2 gere',

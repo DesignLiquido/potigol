@@ -1,5 +1,6 @@
 import { AnalisadorSemanticoBase, GerenciadorEscopos, PilhaVariaveis } from '@designliquido/delegua/analisador-semantico';
 import {
+    Classe,
     Const,
     Declaracao,
     Enquanto,
@@ -8,6 +9,7 @@ import {
     Expressao,
     Falhar,
     FuncaoDeclaracao,
+    ParaCada,
     Var
 } from '@designliquido/delegua/declaracoes';
 import {
@@ -88,6 +90,10 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
             this.tiposBaseNormalizados.has(tipoNormalizado) ||
             this.aliasesTipoNormalizados.has(tipoNormalizado)
         );
+    }
+
+    private valorEhClasse(valor: unknown): valor is Classe {
+        return valor instanceof Classe || (valor as any)?.constructor?.name === 'Classe';
     }
 
     /**
@@ -244,16 +250,29 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
 
         switch (expressao.entidadeChamada.constructor) {
             case Variavel:
-                const entidadeChamadaVariavel = expressao.entidadeChamada as Variavel;
-                const funcaoChamada =
-                    this.gerenciadorEscopos.buscar(entidadeChamadaVariavel.simbolo.lexema) ||
-                    this.funcoes[entidadeChamadaVariavel.simbolo.lexema];
+            case Constante:
+                const entidadeChamadaVariavel = expressao.entidadeChamada as Variavel | Constante;
+                const simboloNoEscopo = this.gerenciadorEscopos.buscar(entidadeChamadaVariavel.simbolo.lexema);
+                const funcaoChamada = simboloNoEscopo || this.funcoes[entidadeChamadaVariavel.simbolo.lexema];
 
                 if (!funcaoChamada) {
                     this.erro(
                         entidadeChamadaVariavel.simbolo,
                         `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`
                     );
+                    return Promise.resolve();
+                }
+
+                if (this.valorEhClasse(simboloNoEscopo?.valor)) {
+                    this.gerenciadorEscopos.marcarComoUsada(entidadeChamadaVariavel.simbolo.lexema);
+
+                    if (simboloNoEscopo.valor.abstrata) {
+                        this.erro(
+                            entidadeChamadaVariavel.simbolo,
+                            `Tipo abstrato '${entidadeChamadaVariavel.simbolo.lexema}' não pode ser instanciado.`
+                        );
+                    }
+
                     return Promise.resolve();
                 }
 
@@ -369,6 +388,10 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         const tipo = identificadorOuLiteral.tipo;
 
         for (let caminho of declaracao.caminhos) {
+            if ((caminho as any).guarda) {
+                this.verificarCondicao((caminho as any).guarda);
+            }
+
             for (let condicao of caminho.condicoes) {
                 switch (condicao.constructor) {
                     case Literal:
@@ -412,6 +435,22 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
      * Verifica recursivamente uma condição
      */
     private verificarCondicao(condicao: Construto): Promise<void> {
+        if (condicao instanceof Literal) {
+            if (typeof condicao.valor !== 'boolean') {
+                this.erro(
+                    {
+                        lexema: `${condicao.valor}`,
+                        tipo: condicao.tipo,
+                        linha: condicao.linha,
+                        hashArquivo: condicao.hashArquivo,
+                    } as SimboloInterface,
+                    `Esperado tipo 'lógico' na condição.`
+                );
+            }
+
+            return Promise.resolve();
+        }
+
         if (condicao instanceof Agrupamento) {
             return this.verificarCondicao(condicao.expressao);
         }
@@ -728,6 +767,21 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         return Promise.resolve();
     }
 
+    override visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
+        this.gerenciadorEscopos.declarar(declaracao.simbolo.lexema, {
+            nome: declaracao.simbolo.lexema,
+            tipo: 'tipo' as any,
+            imutavel: true,
+            valor: declaracao,
+            inicializada: true,
+            usada: false,
+            hashArquivo: declaracao.simbolo.hashArquivo,
+            linha: declaracao.simbolo.linha,
+        });
+
+        return Promise.resolve();
+    }
+
     /**
      * Verifica variáveis não usadas no escopo atual
      */
@@ -770,6 +824,9 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         );
 
         if (declaracao.inicializador) {
+            if (declaracao.inicializador instanceof Chamada) {
+                this.visitarExpressaoDeChamada(declaracao.inicializador);
+            }
             this.verificarTipoAtribuido(declaracao);
         }
 
@@ -799,6 +856,9 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         );
 
         if (declaracao.inicializador) {
+            if (declaracao.inicializador instanceof Chamada) {
+                this.visitarExpressaoDeChamada(declaracao.inicializador);
+            }
             this.verificarTipoAtribuido(declaracao);
         }
 
@@ -891,6 +951,29 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         }
 
         for (const declaracaoCorpo of declaracao.corpo) {
+            declaracaoCorpo.aceitar(this);
+        }
+
+        this.gerenciadorEscopos.desempilharEscopo();
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        const nomeVariavel = (declaracao.variavelIteracao as any).simbolo.lexema;
+
+        this.gerenciadorEscopos.empilharEscopo();
+        this.gerenciadorEscopos.declarar(nomeVariavel, {
+            nome: nomeVariavel,
+            tipo: 'qualquer' as any,
+            imutavel: false,
+            valor: undefined,
+            inicializada: true,
+            usada: false,
+            hashArquivo: (declaracao.variavelIteracao as any).simbolo.hashArquivo,
+            linha: (declaracao.variavelIteracao as any).simbolo.linha,
+        });
+
+        for (const declaracaoCorpo of declaracao.corpo.declaracoes) {
             declaracaoCorpo.aceitar(this);
         }
 

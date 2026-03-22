@@ -327,6 +327,39 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[1]).toBe('escreva i');
                     expect(linhasResultado[2]).toBe('fim');
                 });
+
+                it('Para cada (for-each) sobre lista literal', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'para x em [1, 2, 3] faca',
+                        '  escreva x',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(3);
+                    expect(linhasResultado[0]).toBe('para x em [1, 2, 3] faca');
+                    expect(linhasResultado[1]).toBe('    escreva x');
+                    expect(linhasResultado[2]).toBe('fim');
+                });
+
+                it('Para cada (for-each) sobre variável', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'lista = [10, 20]',
+                        'para n em lista faca',
+                        '  escreva n',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(4);
+                    expect(linhasResultado[1]).toBe('para n em lista faca');
+                    expect(linhasResultado[2]).toBe('    escreva n');
+                    expect(linhasResultado[3]).toBe('fim');
+                });
             });
 
             it('Função de uma linha, argumentos com tipo definido, sem dica de retorno', async () => {
@@ -516,6 +549,40 @@ describe('Formatador > Potigol', () => {
 
                     expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
                     expect(linhasResultado[0]).toBe('use "./biblioteca"');
+                });
+
+                it('Tipo abstrato', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'tipo abstrato Figura',
+                        '  lados: Inteiro',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(3);
+                    expect(linhasResultado[0]).toBe('tipo abstrato Figura');
+                    expect(linhasResultado[1]).toBe('    lados: Inteiro');
+                    expect(linhasResultado[2]).toBe('fim');
+                });
+
+                it('Tipo com metodo usando isto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'tipo Quadrado',
+                        '  lado: Inteiro',
+                        '  area() = isto.lado * isto.lado',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(4);
+                    expect(linhasResultado[0]).toBe('tipo Quadrado');
+                    expect(linhasResultado[1]).toBe('    lado: Inteiro');
+                    expect(linhasResultado[2]).toBe('    area() = isto.lado * isto.lado');
+                    expect(linhasResultado[3]).toBe('fim');
                 });
             });
 

@@ -10,6 +10,7 @@ export const palavrasReservadas = {
     def: tiposDeSimbolos.DEF,
     div: tiposDeSimbolos.DIVISAO_INTEIRA,
     e: tiposDeSimbolos.E,
+    em: tiposDeSimbolos.EM,
     escolha: tiposDeSimbolos.ESCOLHA,
     entao: tiposDeSimbolos.ENTAO,
     então: tiposDeSimbolos.ENTAO,

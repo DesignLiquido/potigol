@@ -48,6 +48,60 @@ describe('Analisador semântico', () => {
             const erros = retornoAnaliseSemantica.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
             expect(erros).toHaveLength(0);
         });
+
+        it('Aceita instanciação de tipo concreto', async () => {
+            const retornoLexador = lexador.mapear([
+                'tipo Quadrado',
+                '  lado: Inteiro',
+                'fim',
+                'q = Quadrado(10)'
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            const erros = retornoAnaliseSemantica.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Aceita escolha com guarda lógica', async () => {
+            const retornoLexador = lexador.mapear([
+                'escolha 1',
+                '  caso 1 se verdadeiro => escreva "ok"',
+                'fim'
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            const erros = retornoAnaliseSemantica.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Aceita para cada (for-each) sobre lista', async () => {
+            const retornoLexador = lexador.mapear([
+                'para x em [1, 2, 3] faca',
+                '  escreva x',
+                'fim'
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            const erros = retornoAnaliseSemantica.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Aceita variável de iteração de para cada usada no corpo', async () => {
+            const retornoLexador = lexador.mapear([
+                'numeros = [1, 2, 3]',
+                'para n em numeros faca',
+                '  escreva n',
+                'fim'
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            const erros = retornoAnaliseSemantica.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(0);
+        });
     });
 
     describe('Avisos', () => {
@@ -143,6 +197,37 @@ describe('Analisador semântico', () => {
 
             const erro = retornoAnaliseSemantica.diagnosticos.find(
                 d => d.severidade === DiagnosticoSeveridade.ERRO && d.mensagem?.includes('ja existe')
+            );
+            expect(erro).toBeTruthy();
+        });
+
+        it('Detecta instanciação de tipo abstrato', async () => {
+            const retornoLexador = lexador.mapear([
+                'tipo abstrato Figura',
+                '  lados: Inteiro',
+                'fim',
+                'f = Figura(4)'
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            const erro = retornoAnaliseSemantica.diagnosticos.find(
+                d => d.severidade === DiagnosticoSeveridade.ERRO && d.mensagem?.includes('não pode ser instanciado')
+            );
+            expect(erro).toBeTruthy();
+        });
+
+        it('Detecta guarda não lógica em escolha', async () => {
+            const retornoLexador = lexador.mapear([
+                'escolha 1',
+                '  caso 1 se 1 => escreva "ok"',
+                'fim'
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            const erro = retornoAnaliseSemantica.diagnosticos.find(
+                d => d.severidade === DiagnosticoSeveridade.ERRO && d.mensagem?.includes("Esperado tipo 'lógico' na condição")
             );
             expect(erro).toBeTruthy();
         });
