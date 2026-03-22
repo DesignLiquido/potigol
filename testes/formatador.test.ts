@@ -414,6 +414,16 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
                     expect(linhasResultado[0]).toBe('var x := leia_textos(10)');
                 });
+
+                it('Atribuicao multipla de constantes com leia_inteiros', async () => {
+                    const retornoLexador = lexador.mapear(['a, b = leia_inteiros(2)'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const resultado = formatadorPotigol.formatar(retornoAvaliadorSintatico.declaracoes);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
+                    expect(linhasResultado[0]).toBe('a, b = leia_inteiros(2)');
+                });
             });
 
             describe('Reatribuição de variáveis', () => {
@@ -747,6 +757,7 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado.length).toBeGreaterThanOrEqual(1);
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)');
                 });
+
             });
         });
     });

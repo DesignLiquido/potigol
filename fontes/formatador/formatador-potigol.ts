@@ -99,9 +99,15 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.deveIndentar = true;
     }
 
-    /* istanbul ignore next */
     visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        this.codigoFormatado += '(';
+        for (let indice = 0; indice < expressao.elementos.length; indice++) {
+            this.formatarDeclaracaoOuConstruto(expressao.elementos[indice]);
+            if (indice < expressao.elementos.length - 1) {
+                this.codigoFormatado += ', ';
+            }
+        }
+        this.codigoFormatado += ')';
     }
     
     /* istanbul ignore next */
@@ -225,9 +231,18 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         throw new Error('Método não implementado.');
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoTupla(expressao: Tupla): Promise<void> {
-        throw new Error('Método não implementado.');
+    visitarExpressaoTupla(expressao: Tupla): void {
+        const elementos = (expressao as any).elementos;
+        if (Array.isArray(elementos)) {
+            this.codigoFormatado += '(';
+            for (let indice = 0; indice < elementos.length; indice++) {
+                this.formatarDeclaracaoOuConstruto(elementos[indice]);
+                if (indice < elementos.length - 1) {
+                    this.codigoFormatado += ', ';
+                }
+            }
+            this.codigoFormatado += ')';
+        }
     }
 
     visitarDeclaracaoClasse(declaracao: Classe): void {
@@ -288,9 +303,20 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<void> {
-        throw new Error('Método não implementado.');
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): void {
+        if (this.deveIndentar) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
+        }
+
+        this.codigoFormatado += declaracao.simbolos.map((simbolo) => simbolo.lexema).join(', ');
+        this.codigoFormatado += ' = ';
+        this.deveIndentar = false;
+        this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
+        this.deveIndentar = true;
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
 
     visitarExpressaoDeAtribuicao(expressao: Atribuir): void {
@@ -984,6 +1010,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
             case Deceto:
                 this.visitarExpressaoDeceto(declaracaoOuConstruto as Deceto);
                 break;
+            case TuplaN:
+                this.visitarExpressaoTuplaN(declaracaoOuConstruto as TuplaN);
+                break;
             case Escolha:
                 this.visitarDeclaracaoEscolha(declaracaoOuConstruto as Escolha);
                 break;
@@ -1085,6 +1114,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 break;
             case Const:
                 this.visitarDeclaracaoConst(declaracaoOuConstruto as Const);
+                break;
+            case ConstMultiplo:
+                this.visitarDeclaracaoConstMultiplo(declaracaoOuConstruto as ConstMultiplo);
                 break;
             case Var:
                 this.visitarDeclaracaoVar(declaracaoOuConstruto as Var);
