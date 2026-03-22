@@ -2,6 +2,8 @@ import { LexadorPotigol } from "../fontes/lexador";
 import { AvaliadorSintaticoPotigol } from "../fontes/avaliador-sintatico";
 import { AnalisadorSemanticoPotigol } from "../fontes/analisador-semantico";
 import { DiagnosticoSeveridade } from "@designliquido/delegua/interfaces";
+import { VarMultiplo } from '@designliquido/delegua/declaracoes';
+import { Literal } from '@designliquido/delegua/construtos';
 
 describe('Analisador semântico', () => {
     let lexador: LexadorPotigol;
@@ -230,6 +232,21 @@ describe('Analisador semântico', () => {
                 d => d.severidade === DiagnosticoSeveridade.ERRO && d.mensagem?.includes("Esperado tipo 'lógico' na condição")
             );
             expect(erro).toBeTruthy();
+        });
+    });
+
+    describe('VarMultiplo (AST direto)', () => {
+        it('Registra todas as variáveis declaradas em VarMultiplo', async () => {
+            const simboloA = { lexema: 'a', linha: 1, hashArquivo: -1 } as any;
+            const simboloB = { lexema: 'b', linha: 1, hashArquivo: -1 } as any;
+            const inicializador = new Literal(-1, 1, 0);
+            const varMultiplo = new VarMultiplo([simboloA, simboloB], inicializador);
+
+            const retorno = await analisadorSemantico.analisar([varMultiplo]);
+
+            expect(retorno).toBeTruthy();
+            const erros = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(0);
         });
     });
 });

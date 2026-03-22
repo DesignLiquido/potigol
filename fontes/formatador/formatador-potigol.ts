@@ -589,11 +589,19 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         }
     }
 
-    /* istanbul ignore next */
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): void {
-        // VarMultiplo não é produzido pelo avaliador sintático de Potigol.
-        // O parser de Potigol retorna Var[] (um Var por identificador) para declarações múltiplas.
-        throw new Error('VarMultiplo não é produzido pelo avaliador sintático de Potigol.');
+        if (this.deveIndentar) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
+        }
+
+        this.codigoFormatado += `var ${declaracao.simbolos.map((s) => s.lexema).join(', ')} := `;
+        this.deveIndentar = false;
+        this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
+        this.deveIndentar = true;
+
+        if (this.devePularLinha) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
 
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel) {
@@ -1179,6 +1187,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 break;
             case Var:
                 this.visitarDeclaracaoVar(declaracaoOuConstruto as Var);
+                break;
+            case VarMultiplo:
+                this.visitarDeclaracaoVarMultiplo(declaracaoOuConstruto as VarMultiplo);
                 break;
             case Variavel:
                 this.visitarExpressaoDeVariavel(declaracaoOuConstruto as Variavel);

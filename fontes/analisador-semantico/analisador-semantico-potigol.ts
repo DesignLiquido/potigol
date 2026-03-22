@@ -10,7 +10,8 @@ import {
     Falhar,
     FuncaoDeclaracao,
     ParaCada,
-    Var
+    Var,
+    VarMultiplo
 } from '@designliquido/delegua/declaracoes';
 import {
     Agrupamento,
@@ -862,6 +863,22 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
             this.verificarTipoAtribuido(declaracao);
         }
 
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
+        for (const simbolo of declaracao.simbolos) {
+            this.gerenciadorEscopos.declarar(simbolo.lexema, {
+                nome: simbolo.lexema,
+                tipo: declaracao.tipo as any,
+                imutavel: false,
+                valor: declaracao.inicializador,
+                inicializada: declaracao.inicializador !== undefined,
+                usada: false,
+                hashArquivo: simbolo.hashArquivo,
+                linha: simbolo.linha,
+            });
+        }
         return Promise.resolve();
     }
 

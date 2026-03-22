@@ -3,6 +3,8 @@ import * as sistemaOperacional from 'os';
 import { LexadorPotigol } from "../fontes/lexador";
 import { AvaliadorSintaticoPotigol } from "../fontes/avaliador-sintatico";
 import { FormatadorPotigol } from "../fontes/formatador";
+import { VarMultiplo } from '@designliquido/delegua/declaracoes';
+import { Literal } from '@designliquido/delegua/construtos';
 
 describe('Formatador > Potigol', () => {
     describe('analisar()', () => {
@@ -867,6 +869,33 @@ describe('Formatador > Potigol', () => {
                     expect(linhasResultado[0]).toBe('var t := (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)');
                 });
 
+            });
+
+            describe('VarMultiplo (AST direto)', () => {
+                it('Formata declaração de múltiplas variáveis mutáveis', () => {
+                    const simboloA = { lexema: 'a', linha: 1, hashArquivo: -1 } as any;
+                    const simboloB = { lexema: 'b', linha: 1, hashArquivo: -1 } as any;
+                    const inicializador = new Literal(-1, 1, 0);
+                    const varMultiplo = new VarMultiplo([simboloA, simboloB], inicializador);
+
+                    const resultado = formatadorPotigol.formatar([varMultiplo]);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado[0]).toBe('var a, b := 0');
+                });
+
+                it('Formata declaração de três variáveis mutáveis', () => {
+                    const simbolos = ['x', 'y', 'z'].map(
+                        (lexema) => ({ lexema, linha: 1, hashArquivo: -1 } as any)
+                    );
+                    const inicializador = new Literal(-1, 1, 42);
+                    const varMultiplo = new VarMultiplo(simbolos, inicializador);
+
+                    const resultado = formatadorPotigol.formatar([varMultiplo]);
+                    const linhasResultado = resultado.split(sistemaOperacional.EOL);
+
+                    expect(linhasResultado[0]).toBe('var x, y, z := 42');
+                });
             });
         });
     });
