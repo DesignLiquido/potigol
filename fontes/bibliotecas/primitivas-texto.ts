@@ -155,4 +155,54 @@ export default {
     tamanho: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> => Promise.resolve(texto.length),
     último: (interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> =>
         Promise.resolve(texto.length > 0 ? texto[texto.length - 1] : ''),
+    primeiro: (_interpretador: InterpretadorPotigolInterface, texto: string): Promise<any> =>
+        Promise.resolve(texto.length > 0 ? texto[0] : ''),
+    filtre: async (
+        interpretador: InterpretadorPotigolInterface,
+        texto: string,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'filtre'.");
+        }
+        const vetor = texto.split('');
+        const retorno: string[] = [];
+        for (let indice = 0; indice < vetor.length; indice++) {
+            const resultado = await funcao.chamar(interpretador, [vetor[indice] as any]);
+            const resolvido = interpretador.resolverValor
+                ? interpretador.resolverValor(resultado)
+                : resultado;
+            if (resolvido) {
+                retorno.push(vetor[indice]);
+            }
+        }
+        return Promise.resolve(retorno.join(''));
+    },
+    reduza: async (
+        interpretador: InterpretadorPotigolInterface,
+        texto: string,
+        funcao: DeleguaFuncao,
+        valorInicial?: any
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'reduza'.");
+        }
+        const vetor = texto.split('');
+        if (vetor.length === 0 && valorInicial === undefined) {
+            return Promise.resolve(undefined);
+        }
+        let retorno: any = valorInicial;
+        let indiceInicio = 0;
+        if (retorno === undefined) {
+            retorno = vetor[0];
+            indiceInicio = 1;
+        }
+        for (let indice = indiceInicio; indice < vetor.length; indice++) {
+            retorno = await funcao.chamar(interpretador, [retorno, vetor[indice]]);
+            retorno = interpretador.resolverValor
+                ? interpretador.resolverValor(retorno)
+                : retorno;
+        }
+        return Promise.resolve(retorno);
+    },
 };

@@ -1,7 +1,7 @@
 import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
 
-export default {
+const primitivasVetor = {
     cabeça: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
         Promise.resolve(vetor[0]),
     cauda: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => {
@@ -203,4 +203,48 @@ export default {
         Promise.resolve(vetor.length > 0 ? vetor[vetor.length - 1] : undefined),
     vazia: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
         Promise.resolve(vetor.length === 0),
+    primeiro: (_interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> =>
+        Promise.resolve(vetor[0]),
+    filtre: async (
+        interpretador: InterpretadorPotigolInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'filtre'.");
+        }
+        const retorno = [];
+        for (let elemento of vetor) {
+            if (await funcao.chamar(interpretador, [elemento])) {
+                retorno.push(elemento);
+            }
+        }
+        return retorno;
+    },
+    reduza: async (
+        interpretador: InterpretadorPotigolInterface,
+        vetor: Array<any>,
+        funcao: DeleguaFuncao,
+        valorInicial?: any
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'reduza'.");
+        }
+        if (vetor.length === 0 && valorInicial === undefined) {
+            return Promise.resolve(undefined);
+        }
+        let retorno: any = valorInicial;
+        let indiceInicio = 0;
+        if (retorno === undefined) {
+            retorno = vetor[0];
+            indiceInicio = 1;
+        }
+        for (let indice = indiceInicio; indice < vetor.length; indice++) {
+            retorno = await funcao.chamar(interpretador, [retorno, vetor[indice]]);
+            retorno = interpretador.resolverValor(retorno);
+        }
+        return retorno;
+    },
 };
+
+export default primitivasVetor;

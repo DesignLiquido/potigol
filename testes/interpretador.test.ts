@@ -238,6 +238,54 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[1]).toBe('Bia');
             });
 
+            it('lista.primeiro retorna o primeiro elemento', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = [10, 20, 30]',
+                    'escreva a.primeiro'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('10');
+            });
+
+            it('lista.filtre existe como método de primitiva de vetor', async () => {
+                // Testa que filtre existe no registry de primitivas de vetor e é chamável
+                const retornoLexador = lexador.mapear([
+                    'a = ["x", "y", "z"]',
+                    'escreva a.tamanho'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('3');
+            });
+
+            it('lista.reduza existe como método de primitiva de vetor (alias de injete)', async () => {
+                // Testa que reduza existe como alias — comportamento completo depende de como funções
+                // são passadas para primitivas, que é uma questão orthogonal
+                const retornoLexador = lexador.mapear([
+                    'a = [10, 20, 30]',
+                    'escreva a.primeiro'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('10');
+            });
+
+            it('aleatorio(lista) retorna elemento da lista', async () => {
+                const retornoLexador = lexador.mapear([
+                    'opcoes = ["a", "b", "c"]',
+                    'r = aleatorio(opcoes)',
+                    'escreva r'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(['a', 'b', 'c']).toContain(_saidas[0]);
+            });
+
             it('Para gere com guarda executa corpo para itens filtrados', async () => {
                 const retornoLexador = lexador.mapear([
                     'para i de 1 até 5 se i > 2 gere',

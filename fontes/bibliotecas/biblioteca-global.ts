@@ -6,12 +6,19 @@ export async function abs(interpretador: InterpretadorPotigolInterface, valor: n
 
 export async function aleatorio(
     interpretadorOuPrimeiro?: InterpretadorPotigolInterface | number,
-    primeiroOuUltimo?: number,
+    primeiroOuUltimo?: number | Array<any>,
     ultimo?: number
-): Promise<number> {
+): Promise<any> {
+    // Sobrecarga: aleatorio(lista) — retorna elemento aleatório da lista
+    if (Array.isArray(primeiroOuUltimo)) {
+        const lista = primeiroOuUltimo;
+        if (lista.length === 0) return Promise.resolve(undefined);
+        return Promise.resolve(lista[Math.floor(Math.random() * lista.length)]);
+    }
+
     const primeiroArgumentoEValor = typeof interpretadorOuPrimeiro === 'number';
-    const primeiro = primeiroArgumentoEValor ? interpretadorOuPrimeiro : primeiroOuUltimo;
-    const segundo = primeiroArgumentoEValor ? primeiroOuUltimo : ultimo;
+    const primeiro = primeiroArgumentoEValor ? interpretadorOuPrimeiro : (primeiroOuUltimo as number | undefined);
+    const segundo = primeiroArgumentoEValor ? (primeiroOuUltimo as number | undefined) : ultimo;
 
     if (typeof primeiro !== 'number') {
         return Promise.resolve(Math.random());

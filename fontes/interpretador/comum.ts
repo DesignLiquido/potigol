@@ -365,8 +365,8 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     }
 
     let tipoObjeto: any = variavelObjeto.tipo;
-    if (tipoObjeto === null || tipoObjeto === undefined) {
-        tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
+    if (tipoObjeto === null || tipoObjeto === undefined || tipoObjeto === 'qualquer') {
+        tipoObjeto = inferirTipoVariavel(objeto);
     }
 
     switch (tipoObjeto) {
@@ -376,19 +376,26 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
         case 'número':
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
             if (metodoDePrimitivaNumero) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.simbolo.lexema, 'número');
+                const metodoNumero = new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.simbolo.lexema, 'número');
+                if (metodoNumero.valorAridade === 0) return metodoNumero.chamar(interpretador);
+                return metodoNumero;
             }
             break;
         case 'texto':
             const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
             if (metodoDePrimitivaTexto) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
+                const metodoTexto = new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
+                if (metodoTexto.valorAridade === 0) return metodoTexto.chamar(interpretador);
+                return metodoTexto;
             }
             break;
         case 'vetor':
+        case 'Lista':
             const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema];
             if (metodoDePrimitivaVetor) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, 'vetor');
+                const metodoVetor = new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, 'vetor');
+                if (metodoVetor.valorAridade === 0) return metodoVetor.chamar(interpretador);
+                return metodoVetor;
             }
             break;
     }
