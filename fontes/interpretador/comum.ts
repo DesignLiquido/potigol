@@ -37,15 +37,17 @@ import {
     LeiaTextos,
 } from '../construtos';
 import { ParaGere, ReatribuicaoVariavel } from '../declaracoes';
-import { EstruturaTupla, PotigolFuncao } from './estruturas';
+import { EstruturaMatriz, EstruturaCubo, EstruturaTupla, PotigolFuncao } from './estruturas';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
+import primitivasCubo from '../bibliotecas/primitivas-cubo';
+import primitivasMatriz from '../bibliotecas/primitivas-matriz';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
-const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
+const tiposNumericos = ['inteiro', 'numero', 'número', 'real', 'InteiroGrande'];
 
 export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
     pilhaEscoposExecucao.definirVariavel('abs', new FuncaoPadrao(1, bibliotecaGlobal.abs));
@@ -95,6 +97,15 @@ export function resolverValor(objeto: any) {
         const vetorResolvido: any[] = [];
         for (const elemento of objeto) {
             vetorResolvido.push(resolverValor(elemento));
+        }
+
+        // Check if this is a matrix (2D array)
+        if (vetorResolvido.length > 0 && Array.isArray(vetorResolvido[0])) {
+            // Check if it's a cube (3D array)
+            if (vetorResolvido[0].length > 0 && Array.isArray(vetorResolvido[0][0])) {
+                return new EstruturaCubo(vetorResolvido);
+            }
+            return new EstruturaMatriz(vetorResolvido);
         }
 
         return vetorResolvido;
@@ -335,7 +346,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
 ): Promise<any> {
     const variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
     const nomeObjeto: string = resolverNomeObjectoAcessado(expressao.objeto);
-    const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+    let objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
     if (objeto instanceof ObjetoDeleguaClasse) {
         return objeto.obter(expressao.simbolo) || null;
@@ -350,7 +361,13 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
 
     // Função tradicional do JavaScript.
     // Normalmente executa quando uma biblioteca é importada.
-    if (typeof objeto[expressao.simbolo.lexema] === 'function') {
+    // EstruturaMatriz e EstruturaCubo são excluídas aqui porque seus métodos
+    // devem ser despachados via MetodoPrimitiva para receber os argumentos corretamente.
+    if (
+        typeof objeto[expressao.simbolo.lexema] === 'function' &&
+        !(objeto instanceof EstruturaMatriz) &&
+        !(objeto instanceof EstruturaCubo)
+    ) {
         return objeto[expressao.simbolo.lexema];
     }
 
@@ -369,10 +386,18 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
         tipoObjeto = inferirTipoVariavel(objeto);
     }
 
+    // Convert arrays to appropriate structures based on type
+    if (tipoObjeto === 'Matriz' && Array.isArray(objeto)) {
+        objeto = new EstruturaMatriz(objeto);
+    } else if (tipoObjeto === 'Cubo' && Array.isArray(objeto)) {
+        objeto = new EstruturaCubo(objeto);
+    }
+
     switch (tipoObjeto) {
         case 'inteiro':
         case 'Inteiro': // TODO: Remover.
         case 'Real': // TODO: Remover.
+        case 'InteiroGrande':
         case 'número':
             const metodoDePrimitivaNumero: Function = primitivasNumero[expressao.simbolo.lexema];
             if (metodoDePrimitivaNumero) {
@@ -398,6 +423,22 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
                 return metodoVetor;
             }
             break;
+        case 'Matriz':
+            const metodoDePrimitivaMatriz: Function = primitivasMatriz[expressao.simbolo.lexema];
+            if (metodoDePrimitivaMatriz) {
+                const metodoMatriz = new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaMatriz, expressao.simbolo.lexema, 'Matriz');
+                if (metodoMatriz.valorAridade === 0) return metodoMatriz.chamar(interpretador);
+                return metodoMatriz;
+            }
+            break;
+        case 'Cubo':
+            const metodoDePrimitivaCubo: Function = primitivasCubo[expressao.simbolo.lexema];
+            if (metodoDePrimitivaCubo) {
+                const metodoCubo = new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaCubo, expressao.simbolo.lexema, 'Cubo');
+                if (metodoCubo.valorAridade === 0) return metodoCubo.chamar(interpretador);
+                return metodoCubo;
+            }
+            break;
     }
 
     return Promise.reject(
@@ -420,13 +461,17 @@ export async function visitarExpressaoBinaria(
     const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
     const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
 
+    const ambosInteiroGrande = typeof valorEsquerdo === 'bigint' && typeof valorDireito === 'bigint';
+
     switch (expressao.operador.tipo) {
         case tiposDeSimbolos.EXPONENCIACAO:
             this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            if (ambosInteiroGrande) return valorEsquerdo ** valorDireito;
             return Math.pow(valorEsquerdo, valorDireito);
 
         case tiposDeSimbolos.MAIOR:
             if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+                if (ambosInteiroGrande) return valorEsquerdo > valorDireito;
                 return Number(valorEsquerdo) > Number(valorDireito);
             }
 
@@ -434,10 +479,12 @@ export async function visitarExpressaoBinaria(
 
         case tiposDeSimbolos.MAIOR_IGUAL:
             this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            if (ambosInteiroGrande) return valorEsquerdo >= valorDireito;
             return Number(valorEsquerdo) >= Number(valorDireito);
 
         case tiposDeSimbolos.MENOR:
             if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+                if (ambosInteiroGrande) return valorEsquerdo < valorDireito;
                 return Number(valorEsquerdo) < Number(valorDireito);
             }
 
@@ -445,13 +492,16 @@ export async function visitarExpressaoBinaria(
 
         case tiposDeSimbolos.MENOR_IGUAL:
             this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            if (ambosInteiroGrande) return valorEsquerdo <= valorDireito;
             return Number(valorEsquerdo) <= Number(valorDireito);
 
         case tiposDeSimbolos.SUBTRACAO:
             this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            if (ambosInteiroGrande) return valorEsquerdo - valorDireito;
             return Number(valorEsquerdo) - Number(valorDireito);
 
         case tiposDeSimbolos.ADICAO:
+            if (ambosInteiroGrande) return valorEsquerdo + valorDireito;
             if (tiposNumericos.includes(tipoEsquerdo.toLowerCase()) && tiposNumericos.includes(tipoDireito.toLowerCase())) {
                 return Number(valorEsquerdo) + Number(valorDireito);
             }
@@ -460,17 +510,21 @@ export async function visitarExpressaoBinaria(
 
         case tiposDeSimbolos.DIVISAO:
             this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            if (ambosInteiroGrande) return valorEsquerdo / valorDireito;
             return Number(valorEsquerdo) / Number(valorDireito);
 
         case tiposDeSimbolos.DIVISAO_INTEIRA:
             this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            if (ambosInteiroGrande) return valorEsquerdo / valorDireito;
             return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
 
         case tiposDeSimbolos.MULTIPLICACAO:
+            if (ambosInteiroGrande) return valorEsquerdo * valorDireito;
             return Number(valorEsquerdo) * Number(valorDireito);
 
         case tiposDeSimbolos.MODULO:
             this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            if (ambosInteiroGrande) return valorEsquerdo % valorDireito;
             return Number(valorEsquerdo) % Number(valorDireito);
 
         case tiposDeSimbolos.DIFERENTE:

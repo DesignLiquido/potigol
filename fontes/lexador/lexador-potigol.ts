@@ -72,6 +72,12 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
 
         const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
 
+        if (!real && this.simboloAtual() === 'g') {
+            this.avancar();
+            this.adicionarSimbolo(tiposDeSimbolos.INTEIRO_GRANDE, BigInt(numeroCompleto));
+            return;
+        }
+
         this.adicionarSimbolo(real ? tiposDeSimbolos.REAL : tiposDeSimbolos.INTEIRO, parseFloat(numeroCompleto));
     }
 

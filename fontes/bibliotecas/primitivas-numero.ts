@@ -16,10 +16,12 @@ export default {
         const casasInteiras = mascara.match(/%(\d+)d/)[1];
         return Promise.resolve(String(numero).padStart(parseInt(casasInteiras), ' '));
     },
-    qual_tipo: (interpretador: VisitanteComumInterface, numero: number): Promise<any> =>
-        Promise.resolve(Math.floor(numero) === numero ? 'Inteiro' : 'Real'),
+    qual_tipo: (interpretador: VisitanteComumInterface, numero: number | bigint): Promise<any> => {
+        if (typeof numero === 'bigint') return Promise.resolve('InteiroGrande');
+        return Promise.resolve(Math.floor(numero) === numero ? 'Inteiro' : 'Real');
+    },
     piso: (interpretador: VisitanteComumInterface, numero: number): Promise<any> => Promise.resolve(Math.floor(numero)),
     real: (interpretador: VisitanteComumInterface, numero: number): Promise<any> => Promise.resolve(numero),
     teto: (interpretador: VisitanteComumInterface, numero: number): Promise<any> => Promise.resolve(Math.ceil(numero)),
-    texto: (interpretador: VisitanteComumInterface, numero: number): Promise<any> => Promise.resolve(String(numero)),
+    texto: (interpretador: VisitanteComumInterface, numero: number | bigint): Promise<any> => Promise.resolve(String(numero)),
 };

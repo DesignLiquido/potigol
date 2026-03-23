@@ -304,6 +304,154 @@ describe('Interpretador (Potigol)', () => {
             });
         })
 
+        describe('Matrizes', () => {
+            it('Matriz 2x2 deve ser criada e ter tipo Matriz', async () => {
+                const retornoLexador = lexador.mapear([
+                    'm = [[1, 2], [3, 4]]',
+                    'escreva m.qual_tipo'
+                ], -1);
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual("Matriz");
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Matriz deve ter métodos linhas e colunas', async () => {
+                const retornoLexador = lexador.mapear([
+                    'm = [[1, 2, 3], [4, 5, 6]]',
+                    'escreva m.linhas',
+                    'escreva m.colunas'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('2');
+                expect(_saidas[1]).toBe('3');
+            });
+
+            it('Matriz deve suportar obter e definir (índices 0-based)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'm = [[1, 2], [3, 4]]',
+                    'escreva m.obter(0, 1)',
+                    'm.definir(0, 0, 99)',
+                    'escreva m.obter(0, 0)'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('2');
+                expect(_saidas[1]).toBe('99');
+            });
+        });
+
+        describe('Cubos', () => {
+            it('Cubo 2x2x2 deve ser criado e ter tipo Cubo', async () => {
+                const retornoLexador = lexador.mapear([
+                    'c = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]',
+                    'escreva c.qual_tipo'
+                ], -1);
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual("Cubo");
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Cubo deve ter métodos camadas, linhas e colunas', async () => {
+                const retornoLexador = lexador.mapear([
+                    'c = [[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [10, 11, 12]]]',
+                    'escreva c.camadas',
+                    'escreva c.linhas',
+                    'escreva c.colunas'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('2');
+                expect(_saidas[1]).toBe('2');
+                expect(_saidas[2]).toBe('3');
+            });
+
+            it('Cubo deve suportar obter e definir (índices 0-based)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'c = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]',
+                    'escreva c.obter(0, 1, 0)',
+                    'c.definir(0, 0, 0, 99)',
+                    'escreva c.obter(0, 0, 0)'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('3');
+                expect(_saidas[1]).toBe('99');
+            });
+        });
+
+        describe('InteiroGrande', () => {
+            it('Literal com sufixo g deve ter tipo InteiroGrande', async () => {
+                const retornoLexador = lexador.mapear([
+                    'x = 123g',
+                    'escreva x.qual_tipo'
+                ], -1);
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual('InteiroGrande');
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Operações aritméticas com InteiroGrande preservam precisão', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = 999999999999999999g',
+                    'b = 1g',
+                    'escreva a + b'
+                ], -1);
+
+                interpretador.funcaoDeRetorno = (saida: any) => {
+                    expect(saida).toEqual('1000000000000000000');
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('InteiroGrande suporta texto e comparações', async () => {
+                const retornoLexador = lexador.mapear([
+                    'x = 42g',
+                    'escreva x.texto',
+                    'escreva x > 10g',
+                    'escreva x < 10g'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('42');
+                expect(_saidas[1]).toBe('verdadeiro');
+                expect(_saidas[2]).toBe('falso');
+            });
+        });
+
         describe('Escolha com guarda', () => {
             it('Seleciona próximo caso quando guarda falha', async () => {
                 const retornoLexador = lexador.mapear([

@@ -8,6 +8,7 @@ import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potig
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
 import { LeiaInteiros, LeiaReais, LeiaTextos, LeiaInteiro, LeiaReal, LeiaTexto } from '../construtos';
+import { EstruturaCubo, EstruturaMatriz } from './estruturas';
 
 import * as comum from './comum';
 
@@ -79,6 +80,40 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarExpressaoLeia(this, declaracao);
     }
 
+    async visitarVetor(expressao: any): Promise<any> {
+        const valores = [];
+        for (const elemento of expressao.valores) {
+            if (elemento && elemento.valores && Array.isArray(elemento.valores)) {
+                // It's a Vetor-like object
+                const subvalores = [];
+                for (const subelemento of elemento.valores) {
+                    subvalores.push(await this.avaliar(subelemento));
+                }
+                valores.push(subvalores);
+            } else {
+                valores.push(await this.avaliar(elemento));
+            }
+        }
+
+        // Check if this is a matrix (2D array)
+        if (valores.length > 0 && Array.isArray(valores[0])) {
+            // Check if it's a cube (3D array)
+            if (valores[0].length > 0 && Array.isArray(valores[0][0])) {
+                return new EstruturaCubo(valores);
+            }
+            return new EstruturaMatriz(valores);
+        }
+
+        return valores;
+    }
+
+    override async avaliar(expressao: any): Promise<any> {
+        if (expressao && expressao.constructor && expressao.constructor.name === 'Vetor') {
+            return this.visitarVetor(expressao);
+        }
+        return super.avaliar(expressao);
+    }
+
     paraTexto(objeto: any) {
         if (objeto === null || objeto === undefined) return 'nulo';
         if (typeof objeto === 'boolean') {
@@ -91,6 +126,10 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
                 timeStyle: 'full',
             });
             return formato.format(objeto);
+        }
+
+        if (objeto instanceof EstruturaMatriz || objeto instanceof EstruturaCubo) {
+            return objeto.paraTexto();
         }
 
         if (Array.isArray(objeto)) return `[${objeto.join(', ')}]`;

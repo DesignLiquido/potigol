@@ -1,0 +1,11 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "yarn tsc": true,
+        "tsc": true,
+        "npx jest": true,
+        "/^node -e \"\nconst \\{ LexadorPotigol \\} = require\\('\\./dist/lexador'\\);\nconst \\{ AvaliadorSintaticoPotigol \\} = require\\('\\./dist/avaliador-sintatico'\\);\nconst \\{ InterpretadorPotigol \\} = require\\('\\./dist/interpretador'\\);\n\nasync function test\\(\\) \\{\n  const lexador = new LexadorPotigol\\(\\);\n  const avaliador = new AvaliadorSintaticoPotigol\\(\\);\n  const interpretador = new InterpretadorPotigol\\(process\\.cwd\\(\\)\\);\n  \n  let saidas = \\[\\];\n  interpretador\\.funcaoDeRetorno = \\(saida\\) => saidas\\.push\\(saida\\);\n  \n  const resultadoLexador = lexador\\.mapear\\(\\['m = \\[\\[1, 2\\], \\[3, 4\\]\\]', 'escreva m\\.obter\\(0, 1\\)'\\], -1\\);\n  const resultadoAvaliador = await avaliador\\.analisar\\(resultadoLexador, -1\\);\n  const resultadoInterpretador = await interpretador\\.interpretar\\(resultadoAvaliador\\.declaracoes\\);\n  \n  console\\.log\\('Erros:'\\);\n  resultadoInterpretador\\.erros\\.forEach\\(\\(erro, i\\) => console\\.log\\(i \\+ ':', erro\\.erroInterno\\.message\\)\\);\n  console\\.log\\('Saidas:', saidas\\);\n\\}\n\ntest\\(\\);\n\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

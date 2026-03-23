@@ -119,7 +119,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         // Primeiro teste: literal ou identificador
         if (
-            [tiposDeSimbolos.INTEIRO, tiposDeSimbolos.LOGICO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO].includes(
+            [tiposDeSimbolos.INTEIRO, tiposDeSimbolos.INTEIRO_GRANDE, tiposDeSimbolos.LOGICO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO, tiposDeSimbolos.MATRIZ, tiposDeSimbolos.CUBO].includes(
                 simbolos[atual].tipo
             )
         ) {
@@ -287,7 +287,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      */
     protected verificacaoTipo(simbolo: SimboloInterface, mensagemErro: string) {
         if (
-            ![tiposDeSimbolos.INTEIRO, tiposDeSimbolos.LOGICO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO].includes(
+            ![tiposDeSimbolos.INTEIRO, tiposDeSimbolos.INTEIRO_GRANDE, tiposDeSimbolos.LOGICO, tiposDeSimbolos.REAL, tiposDeSimbolos.TEXTO, tiposDeSimbolos.MATRIZ, tiposDeSimbolos.CUBO].includes(
                 simbolo.tipo
             )
             && !(simbolo.lexema in this.tiposDefinidosEmCodigo)
@@ -551,6 +551,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
             case tiposDeSimbolos.CARACTERE:
             case tiposDeSimbolos.INTEIRO:
+            case tiposDeSimbolos.INTEIRO_GRANDE:
             case tiposDeSimbolos.LOGICO:
             case tiposDeSimbolos.REAL:
             case tiposDeSimbolos.TEXTO:
@@ -558,6 +559,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 const dicionarioTiposDelegua = {
                     CARACTERE: 'texto',
                     INTEIRO: 'inteiro',
+                    INTEIRO_GRANDE: 'InteiroGrande',
                     LOGICO: 'lógico',
                     REAL: 'número',
                     TEXTO: 'texto',

@@ -115,9 +115,9 @@ Esta matriz compara as funcionalidades da implementação local do dialeto Potig
 | Tipos de função (`Inteiro => Texto`) | ✅ | |
 | Listas (`Lista[T]`) | ✅ | |
 | Vetores (`Vetor[T]`) | ✅ | |
-| Matrizes (`Matriz[T]`) | ❌ | Não implementado |
-| Cubos (`Cubo[T]`) | ❌ | Não implementado |
-| `InteiroGrande` | ❌ | Não implementado |
+| Matrizes (`Matriz[T]`) | ✅ | Estrutura, primitivas (`linhas`, `colunas`, `obter`, `definir`) e testes implementados |
+| Cubos (`Cubo[T]`) | ✅ | Estrutura, primitivas (`camadas`, `linhas`, `colunas`, `obter`, `definir`) e testes implementados |
+| `InteiroGrande` | ✅ | Literais com sufixo `g` (ex: `42g`), aritmética nativa BigInt, métodos `texto` e `qual_tipo`, testes implementados |
 
 ### Declarações de Tipo
 | Funcionalidade | Status | Notas |
@@ -143,7 +143,7 @@ Esta matriz compara as funcionalidades da implementação local do dialeto Potig
 | `para faixas ... bloco` | ✅ | |
 | Comprehensions (`para ... gere ... fim`) | ✅ | |
 | `enquanto expr bloco` | ✅ | |
-| `para X em colecao faça` (for-each) | ❌ | Palavra-chave `em` ausente |
+| `para X em colecao faça` (for-each) | ✅ | Implementado em todas as camadas |
 
 ### Pattern Matching
 | Funcionalidade | Status | Notas |
@@ -212,8 +212,8 @@ Esta matriz compara as funcionalidades da implementação local do dialeto Potig
 ### Matrizes e Cubos
 | Funcionalidade | Status | Notas |
 |---|---|---|
-| Matrizes | ❌ | Não implementado |
-| Cubos | ❌ | Não implementado |
+| Matrizes (`[[1,2],[3,4]]`) | ✅ | Criação automática por lista de listas; métodos `linhas`, `colunas`, `obter`, `definir` funcionais |
+| Cubos (`[[[1]]]`) | ✅ | Criação automática por lista de listas de listas; métodos `camadas`, `linhas`, `colunas`, `obter`, `definir` funcionais |
 
 ---
 
@@ -309,24 +309,32 @@ Esta matriz compara as funcionalidades da implementação local do dialeto Potig
 
 ## Status Geral
 
-- **Funcionalidades implementadas**: ~90%
-- **Funcionalidades parciais**: ~5%
-- **Funcionalidades não implementadas**: ~5%
+- **Funcionalidades implementadas**: ~99%
+- **Funcionalidades parciais**: ~0%
+- **Funcionalidades não implementadas**: ~1% (Arquivo, URL, Lazy evaluation — fora do escopo deste repositório)
 
-### Principais Gaps
-1. Laço `para X em colecao faça` (for-each)
-2. Matrizes e cubos multidimensionais
-3. Operações de arquivo e URL
-4. Alguns aliases de método (`primeiro`, `filtre`, `reduza`)
-5. Sobrecarga `aleatorio(lista)`
+### Funcionalidades Concluídas
+- ✅ Léxico, sintaxe, expressões e tipos básicos completos
+- ✅ Laço `para X em colecao faça` (for-each)
+- ✅ Operador range `..`
+- ✅ Palavras-chave `senãose` / `senaose`
+- ✅ Formatação idiomática de `senao se`
+- ✅ `VarMultiplo` no formatador
+- ✅ Aliases `primeiro`, `filtre`, `reduza` em vetor e texto
+- ✅ Sobrecarga `aleatorio(lista)`
+- ✅ `Matriz` com primitivas (`linhas`, `colunas`, `obter`, `definir`) e testes
+- ✅ `Cubo` com primitivas (`camadas`, `linhas`, `colunas`, `obter`, `definir`) e testes
+- ✅ `InteiroGrande` com literais `g`, aritmética BigInt e métodos
+
+### Gaps Remanescentes (fora do escopo deste repositório)
+1. **Arquivo**: `Arquivo.leia` e `Arquivo.salve` — implementar em `D:\Delegua\delegua-node`
+2. **URL**: `URL(caminho).conteudo` e `.erro` — implementar em `D:\Delegua\delegua-node`
+3. **Lazy evaluation**: baixa prioridade; requer mudanças no interpretador base
 
 ### Próximos Passos
-- ✅ **Fase 8 concluída**: Correções de funcionalidades parciais
-- Implementar for-each (Fase 9)
-- Resolver stubs no formatador (Fase 2 - já parcialmente feito)
-- Corrigir formatação if-elseif (Fase 3 - já feito)
-- Adicionar aliases e sobrecargas (Fase 4 - já parcialmente feito)
-- Expandir análise semântica (Fase 5)
-- Adicionar testes de regressão (Fase 6)
+- ✅ **Fases 8, 9 e 10 concluídas**
+- Expandir análise semântica (verificação de tipos em expressões binárias)
+- Adicionar testes de compatibilidade com exemplos do repositório upstream
+- Implementar Arquivo e URL em `D:\Delegua\delegua-node`
 
 Esta matriz será atualizada conforme novas funcionalidades forem implementadas.

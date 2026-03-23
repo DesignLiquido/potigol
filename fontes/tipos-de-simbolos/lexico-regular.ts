@@ -31,6 +31,7 @@ export default {
     IGUAL_IGUAL: 'IGUAL_IGUAL',
     IMPRIMA: 'IMPRIMA',
     INTEIRO: 'INTEIRO',
+    INTEIRO_GRANDE: 'INTEIRO_GRANDE',
     ISTO: 'ISTO',
     LEIA_INTEIRO: 'LEIA_INTEIRO',
     LEIA_INTEIROS: 'LEIA_INTEIROS',
@@ -40,6 +41,8 @@ export default {
     LEIA_TEXTOS: 'LEIA_TEXTOS',
     LOGICO: 'LOGICO',
     LÓGICO: 'LÓGICO', // TODO: Conferir se isso é aceito pelo léxico oficial.
+    MATRIZ: 'MATRIZ',
+    CUBO: 'CUBO',
     MAIOR: 'MAIOR',
     MAIOR_IGUAL: 'MAIOR_IGUAL',
     MENOR: 'MENOR',
