@@ -138,8 +138,14 @@ export class LexadorPotigol extends LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case '.':
-                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                if (this.simboloAtual() === '.') {
+                    this.adicionarSimbolo(tiposDeSimbolos.PONTO_PONTO, '..');
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                }
                 break;
             case '-':
                 this.inicioSimbolo = this.atual;

@@ -235,6 +235,33 @@ describe('Analisador semântico', () => {
         });
     });
 
+    describe('Verificação de aridade de métodos', () => {
+        async function analisar(linhas: string[]) {
+            const retornoLexador = lexador.mapear(linhas, -1);
+            const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
+            return analisadorSemantico.analisar(retornoAvaliador.declaracoes);
+        }
+
+        it('Aceita chamada de método com aridade correta (tamanho sem argumentos)', async () => {
+            const retorno = await analisar([
+                'a = [1, 2, 3]',
+                'escreva a.tamanho()',
+            ]);
+            const erros = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Aceita chamada de método com aridade correta (mapeie com uma função)', async () => {
+            const retorno = await analisar([
+                'a = [1, 2, 3]',
+                'def dobro(x: Inteiro): Inteiro = x * 2',
+                'escreva a.mapeie(dobro)',
+            ]);
+            const erros = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(0);
+        });
+    });
+
     describe('VarMultiplo (AST direto)', () => {
         it('Registra todas as variáveis declaradas em VarMultiplo', async () => {
             const simboloA = { lexema: 'a', linha: 1, hashArquivo: -1 } as any;

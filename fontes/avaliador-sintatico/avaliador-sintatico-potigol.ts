@@ -632,8 +632,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     protected async concatenacaoLista(): Promise<Construto> {
         let expressao = await this.formato();
 
-        if (this.atual < this.simbolos.length) {
+        while (true) {
             if (
+                this.simbolos[this.atual] &&
                 this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS &&
                 this.verificarTipoProximoSimbolo(tiposDeSimbolos.DOIS_PONTOS)
             ) {
@@ -663,6 +664,20 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     ),
                     ladoDireitoComoConstante
                 );
+            } else if (
+                this.simbolos[this.atual] &&
+                this.simbolos[this.atual].tipo === tiposDeSimbolos.PONTO_PONTO
+            ) {
+                const simboloRange = this.avancarEDevolverAnterior();
+                const ladoDireito = await this.formato();
+                expressao = new Binario(
+                    this.hashArquivo,
+                    expressao,
+                    simboloRange,
+                    ladoDireito
+                );
+            } else {
+                break;
             }
         }
 
@@ -1080,9 +1095,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         let caminhoSenao = null;
         let consumirFimExterno = true;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.SE) {
-                // "senao se": o Se aninhado vai consumir o próprio fim
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO) || this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE)) {
+            const ehSenaose = this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.SENAOSE;
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.SE || ehSenaose) {
+                // "senao se" ou "senaose": o Se aninhado vai consumir o próprio fim
                 caminhoSenao = await this.declaracaoSe();
                 consumirFimExterno = false;
             } else {

@@ -14,6 +14,7 @@ import {
     VarMultiplo
 } from '@designliquido/delegua/declaracoes';
 import {
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     Atribuir,
     Binario,
@@ -250,6 +251,16 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         }
 
         switch (expressao.entidadeChamada.constructor) {
+            case AcessoMetodoOuPropriedade: {
+                const acesso = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
+                this.verificarArgumentosMetodo(
+                    acesso.simbolo.lexema,
+                    expressao.argumentos.length,
+                    acesso.simbolo,
+                    acesso.objeto
+                );
+                break;
+            }
             case Variavel:
             case Constante:
                 const entidadeChamadaVariavel = expressao.entidadeChamada as Variavel | Constante;
@@ -566,9 +577,9 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
                                 tiposNumericos.includes(tipoDireita);
 
             if (!ambosNumericos) {
-                this.aviso(
+                this.erro(
                     binario.operador,
-                    `Operação entre tipos diferentes: tipo esquerdo '${tipoEsquerda}' e tipo direito '${tipoDireita}'. O resultado será resolvido implicitamente.`
+                    `Operação entre tipos incompatíveis: tipo esquerdo '${tipoEsquerda}' e tipo direito '${tipoDireita}'.`
                 );
             }
         }
@@ -582,6 +593,106 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
 
         if (valorDireita === 0) {
             this.erro(binario.operador, `Divisão por zero.`);
+        }
+    }
+
+    /**
+     * Verifica o número de argumentos em chamadas de método
+     */
+    private verificarArgumentosMetodo(
+        nomeMetodo: string,
+        numeroArgumentos: number,
+        simbolo: SimboloInterface,
+        objeto: Construto
+    ): void {
+
+        // Métodos de vetor/lista
+        const metodosVetor: { [key: string]: number[] } = {
+            'cabeça': [0],
+            'cauda': [0],
+            'contém': [1],
+            'descarte': [1],
+            'descarte_enquanto': [1],
+            'divida_quando': [1],
+            'injete': [1, 2],
+            'inverta': [0],
+            'junte': [0, 1],
+            'mapeie': [1],
+            'ordene': [0, 1],
+            'ordene_por': [1],
+            'pegue': [1],
+            'pegue_enquanto': [1],
+            'posição': [1],
+            'remova': [1],
+            'selecione': [1],
+            'tamanho': [0],
+            'último': [0],
+            'vazia': [0],
+            'primeiro': [0],
+            'filtre': [1],
+            'reduza': [1]
+        };
+
+        // Métodos de texto
+        const metodosTexto: { [key: string]: number[] } = {
+            'cabeça': [0],
+            'cauda': [0],
+            'contém': [1],
+            'descarte': [1],
+            'descarte_enquanto': [1],
+            'divida': [0, 1],
+            'injete': [1, 2],
+            'inverta': [0],
+            'junte': [0, 1],
+            'maiúsculo': [0],
+            'minúsculo': [0],
+            'ordene': [0],
+            'pegue': [1],
+            'pegue_enquanto': [1],
+            'posição': [1],
+            'remova': [1],
+            'selecione': [1],
+            'tamanho': [0],
+            'último': [0],
+            'primeiro': [0],
+            'filtre': [1],
+            'reduza': [1]
+        };
+
+        // Métodos de número
+        const metodosNumero: { [key: string]: number[] } = {
+            'arredonde': [0, 1],
+            'caractere': [0],
+            'inteiro': [0],
+            'formato': [1],
+            'piso': [0],
+            'real': [0],
+            'teto': [0],
+            'texto': [0],
+            'qual_tipo': [0]
+        };
+
+        // Verificar se é método conhecido
+        let metodosConhecidos: { [key: string]: number[] } | undefined;
+
+        // Tentar determinar o tipo do objeto
+        const tipoObjeto = this.obterTipoExpressao(objeto);
+        if (tipoObjeto === 'vetor' || tipoObjeto === 'lista') {
+            metodosConhecidos = metodosVetor;
+        } else if (tipoObjeto === 'texto') {
+            metodosConhecidos = metodosTexto;
+        } else if (tipoObjeto === 'inteiro' || tipoObjeto === 'real' || tipoObjeto === 'número') {
+            metodosConhecidos = metodosNumero;
+        }
+
+        if (metodosConhecidos && metodosConhecidos[nomeMetodo]) {
+            const argumentosEsperados = metodosConhecidos[nomeMetodo];
+            if (!argumentosEsperados.includes(numeroArgumentos)) {
+                this.erro(
+                    simbolo,
+                    `Método '${nomeMetodo}' espera ${argumentosEsperados.join(' ou ')} argumento(s), mas recebeu ${numeroArgumentos}.`
+                );
+            }
         }
     }
 
@@ -1002,6 +1113,11 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         this.verificarExistenciaConstruto(expressao.direita);
         this.verificarExistenciaConstruto(expressao.esquerda);
         this.verificarOperadorBinario(expressao);
+        return Promise.resolve();
+    }
+
+    override visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+        this.verificarExistenciaConstruto(expressao.objeto);
         return Promise.resolve();
     }
 
