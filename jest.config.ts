@@ -16,13 +16,13 @@ export default async (): Promise<Config.InitialOptions> => {
         },
         // TODO: Até então não conseguimos fazer funcionar.
         // Mantido aqui caso seja útil no futuro.
-        /* transform: {
+        transform: {
             '^.+\\.ts$': [
                 'ts-jest',
                 {
                     tsconfig: 'tsconfig.test.json'
                 },
             ]
-        } */
+        }
     };
 };

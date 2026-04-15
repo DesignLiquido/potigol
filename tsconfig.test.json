@@ -1,9 +1,13 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
         "paths": {
-            "@designliquido/delegua": ["node_modules/@designliquido/delegua/fontes"],
-            "@designliquido/delegua/*": ["node_modules/@designliquido/delegua/fontes/*"]
-        }
+            "@designliquido/delegua": ["./node_modules/@designliquido/delegua/fontes"],
+            "@designliquido/delegua/*": ["./node_modules/@designliquido/delegua/fontes/*"]
+        },
+        "module": "CommonJS",
+        "moduleResolution": "bundler",
+        "strict": false,
+        "target": "es2017",
+        "types": ["node", "jest"]
     }
 }
