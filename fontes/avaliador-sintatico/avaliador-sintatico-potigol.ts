@@ -210,7 +210,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
 
         const resolucaoParametros = this.logicaComumParametrosPotigol(simbolosEntreParenteses);
-        
+
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
 
         // Pode haver uma dica do tipo de retorno ou não.
@@ -248,7 +248,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     protected async declaracaoDeFuncaoComDef(): Promise<FuncaoDeclaracao> {
         this.avancarEDevolverAnterior(); // `def`
         const simboloNomeFuncao = this.consumir(
-            tiposDeSimbolos.IDENTIFICADOR, 
+            tiposDeSimbolos.IDENTIFICADOR,
             `Esperado nome da função após palavra reservada 'def'. Atual: ${this.simbolos[this.atual].tipo}.`
         );
 
@@ -444,7 +444,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
                 tipoRetorno = this.avancarEDevolverAnterior();
             }
-            
+
             // Em funções anônimas, logo após o fechamento dos parênteses, e com ou sem dica de retorno, 
             // o próximo símbolo precisa ser uma seta.
             this.consumir(tiposDeSimbolos.SETA, `Esperado seta para definição de corpo de função anônima após leitura de parâmetros. Atual: ${this.simbolos[this.atual].tipo}.`);
@@ -458,13 +458,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             // Remove a primeira vírgula
             simbolosEntreParenteses.shift();
             const retornoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
-                { simbolos: simbolosEntreParenteses } as any, 
+                { simbolos: simbolosEntreParenteses } as any,
                 primeiroConstruto.linha
             );
 
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros ou argumentos.");
             return new SeletorTuplas(primeiroConstruto, ...retornoMicroAvaliadorSintatico.declaracoes) as Tupla;
-        }        
+        }
 
         // Se próximo símbolo for fechamento de parênteses, é uma tupla. 
         // Se for dois-pontos (ou seja, especificação de tipos de parâmetros), provavelmente é uma função anônima.
@@ -476,7 +476,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
                 return new SeletorTuplas(...argumentos) as Tupla;
         } */
-        
+
     }
 
     async primario(): Promise<Construto> {
@@ -816,7 +816,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         identificadores.length
                     )
                 );
-                
+
             case LeiaReal:
                 const inicializadorTipadoReal = inicializador as LeiaReal;
                 return new LeiaReais(
@@ -919,7 +919,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         do {
             let inicializador = await this.expressao();
             if (identificadores.length > 1 && (
-                    inicializador instanceof LeiaInteiro || inicializador instanceof LeiaReal || inicializador instanceof LeiaTexto
+                inicializador instanceof LeiaInteiro || inicializador instanceof LeiaReal || inicializador instanceof LeiaTexto
             )) {
                 inicializador = this.logicaComumInicializadorLeia(inicializador, identificadores);
             }
@@ -934,8 +934,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 !(
                     inicializadores.length === 1 &&
                     (inicializadores[0] instanceof LeiaInteiro || inicializadores[0] instanceof LeiaInteiros ||
-                     inicializadores[0] instanceof LeiaReal || inicializadores[0] instanceof LeiaReais ||
-                     inicializadores[0] instanceof LeiaTexto || inicializadores[0] instanceof LeiaTextos)
+                        inicializadores[0] instanceof LeiaReal || inicializadores[0] instanceof LeiaReais ||
+                        inicializadores[0] instanceof LeiaTexto || inicializadores[0] instanceof LeiaTextos)
                 )
             ) {
                 throw this.erro(
@@ -1671,34 +1671,63 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case tiposDeSimbolos.DEF:
-                return this.declaracaoDeFuncaoComDef();
-            case tiposDeSimbolos.ENQUANTO:
-                return this.declaracaoEnquanto();
-            case tiposDeSimbolos.ESCOLHA:
-                return this.declaracaoEscolha();
-            case tiposDeSimbolos.ESCREVA:
-                return this.declaracaoEscreva();
-            case tiposDeSimbolos.FACA:
-                return this.declaracaoFazer();
-            case tiposDeSimbolos.IMPRIMA:
-                return this.declaracaoImprima();
-            case tiposDeSimbolos.PARA:
-                return this.declaracaoPara();
-            case tiposDeSimbolos.SE:
-                return this.declaracaoSe();
-            case tiposDeSimbolos.TIPO:
-                return this.declaracaoTipoOuAlias();
-            case tiposDeSimbolos.USE:
-                return this.declaracaoUse();
-            case tiposDeSimbolos.VAL:
-                return this.declaracaoDeConstanteExplicita();
-            case tiposDeSimbolos.VARIAVEL:
-                return this.declaracaoDeVariaveisPotigol();
-            default:
-                return this.expressaoOuDefinicaoFuncao();
+        try {
+            const simboloAtual = this.simbolos[this.atual];
+            switch (simboloAtual.tipo) {
+                case tiposDeSimbolos.DEF:
+                    return this.declaracaoDeFuncaoComDef();
+                case tiposDeSimbolos.ENQUANTO:
+                    return this.declaracaoEnquanto();
+                case tiposDeSimbolos.ESCOLHA:
+                    return this.declaracaoEscolha();
+                case tiposDeSimbolos.ESCREVA:
+                    return this.declaracaoEscreva();
+                case tiposDeSimbolos.FACA:
+                    return this.declaracaoFazer();
+                case tiposDeSimbolos.IMPRIMA:
+                    return this.declaracaoImprima();
+                case tiposDeSimbolos.PARA:
+                    return this.declaracaoPara();
+                case tiposDeSimbolos.SE:
+                    return this.declaracaoSe();
+                case tiposDeSimbolos.TIPO:
+                    return this.declaracaoTipoOuAlias();
+                case tiposDeSimbolos.USE:
+                    return this.declaracaoUse();
+                case tiposDeSimbolos.VAL:
+                    return this.declaracaoDeConstanteExplicita();
+                case tiposDeSimbolos.VARIAVEL:
+                    return this.declaracaoDeVariaveisPotigol();
+                default:
+                    return this.expressaoOuDefinicaoFuncao();
+            }
+        } catch (erro: any) {
+            this.sincronizar();
+            this.erros.push(erro);
+            return undefined;
+        }
+    }
+
+    /**
+     * Usado quando há erros na avaliação sintática.
+     * Garante que o avaliador sintático não entre em _loop_ infinito.
+     * @returns Sempre retorna `void`.
+     */
+    protected sincronizar(): void {
+        this.avancarEDevolverAnterior(); // avança além do token com erro
+
+        while (!this.estaNoFinal()) {
+            // Uma palavra-chave de início de declaração ou fecha-chave à frente:
+            // retorna SEM consumir o token, para que o chamador o analise normalmente.
+            switch (this.simbolos[this.atual].tipo) {
+                case tiposDeSimbolos.PARA:
+                case tiposDeSimbolos.SE:
+                case tiposDeSimbolos.ENQUANTO:
+                case tiposDeSimbolos.ESCREVA:
+                    return;
+            }
+
+            this.avancarEDevolverAnterior();
         }
     }
 
