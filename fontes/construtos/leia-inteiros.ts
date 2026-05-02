@@ -1,4 +1,4 @@
-import { Construto, Leia, SimboloInterface } from '@designliquido/delegua';
+import { ConstrutoInterface, Leia, SimboloInterface } from '@designliquido/delegua';
 import { uuidv4 } from '@designliquido/delegua/geracao-identificadores';
 
 import { VisitanteComumPotigolInterface } from '../interfaces';
@@ -6,9 +6,9 @@ import { VisitanteComumPotigolInterface } from '../interfaces';
 export class LeiaInteiros extends Leia {
     simbolo: SimboloInterface;
     id: string;
-    argumentoCardinalidade?: Construto;
+    argumentoCardinalidade?: ConstrutoInterface;
 
-    constructor(simbolo: SimboloInterface, argumentoCardinalidade?: Construto, demaisArgumentos?: Construto[]) {
+    constructor(simbolo: SimboloInterface, argumentoCardinalidade?: ConstrutoInterface, demaisArgumentos?: ConstrutoInterface[]) {
         super(simbolo, demaisArgumentos);
         this.simbolo = simbolo;
         this.id = uuidv4();

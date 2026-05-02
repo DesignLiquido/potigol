@@ -19,7 +19,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     FuncaoConstruto,
     Literal,
     Logico,
@@ -30,13 +29,13 @@ import {
     TipoDe
 } from '@designliquido/delegua';
 import {
-    DiagnosticoAnalisadorSemantico,
-    DiagnosticoSeveridade,
+    ConstrutoInterface,
+    DiagnosticoAnalisadorSemanticoInterface,
     ParametroInterface,
+    RetornoAnalisadorSemanticoInterface,
     SimboloInterface,
 } from '@designliquido/delegua/interfaces';
 import { FuncaoHipoteticaInterface } from '@designliquido/delegua/interfaces/funcao-hipotetica-interface';
-import { RetornoAnalisadorSemantico } from '@designliquido/delegua/interfaces/retornos/retorno-analisador-semantico';
 
 import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
@@ -51,7 +50,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     pilhaVariaveis: PilhaVariaveis;
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     atual: number;
-    diagnosticos: DiagnosticoAnalisadorSemantico[];
+    diagnosticos: DiagnosticoAnalisadorSemanticoInterface[];
     aliasesTipoNormalizados: Set<string>;
 
     private readonly tiposBaseNormalizados = new Set<string>([
@@ -167,7 +166,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     /**
      * Verifica recursivamente o tipo de uma expressão
      */
-    private verificarTipoDe(valor: Construto): Promise<any> {
+    private verificarTipoDe(valor: ConstrutoInterface): Promise<any> {
         switch (valor.constructor) {
             case Agrupamento:
                 const valorAgrupamento = valor as Agrupamento;
@@ -192,7 +191,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     /**
      * Verifica recursivamente a expressão de falha
      */
-    private verificarFalhar(valor: Construto): Promise<any> {
+    private verificarFalhar(valor: ConstrutoInterface): Promise<any> {
         if (valor instanceof Binario) {
             this.verificarFalhar(valor.direita);
             this.verificarFalhar(valor.esquerda);
@@ -212,7 +211,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     protected comparacaoArgumentosContraParametrosFuncao(
         simboloFuncao: SimboloInterface,
         parametros: ParametroInterface[],
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): void {
         if (parametros.length !== argumentos.length) {
             this.erro(
@@ -396,7 +395,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     }
 
     override visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
-        const identificadorOuLiteral = declaracao.identificadorOuLiteral as Construto;
+        const identificadorOuLiteral = declaracao.identificadorOuLiteral as ConstrutoInterface;
         const tipo = identificadorOuLiteral.tipo;
 
         for (let caminho of declaracao.caminhos) {
@@ -446,7 +445,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     /**
      * Verifica recursivamente uma condição
      */
-    private verificarCondicao(condicao: Construto): Promise<void> {
+    private verificarCondicao(condicao: ConstrutoInterface): Promise<void> {
         if (condicao instanceof Literal) {
             if (typeof condicao.valor !== 'boolean') {
                 this.erro(
@@ -603,7 +602,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         nomeMetodo: string,
         numeroArgumentos: number,
         simbolo: SimboloInterface,
-        objeto: Construto
+        objeto: ConstrutoInterface
     ): void {
 
         // Métodos de vetor/lista
@@ -700,7 +699,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
      * Tenta avaliar uma expressão em tempo de compilação para detectar valores constantes
      * Retorna o valor se puder ser determinado, ou null caso contrário
      */
-    private avaliarExpressaoConstante(expressao: Construto): any {
+    private avaliarExpressaoConstante(expressao: ConstrutoInterface): any {
         if (expressao instanceof Literal) {
             return expressao.valor;
         }
@@ -778,7 +777,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     /**
      * Verifica se um construto existe (principalmente variáveis)
      */
-    private verificarExistenciaConstruto(construto: Construto): void {
+    private verificarExistenciaConstruto(construto: ConstrutoInterface): void {
         if (construto instanceof Variavel) {
             if (!this.gerenciadorEscopos.buscar(construto.simbolo.lexema)) {
                 this.erro(
@@ -828,7 +827,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     /**
      * Verifica o lado de uma expressão lógica
      */
-    private verificarLadoLogico(lado: Construto): void {
+    private verificarLadoLogico(lado: ConstrutoInterface): void {
         if (lado instanceof Variavel) {
             let variavel = lado as Variavel;
             this.verificarVariavelBinaria(variavel);
@@ -1152,7 +1151,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     /**
      * Método principal de análise semântica
      */
-    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
+    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemanticoInterface> {
         // Reinicia o gerenciador de escopos
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.funcoes = {};
@@ -1170,6 +1169,6 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
 
         return {
             diagnosticos: this.diagnosticos,
-        } as RetornoAnalisadorSemantico;
+        } as RetornoAnalisadorSemanticoInterface;
     }
 }

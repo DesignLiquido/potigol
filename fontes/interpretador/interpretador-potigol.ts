@@ -1,7 +1,11 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
-import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, TipoDe, Tupla } from '@designliquido/delegua/construtos';
+import {
+    AcessoMetodoOuPropriedade,
+    FuncaoConstruto, TipoDe, Tupla
+} from '@designliquido/delegua/construtos';
 import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
+import { ConstrutoInterface } from '@designliquido/delegua';
 
 import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
@@ -173,7 +177,7 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarExpressaoTupla(this, expressao);
     }
 
-    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    protected async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         return comum.avaliarArgumentosEscreva(this, argumentos.length > 0 ? argumentos[0] : undefined);
     }
 }

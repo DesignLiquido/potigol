@@ -6,7 +6,6 @@ import {
     Binario,
     Chamada,
     Constante,
-    Construto,
     DefinirValor,
     FimPara,
     FuncaoConstruto,
@@ -37,7 +36,7 @@ import {
     Se,
     Var,
 } from '@designliquido/delegua/declaracoes';
-import { SimboloInterface, TradutorInterface } from '@designliquido/delegua/interfaces';
+import { ConstrutoInterface, SimboloInterface, TradutorInterface } from '@designliquido/delegua/interfaces';
 
 import { LeiaInteiro, LeiaInteiros, LeiaReal, LeiaReais, LeiaTexto, LeiaTextos } from '../construtos';
 import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
@@ -178,7 +177,7 @@ export class TradutorReversoPotigol implements TradutorInterface<Declaracao> {
         return `${operador}${operando}`;
     }
 
-    traduzirConstrutoVariavel(variavel: Variavel, argumentos?: Construto[]): string {
+    traduzirConstrutoVariavel(variavel: Variavel, argumentos?: ConstrutoInterface[]): string {
         const args = argumentos || [];
         if (args.length === 0) {
             return variavel.simbolo.lexema;
@@ -189,7 +188,7 @@ export class TradutorReversoPotigol implements TradutorInterface<Declaracao> {
         return `${variavel.simbolo.lexema}(${argsResolvidos})`;
     }
 
-    traduzirConstrutoConstante(constante: Constante, argumentos?: Construto[]): string {
+    traduzirConstrutoConstante(constante: Constante, argumentos?: ConstrutoInterface[]): string {
         const args = argumentos || [];
         if (args.length === 0) {
             return constante.simbolo.lexema;
@@ -202,7 +201,7 @@ export class TradutorReversoPotigol implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoAcessoMetodoOuPropriedade(
         acesso: AcessoMetodoOuPropriedade,
-        argumentos?: Construto[]
+        argumentos?: ConstrutoInterface[]
     ): string {
         const objeto = this.dicionarioConstrutos[acesso.objeto.constructor.name](acesso.objeto);
         const nomeMetodo = acesso.simbolo.lexema;
@@ -229,7 +228,7 @@ export class TradutorReversoPotigol implements TradutorInterface<Declaracao> {
     protected traduzirMetodoPotigol(
         nomeMetodo: string,
         objeto: string,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string | null {
         const args = argumentos.map((a) => this.dicionarioConstrutos[a.constructor.name](a));
         switch (nomeMetodo) {

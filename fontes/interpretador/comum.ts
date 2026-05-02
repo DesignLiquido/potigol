@@ -2,7 +2,6 @@ import {
     AcessoMetodoOuPropriedade,
     Binario,
     Constante,
-    Construto,
     FuncaoConstruto,
     Literal,
     TipoDe,
@@ -18,12 +17,11 @@ import {
     MetodoPrimitiva,
     ObjetoDeleguaClasse,
 } from '@designliquido/delegua/interpretador/estruturas';
-import { VariavelInterface } from '@designliquido/delegua/interfaces';
+import { ConstrutoInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
 import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
-import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
-import { RetornoQuebra } from '@designliquido/delegua/quebras';
+import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
 import { inferirTipoVariavel } from './inferenciador';
 import { InterpretadorPotigolInterface } from '../interfaces';
@@ -76,7 +74,7 @@ export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecu
     pilhaEscoposExecucao.definirVariavel('tg', new FuncaoPadrao(1, bibliotecaGlobal.tg));
 }
 
-function resolverNomeObjectoAcessado(objetoAcessado: Construto): string {
+function resolverNomeObjectoAcessado(objetoAcessado: ConstrutoInterface): string {
     if (objetoAcessado instanceof Variavel) {
         return objetoAcessado.simbolo.lexema;
     } 
@@ -654,7 +652,7 @@ export async function visitarExpressaoTupla(
  */
 export async function avaliarArgumentosEscreva(
     interpretador: InterpretadorPotigolInterface,
-    argumento: Construto
+    argumento: ConstrutoInterface
 ): Promise<string> {
     let formatoTexto: string = '';
     if (argumento === undefined) {

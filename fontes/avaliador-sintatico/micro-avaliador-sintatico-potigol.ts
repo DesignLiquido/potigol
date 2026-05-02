@@ -3,15 +3,13 @@ import {
     Agrupamento,
     Chamada,
     Constante,
-    Construto,
     Literal,
     Tupla,
 } from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
-import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
 import { SeletorTuplas } from '@designliquido/delegua/construtos/tuplas';
-import { SimboloInterface } from '@designliquido/delegua/interfaces';
+import { ConstrutoInterface, RetornoAvaliadorSintaticoInterface, RetornoLexadorInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
 import { Simbolo } from '@designliquido/delegua/lexador';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/micro-lexico';
@@ -35,7 +33,7 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
         this.declaracoes = [];
     }
 
-    primario(): Construto {
+    primario(): ConstrutoInterface {
         const simboloAtual = this.simbolos[this.atual];
 
         switch (simboloAtual.tipo) {
@@ -86,7 +84,7 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
         }
     }
 
-    protected formato(): Construto {
+    protected formato(): ConstrutoInterface {
         const expressao = this.primario();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
@@ -113,11 +111,11 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
         return expressao;
     }
 
-    chamar(): Construto {
+    chamar(): ConstrutoInterface {
         return this.formato();
     }
 
-    analisar(retornoLexador: RetornoLexador<SimboloInterface>, linha: number): RetornoAvaliadorSintatico<Declaracao> {
+    analisar(retornoLexador: RetornoLexadorInterface<SimboloInterface>, linha: number): RetornoAvaliadorSintaticoInterface<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.linha = linha;
@@ -132,6 +130,6 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
         return {
             declaracoes: this.declaracoes.filter(d => d),
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }

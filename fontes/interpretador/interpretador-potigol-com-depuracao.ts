@@ -1,4 +1,4 @@
-import { AcessoMetodoOuPropriedade, Construto, FuncaoConstruto, TipoDe } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, FuncaoConstruto, TipoDe } from '@designliquido/delegua/construtos';
 import { InterpretadorBaseComDepuracao } from '@designliquido/delegua/interpretador/depuracao/interpretador-base-com-depuracao';
 import { DeleguaFuncao, DescritorTipoClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
@@ -6,6 +6,7 @@ import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces';
 import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
+import { ConstrutoInterface } from '@designliquido/delegua/interfaces';
 
 import * as comum from './comum';
 
@@ -99,7 +100,7 @@ export class InterpretadorPotigolComDepuracao
         return comum.visitarExpressaoTipoDe(this, expressao);
     }
 
-    async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         return comum.avaliarArgumentosEscreva(this, argumentos.length > 0 ? argumentos[0] : undefined);
     }
 }

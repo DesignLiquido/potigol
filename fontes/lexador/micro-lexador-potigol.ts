@@ -1,9 +1,9 @@
-import { SimboloInterface } from '@designliquido/delegua/interfaces';
-import { RetornoLexador } from '@designliquido/delegua/interfaces/retornos';
+import { RetornoLexadorInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroLexador } from '@designliquido/delegua/lexador/erro-lexador';
 
 import { palavrasReservadas } from './palavras-reservadas';
+
 import tiposDeSimbolos from '../tipos-de-simbolos/micro-lexico';
 
 /**
@@ -205,7 +205,7 @@ export class MicroLexadorPotigol {
      * Lê apenas uma linha de código e a transforma em símbolos.
      * @param codigo O código
      */
-    mapear(codigo: string): RetornoLexador<SimboloInterface> {
+    mapear(codigo: string): RetornoLexadorInterface<SimboloInterface> {
         this.codigo = codigo;
         this.erros = [];
         this.simbolos = [];
@@ -220,6 +220,6 @@ export class MicroLexadorPotigol {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador<SimboloInterface>;
+        } as RetornoLexadorInterface<SimboloInterface>;
     }
 }

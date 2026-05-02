@@ -6,7 +6,6 @@ import {
     Binario,
     Chamada,
     Constante,
-    Construto,
     DefinirValor,
     FimPara,
     FuncaoConstruto,
@@ -40,13 +39,12 @@ import {
     Retorna,
     Importar,
 } from '@designliquido/delegua/declaracoes';
-import { RetornoLexador, RetornoAvaliadorSintatico } from '@designliquido/delegua/interfaces/retornos';
 import { AvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/avaliador-sintatico-base';
-
-import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
+import { ConstrutoInterface, ParametroInterface, RetornoAvaliadorSintaticoInterface, RetornoLexadorInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { ErroAvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 import { SeletorTuplas } from '@designliquido/delegua/construtos/tuplas';
+import { TipoInferencia } from '@designliquido/delegua/inferenciador';
 
 import {
     ConstanteOuVariavel,
@@ -63,7 +61,6 @@ import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhe
 
 import tipoDeDadosPotigol from '../tipos-de-dados';
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
-import { TipoInferencia } from '@designliquido/delegua/inferenciador';
 
 /**
  * 
@@ -259,7 +256,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return await this.logicaComumDefinicaoFuncaoComNome(construtoPrimario.simbolo);
     }
 
-    async finalizarChamada(entidadeChamada: Construto): Promise<Chamada> {
+    async finalizarChamada(entidadeChamada: ConstrutoInterface): Promise<Chamada> {
         const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
@@ -392,7 +389,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * de funções anônimas.
      * @param primeiroArgumento O primeiro argumento, já resolvido como construto.
      */
-    protected logicaArgumentosTipados(primeiroArgumento: Construto) {
+    protected logicaArgumentosTipados(primeiroArgumento: ConstrutoInterface) {
         // Quando esta função executa, já sabemos que o próximo símbolo será um 
         // dois-pontos.
         const simboloPrimeiroArgumento = (primeiroArgumento as any).simbolo as SimboloInterface;
@@ -406,7 +403,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return this.logicaComumParametrosPotigol(todosOsSimbolos);
     }
 
-    protected logicaFuncaoAnonimaOuTupla(primeiroConstruto: Construto) {
+    protected logicaFuncaoAnonimaOuTupla(primeiroConstruto: ConstrutoInterface) {
         const simbolosEntreParenteses: SimboloInterface[] = [];
         while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
@@ -479,7 +476,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
     }
 
-    async primario(): Promise<Construto> {
+    async primario(): Promise<ConstrutoInterface> {
         const simboloAtual = this.simbolos[this.atual];
 
         switch (simboloAtual.tipo) {
@@ -599,7 +596,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
-    protected async formato(): Promise<Construto> {
+    protected async formato(): Promise<ConstrutoInterface> {
         const expressao = await this.primario();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FORMATO)) {
@@ -631,7 +628,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * em sequência
      * @returns Um construto, ou vindo da continuação da análise, ou um Binário.
      */
-    protected async concatenacaoLista(): Promise<Construto> {
+    protected async concatenacaoLista(): Promise<ConstrutoInterface> {
         let expressao = await this.formato();
 
         while (true) {
@@ -694,7 +691,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * @returns Um construto do tipo `AcessoMetodo`, `AcessoIndiceVariavel` ou `Constante`,
      * dependendo dos símbolos encontrados.
      */
-    async chamar(): Promise<Construto> {
+    async chamar(): Promise<ConstrutoInterface> {
         let expressao = await this.concatenacaoLista();
 
         while (true) {
@@ -749,7 +746,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async comparacaoIgualdade(): Promise<Construto> {
+    async comparacaoIgualdade(): Promise<ConstrutoInterface> {
         let expressao = await this.comparar();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DIFERENTE, tiposDeSimbolos.IGUAL_IGUAL)) {
@@ -777,34 +774,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             );
         }
 
-        // TODO: Verificar se precisa de alguma avaliação de vetor.
-        /* if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-            const tiposVetores = [
-                'inteiro[]',
-                'numero[]',
-                'número[]',
-                'qualquer[]',
-                'real[]',
-                'texto[]',
-            ];
-            this.avancarEDevolverAnterior();
-
-            if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                throw this.erro(
-                    this.simbolos[this.atual],
-                    `Esperado símbolo de fechamento do vetor: ']'. Atual: ${this.simbolos[this.atual].lexema}`
-                );
-            }
-
-            const tipoVetor = tiposVetores.find((tipo) => tipo === `${lexemaElementar}[]`);
-            this.avancarEDevolverAnterior();
-            return tipoVetor as TipoInferencia;
-        } */
-
         return tipoElementarResolvido as TipoInferencia;
     }
 
-    protected logicaComumInicializadorLeia(inicializador: Construto, identificadores: SimboloInterface<string>[]) {
+    protected logicaComumInicializadorLeia(inicializador: ConstrutoInterface, identificadores: SimboloInterface<string>[]) {
         switch (inicializador.constructor) {
             case LeiaInteiro:
                 const inicializadorTipadoInteiro = inicializador as LeiaInteiro;
@@ -842,7 +815,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         }
     }
 
-    protected logicaComumInferenciaTiposLeia(inicializador: Construto) {
+    protected logicaComumInferenciaTiposLeia(inicializador: ConstrutoInterface) {
         switch (inicializador.constructor) {
             case LeiaInteiros:
                 return 'inteiro[]';
@@ -1233,7 +1206,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         // em tempo de execução.
         // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
         // passo são considerados indefinidos aqui.
-        let passo: Construto;
+        let passo: ConstrutoInterface;
         let resolverIncrementoEmExecucao = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
             passo = await this.unario();
@@ -1278,7 +1251,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             }
         }
 
-        let condicaoGere: Construto = undefined;
+        let condicaoGere: ConstrutoInterface = undefined;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
             condicaoGere = await this.expressao();
         }
@@ -1670,7 +1643,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return await this.atribuir();
     }
 
-    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | ConstrutoInterface | ConstrutoInterface[] | any {
         try {
             const simboloAtual = this.simbolos[this.atual];
             switch (simboloAtual.tipo) {
@@ -1732,9 +1705,9 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         this.microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(hashArquivo);
         this.erros = [];
         this.atual = 0;
@@ -1759,6 +1732,6 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return {
             declaracoes: this.declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }

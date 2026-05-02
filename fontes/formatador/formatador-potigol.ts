@@ -12,7 +12,6 @@ import {
     Chamada,
     ComentarioComoConstruto,
     Constante,
-    Construto,
     Deceto,
     DefinirValor,
     Dicionario,
@@ -80,6 +79,7 @@ import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
+import { ConstrutoInterface } from '@designliquido/delegua';
 
 export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     indentacaoAtual: number;
@@ -953,7 +953,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.codigoFormatado += `${expressao.simbolo.lexema}`;
     }
 
-    private formatarDeclaracaoTuplas(declaracao: Declaracao | Construto) {
+    private formatarDeclaracaoTuplas(declaracao: Declaracao | ConstrutoInterface) {
         const declaracoes = Object.keys(declaracao);
         this.codigoFormatado += '(';
         for (let chaveDeclaracao of declaracoes) {
@@ -1000,7 +1000,7 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
         this.formatarDeclaracaoTuplas(expressao);
     }
 
-    formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
+    formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | ConstrutoInterface): void {
         switch (declaracaoOuConstruto.constructor) {
             case AcessoIndiceVariavel:
                 this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto as AcessoIndiceVariavel);

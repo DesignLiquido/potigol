@@ -1,26 +1,25 @@
-import { Construto } from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
-import { SimboloInterface } from '@designliquido/delegua/interfaces';
+import { ConstrutoInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
 
 import { VisitanteComumPotigolInterface } from '../interfaces';
 
 export class ParaGere extends Declaracao {
     simboloIteracao: SimboloInterface;
-    inicio: Construto;
-    fim: Construto;
-    passo: Construto;
-    condicao: Construto;
+    inicio: ConstrutoInterface;
+    fim: ConstrutoInterface;
+    passo: ConstrutoInterface;
+    condicao: ConstrutoInterface;
     corpo: any[];
 
     constructor(
         hashArquivo: number,
         linha: number,
         simboloIteracao: SimboloInterface,
-        inicio: Construto,
-        fim: Construto,
+        inicio: ConstrutoInterface,
+        fim: ConstrutoInterface,
         corpo: any[],
-        passo?: Construto,
-        condicao?: Construto
+        passo?: ConstrutoInterface,
+        condicao?: ConstrutoInterface
     ) {
         super(linha, hashArquivo);
         this.simboloIteracao = simboloIteracao;

@@ -1,5 +1,4 @@
-import { Construto } from '@designliquido/delegua/construtos';
-import { SimboloInterface, VariavelInterface, VisitanteComumInterface } from '@designliquido/delegua/interfaces';
+import { ConstrutoInterface, SimboloInterface, VariavelInterface, VisitanteComumInterface } from '@designliquido/delegua/interfaces';
 
 /**
  * Este construto existe para alguns dialetos, como Potigol, onde
@@ -11,7 +10,7 @@ import { SimboloInterface, VariavelInterface, VisitanteComumInterface } from '@d
  * resolver para `Constante`, `Variavel` ou algum construto de chamada/declaração de
  * função.
  */
-export class ConstanteOuVariavel<TTipoSimbolo extends string = string> implements Construto {
+export class ConstanteOuVariavel<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
