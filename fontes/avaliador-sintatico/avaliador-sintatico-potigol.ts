@@ -1580,6 +1580,13 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                                 : undefined,
                             tipoExplicito
                         );
+                    case tiposDeSimbolos.REATRIBUIR:
+                        this.avancarEDevolverAnterior();
+                        const valorReatribuicao = await this.ou();
+                        return new ReatribuicaoVariavel(
+                            (expressao as Constante).simbolo,
+                            valorReatribuicao
+                        );
                 }
             } else if (expressao instanceof Variavel) {
                 // Reatribuição de variável.

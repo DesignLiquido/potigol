@@ -8,7 +8,6 @@ import {
     Escreva,
     Expressao,
     Falhar,
-    FuncaoDeclaracao,
     ParaCada,
     Var,
     VarMultiplo
@@ -94,7 +93,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     }
 
     private valorEhClasse(valor: unknown): valor is Classe {
-        return valor instanceof Classe || (valor as any)?.constructor?.name === 'Classe';
+        return valor instanceof Classe || (valor as any)?.constructor === Classe;
     }
 
     /**
@@ -467,7 +466,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         }
 
         if (condicao instanceof Variavel) {
-            return this.verificarVariavelBinaria(condicao);
+            return this.verificarVariavelLogica(condicao);
         }
 
         if (condicao instanceof Binario) {
@@ -488,7 +487,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     /**
      * Verifica se uma variável é do tipo lógico/booleano
      */
-    private verificarVariavelBinaria(variavel: Variavel): Promise<void> {
+    private verificarVariavelLogica(variavel: Variavel): Promise<void> {
         this.verificarVariavel(variavel);
         const variavelHipotetica = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
         if (
@@ -770,6 +769,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
                     return null;
             }
         } catch (e) {
+            console.warn(`Erro ao calcular operação binária em tempo de compilação: ${e}`);
             return null;
         }
     }
@@ -830,7 +830,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     private verificarLadoLogico(lado: ConstrutoInterface): void {
         if (lado instanceof Variavel) {
             let variavel = lado as Variavel;
-            this.verificarVariavelBinaria(variavel);
+            this.verificarVariavelLogica(variavel);
         }
     }
 
@@ -840,7 +840,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     protected verificarInterpolacaoTexto(texto: string, literal: Literal): void {
         // Regex para encontrar ${identificador}
         const regexInterpolacao = /\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
-        let match;
+        let match: RegExpExecArray | null;
 
         while ((match = regexInterpolacao.exec(texto)) !== null) {
             const nomeVariavel = match[1];
@@ -872,6 +872,8 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
 
             if (argumento instanceof Variavel) {
                 this.verificarVariavel(argumento);
+            } else {
+                this.marcarVariaveisUsadasEmExpressao(argumento);
             }
         }
 
@@ -939,6 +941,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
                 this.visitarExpressaoDeChamada(declaracao.inicializador);
             }
             this.verificarTipoAtribuido(declaracao);
+            this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
         }
 
         return Promise.resolve();
@@ -971,6 +974,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
                 this.visitarExpressaoDeChamada(declaracao.inicializador);
             }
             this.verificarTipoAtribuido(declaracao);
+            this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
         }
 
         return Promise.resolve();
@@ -992,36 +996,48 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         return Promise.resolve();
     }
 
+    protected override marcarVariaveisUsadasEmExpressao(expressao: ConstrutoInterface): void {
+        if (expressao instanceof Constante) {
+            this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
+            return;
+        }
+        super.marcarVariaveisUsadasEmExpressao(expressao);
+    }
+
     override visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any> {
         if (expressao instanceof Variavel) {
             this.verificarVariavel(expressao);
+        } 
+        
+        if (expressao instanceof Constante) {
+            this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
         }
 
         return Promise.resolve();
     }
 
     // Visitadores específicos do Potigol
-    visitarDeclaracaoLeiaInteiro(declaracao: LeiaInteiro): Promise<any> | void {
+    visitarDeclaracaoLeiaInteiro(_: LeiaInteiro): Promise<any> | void {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoLeiaInteiros(declaracao: LeiaInteiros): Promise<any> | void {
+    visitarDeclaracaoLeiaInteiros(_: LeiaInteiros): Promise<any> | void {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoLeiaReais(declaracao: LeiaReais): Promise<any> | void {
+    visitarDeclaracaoLeiaReais(_: LeiaReais): Promise<any> | void {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoLeiaReal(declaracao: LeiaReal): Promise<any> | void {
+    visitarDeclaracaoLeiaReal(_: LeiaReal): Promise<any> | void {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoLeiaTexto(declaracao: LeiaTexto): Promise<any> | void {
+    visitarDeclaracaoLeiaTexto(_: LeiaTexto): Promise<any> | void {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoLeiaTextos(declaracao: LeiaTextos): Promise<any> | void {
+    visitarDeclaracaoLeiaTextos(_: LeiaTextos): Promise<any> | void {
         return Promise.resolve();
     }
 
@@ -1135,13 +1151,8 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
             );
         }
 
-        // Marca variáveis usadas na expressão de inicialização
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
-        }
-
-        // Marca como inicializada
-        if (declaracao.inicializador) {
             this.gerenciadorEscopos.marcarComoInicializada(declaracao.simbolo.lexema, declaracao.inicializador);
         }
 
@@ -1149,7 +1160,7 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
     }
 
     /**
-     * Método principal de análise semântica
+     * Ponto de entrada da análise semântica.
      */
     async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemanticoInterface> {
         // Reinicia o gerenciador de escopos

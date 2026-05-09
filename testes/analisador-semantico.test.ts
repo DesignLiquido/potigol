@@ -163,16 +163,11 @@ describe('Analisador semântico', () => {
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retornoAnaliseSemantica = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
-            expect(retornoAnaliseSemantica).toBeTruthy();
-            expect(retornoAnaliseSemantica.diagnosticos.length).toBeGreaterThan(0);
             const erroConstante = retornoAnaliseSemantica.diagnosticos.find(
                 d => d.severidade === DiagnosticoSeveridade.ERRO &&
                      (d.mensagem?.toLowerCase().includes('constante') || d.mensagem?.toLowerCase().includes('imutável'))
             );
-            // O erro pode ser detectado
-            if (erroConstante) {
-                expect(erroConstante.severidade).toBe(DiagnosticoSeveridade.ERRO);
-            }
+            expect(erroConstante).toBeTruthy();
         });
 
         it('Detecta tipo incompatível na declaração de vetor de inteiros', async () => {
@@ -232,6 +227,45 @@ describe('Analisador semântico', () => {
                 d => d.severidade === DiagnosticoSeveridade.ERRO && d.mensagem?.includes("Esperado tipo 'lógico' na condição")
             );
             expect(erro).toBeTruthy();
+        });
+    });
+
+    describe('Falsos positivos de variável não usada (issue #177)', () => {
+        async function analisar(linhas: string[]) {
+            const retornoLexador = lexador.mapear(linhas, -1);
+            const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
+            return analisadorSemantico.analisar(retornoAvaliador.declaracoes);
+        }
+
+        it('Caso 1: declaração simples de constante usada em escreva não gera aviso', async () => {
+            const retorno = await analisar(['a = 10', 'escreva a']);
+            const avisos = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.AVISO);
+            expect(avisos).toHaveLength(0);
+        });
+
+        it('Caso 2: atribuição simultânea de constantes usadas em escreva não gera aviso', async () => {
+            const retorno = await analisar(['a, b = 10, 20', 'escreva a', 'escreva b']);
+            const avisos = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.AVISO);
+            expect(avisos).toHaveLength(0);
+        });
+
+        it('Caso 3: var não usada continua gerando aviso (comportamento correto)', async () => {
+            const retorno = await analisar(['var a := 10', 'var b := 20', 'escreva a']);
+            const avisos = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.AVISO);
+            expect(avisos).toHaveLength(1);
+            expect(avisos[0].mensagem).toContain("'b'");
+        });
+
+        it('Caso 4: variável usada no inicializador de outra variável não gera aviso', async () => {
+            const retorno = await analisar(['var a := 10', 'var b := a + 2', 'escreva b']);
+            const avisos = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.AVISO);
+            expect(avisos).toHaveLength(0);
+        });
+
+        it('Caso 5: acesso indexado à variável não gera aviso', async () => {
+            const retorno = await analisar(['var a := [2, 3, 5, 7, 11]', 'escreva a[1]']);
+            const avisos = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.AVISO);
+            expect(avisos).toHaveLength(0);
         });
     });
 
