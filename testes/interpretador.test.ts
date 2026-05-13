@@ -772,6 +772,25 @@ describe('Interpretador (Potigol)', () => {
                     expect(saidas[0]).toBe('123.5');
                 });
 
+                it('formato, atribuição intermediária', async () => {
+                    const saidas: string[] = [];
+                    const retornoLexador = lexador.mapear([
+                        'x = 1.234',
+                        'y = x formato "%.2f"',
+                        'escreva y'
+                    ], -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(String(saida));
+                    };
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toHaveLength(1);
+                    expect(saidas[0]).toBe('1.23');
+                });
+
                 it('formato, número inteiro', async () => {
                     const saidas: string[] = [];
                     const retornoLexador = lexador.mapear([

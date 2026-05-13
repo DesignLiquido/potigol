@@ -74,12 +74,16 @@ export function carregarBibliotecaGlobal(pilhaEscoposExecucao: PilhaEscoposExecu
     pilhaEscoposExecucao.definirVariavel('tg', new FuncaoPadrao(1, bibliotecaGlobal.tg));
 }
 
-function resolverNomeObjectoAcessado(objetoAcessado: ConstrutoInterface): string {
+function resolverNomeObjectoAcessado(objetoAcessado: any): string {
     if (objetoAcessado instanceof Variavel) {
         return objetoAcessado.simbolo.lexema;
     } 
     
     if (objetoAcessado instanceof Constante) {
+        return objetoAcessado.simbolo.lexema;
+    }
+
+    if (objetoAcessado instanceof ConstanteOuVariavel) {
         return objetoAcessado.simbolo.lexema;
     }
 
@@ -342,7 +346,10 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     interpretador: InterpretadorPotigolInterface,
     expressao: AcessoMetodoOuPropriedade
 ): Promise<any> {
-    const variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
+    const variavelObjeto: VariavelInterface =
+        expressao.objeto instanceof ConstanteOuVariavel
+            ? interpretador.pilhaEscoposExecucao.obterVariavelPorNome((expressao.objeto as any).simbolo.lexema)
+            : await interpretador.avaliar(expressao.objeto);
     const nomeObjeto: string = resolverNomeObjectoAcessado(expressao.objeto);
     let objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
 
@@ -611,7 +618,7 @@ export async function visitarExpressaoTipoDe(
     let qualTipo = expressao.valor;
 
     if (expressao?.valor instanceof ConstanteOuVariavel) {
-        const nome = expressao?.valor.simbolo.lexema;
+        const nome = (expressao?.valor as any).simbolo.lexema;
         qualTipo = interpretador.pilhaEscoposExecucao.topoDaPilha().espacoMemoria.valores[nome].valor;
     }
 
