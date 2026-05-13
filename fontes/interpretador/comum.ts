@@ -561,19 +561,20 @@ export async function visitarExpressaoLeia(
     interpretador: InterpretadorPotigolInterface,
     expressao: LeiaInteiro | LeiaReal | LeiaTexto
 ): Promise<any> {
-    let _resposta: string = '';
-    await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
-        _resposta = String(resposta);
+    const _resposta: string = await new Promise((resolver) => {
+        interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
+            resolver(String(resposta));
+        });
     });
 
     // TODO: Ver o que acontece em Potigol quando tipos conflitam.
     switch (expressao.constructor) {
         case LeiaInteiro:
-            return Promise.resolve(parseInt(_resposta));
+            return parseInt(_resposta.trim());
         case LeiaReal:
-            return Promise.resolve(Number(_resposta));
+            return Number(_resposta.trim());
         case LeiaTexto:
-            return Promise.resolve(String(_resposta));
+            return _resposta;
     }
 }
 
@@ -581,34 +582,34 @@ export async function visitarExpressaoLeiaMultiplo(
     interpretador: InterpretadorPotigolInterface,
     expressao: LeiaInteiros | LeiaReais | LeiaTextos
 ): Promise<any> {
-    let respostas = [];
-    // O argumento sempre vem preenchido aqui.
-    // Se for um literal, o literal contém o número de valores a serem lidos
-    // da entrada.
-    let valores = 0;
     const argumento = expressao.argumentoCardinalidade;
-    if (argumento instanceof Literal) {
-        switch (argumento.valor) {
-            case ',':
-                await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
-                    respostas = String(resposta)
-                        .split(',')
-                        .filter((valor) => !/(\s+)/.test(valor));
-                });
-                break;
-            default:
-                valores = argumento.valor as number;
-                for (let i = 0; i < valores; i++) {
-                    await interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
-                        respostas.push(resposta);
-                    });
-                }
-
-                break;
-        }
+    if (!(argumento instanceof Literal)) {
+        return [];
     }
 
-    return Promise.resolve(respostas);
+    // Lê uma linha inteira e divide em partes
+    const linha: string = await new Promise((resolver) => {
+        interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
+            resolver(String(resposta));
+        });
+    });
+
+    switch (argumento.valor) {
+        case ',':
+            return linha.split(',').map((v) => v.trim()).filter((v) => v !== '');
+        default:
+            const partes = linha.trim().split(/\s+/);
+            switch (expressao.constructor) {
+                case LeiaInteiros:
+                    return partes.map((v) => parseInt(v));
+                case LeiaReais:
+                    return partes.map((v) => Number(v));
+                case LeiaTextos:
+                    return partes;
+                default:
+                    return partes;
+            }
+    }
 }
 
 export async function visitarExpressaoTipoDe(
