@@ -269,6 +269,36 @@ describe('Analisador semântico', () => {
         });
     });
 
+    describe('Interpolação de texto (issue #184)', () => {
+        async function analisar(linhas: string[]) {
+            const retornoLexador = lexador.mapear(linhas, -1);
+            const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
+            return analisadorSemantico.analisar(retornoAvaliador.declaracoes);
+        }
+
+        it('Não gera aviso de variável não usada quando variável aparece em {variavel}', async () => {
+            const retorno = await analisar([
+                'x = 1',
+                'y = 2',
+                'escreva "x = {x}"',
+                'escreva y'
+            ]);
+
+            const avisos = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.AVISO);
+            expect(avisos).toHaveLength(0);
+        });
+
+        it('Gera erro quando variável em {variavel} não foi declarada', async () => {
+            const retorno = await analisar([
+                'escreva "x = {x}"'
+            ]);
+
+            const erros = retorno.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.ERRO);
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain("usada em interpolação não foi declarada");
+        });
+    });
+
     describe('Verificação de aridade de métodos', () => {
         async function analisar(linhas: string[]) {
             const retornoLexador = lexador.mapear(linhas, -1);

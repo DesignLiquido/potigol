@@ -838,8 +838,8 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
      * Verifica interpolações de texto e marca variáveis como usadas
      */
     protected verificarInterpolacaoTexto(texto: string, literal: Literal): void {
-        // Regex para encontrar ${identificador}
-        const regexInterpolacao = /\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
+        // Potigol usa {identificador} para interpolação de texto.
+        const regexInterpolacao = /\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
         let match: RegExpExecArray | null;
 
         while ((match = regexInterpolacao.exec(texto)) !== null) {
