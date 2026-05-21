@@ -587,28 +587,33 @@ export async function visitarExpressaoLeiaMultiplo(
         return [];
     }
 
-    // Lê uma linha inteira e divide em partes
-    const linha: string = await new Promise((resolver) => {
-        interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
-            resolver(String(resposta));
+    if (argumento.valor === ',') {
+        const linha: string = await new Promise((resolver) => {
+            interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
+                resolver(String(resposta));
+            });
         });
-    });
+        return linha.split(',').map((v) => v.trim()).filter((v) => v !== '');
+    }
 
-    switch (argumento.valor) {
-        case ',':
-            return linha.split(',').map((v) => v.trim()).filter((v) => v !== '');
+    const quantidade = argumento.valor as number;
+    const respostas: any[] = [];
+    for (let i = 0; i < quantidade; i++) {
+        const resposta = await new Promise<string>((resolver) => {
+            interpretador.interfaceEntradaSaida.question('> ', (r: any) => {
+                resolver(String(r));
+            });
+        });
+        respostas.push(resposta);
+    }
+
+    switch (expressao.constructor) {
+        case LeiaInteiros:
+            return respostas.map((v) => parseInt(v));
+        case LeiaReais:
+            return respostas.map((v) => Number(v));
         default:
-            const partes = linha.trim().split(/\s+/);
-            switch (expressao.constructor) {
-                case LeiaInteiros:
-                    return partes.map((v) => parseInt(v));
-                case LeiaReais:
-                    return partes.map((v) => Number(v));
-                case LeiaTextos:
-                    return partes;
-                default:
-                    return partes;
-            }
+            return respostas;
     }
 }
 
