@@ -229,7 +229,7 @@ export async function visitarDeclaracaoReatribuicaoVariavel(
 ): Promise<any> {
     const valorFinal = await interpretador.avaliacaoDeclaracaoVarOuConst(declaracao);
 
-    interpretador.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, declaracao.tipo);
+    interpretador.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, valorFinal);
 
     return null;
 }

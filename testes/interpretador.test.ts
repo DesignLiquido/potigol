@@ -858,5 +858,24 @@ describe('Interpretador (Potigol)', () => {
                 });
             });
         });
+
+        describe('Enquanto', () => {
+            it('Variável atualizada dentro de enquanto persiste entre iterações (issue #186)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var n := 1',
+                    'enquanto n > 0 faça',
+                    '  n := -1',
+                    '  escreva "N = {n}"',
+                    'fim',
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('N = -1');
+            });
+        });
     });
 });
