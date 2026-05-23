@@ -878,6 +878,33 @@ describe('Interpretador (Potigol)', () => {
             });
         });
 
+        describe('Se', () => {
+            it('Se aninhado no bloco senão não gera erro (issue #188)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'se verdadeiro então',
+                    '  se verdadeiro então',
+                    '    escreva "ac"',
+                    '  senão',
+                    '    escreva "ad"',
+                    '  fim',
+                    'senão',
+                    '  se verdadeiro então',
+                    '    escreva "bc"',
+                    '  senão',
+                    '    escreva "bd"',
+                    '  fim',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('ac');
+            });
+        });
+
         describe('Enquanto', () => {
             it('Variável atualizada dentro de enquanto persiste entre iterações (issue #186)', async () => {
                 const retornoLexador = lexador.mapear([

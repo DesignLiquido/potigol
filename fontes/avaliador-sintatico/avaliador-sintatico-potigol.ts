@@ -1072,8 +1072,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         let consumirFimExterno = true;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO) || this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE)) {
             const ehSenaose = this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.SENAOSE;
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.SE || ehSenaose) {
-                // "senao se" ou "senaose": o Se aninhado vai consumir o próprio fim
+            const ehSenaoSe = this.simbolos[this.atual].tipo === tiposDeSimbolos.SE &&
+                this.simbolos[this.atual].linha === this.simbolos[this.atual - 1].linha;
+            if (ehSenaoSe || ehSenaose) {
+                // "senao se" na mesma linha ou "senaose": o Se aninhado vai consumir o próprio fim
                 caminhoSenao = await this.declaracaoSe();
                 consumirFimExterno = false;
             } else {

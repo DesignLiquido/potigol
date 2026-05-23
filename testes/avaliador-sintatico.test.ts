@@ -279,6 +279,29 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
+
+                it('Se aninhado (issue 188)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'se verdadeiro então',
+                        '  se verdadeiro então',
+                        '    escreva "ac"',
+                        '  senão',
+                        '    escreva "ad"',
+                        '  fim',
+                        'senão',
+                        '  se verdadeiro então',
+                        '    escreva "bc"',
+                        '  senão',
+                        '    escreva "bd"',
+                        '  fim',
+                        'fim'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                });
             });
 
             describe('Estruturas de repetição', () => {
