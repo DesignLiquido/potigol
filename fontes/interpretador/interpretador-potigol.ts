@@ -1,18 +1,20 @@
 import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import {
+    AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
     FuncaoConstruto, TipoDe, Tupla
 } from '@designliquido/delegua/construtos';
 import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 import { ConstrutoInterface } from '@designliquido/delegua';
+import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 
 import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
 import { LeiaInteiros, LeiaReais, LeiaTextos, LeiaInteiro, LeiaReal, LeiaTexto } from '../construtos';
-import { EstruturaCubo, EstruturaMatriz } from './estruturas';
+import { EstruturaCubo, EstruturaMatriz, EstruturaTupla } from './estruturas';
 
 import * as comum from './comum';
 
@@ -179,5 +181,75 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
 
     protected async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         return comum.avaliarArgumentosEscreva(this, argumentos.length > 0 ? argumentos[0] : undefined);
+    }
+
+    override async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
+        const [variavelObjeto, indice] = await Promise.all([
+            this.avaliar(expressao.entidadeChamada),
+            this.avaliar(expressao.indice),
+        ]);
+        const objeto = this.resolverValor(variavelObjeto);
+        let valorIndice = this.resolverValor(indice);
+
+        if (Array.isArray(objeto)) {
+            if (!Number.isInteger(valorIndice)) {
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Somente inteiros podem ser usados para indexar um vetor.',
+                    expressao.linha
+                ));
+            }
+            // Potigol is 1-based
+            const indiceBase0 = valorIndice - 1;
+            if (indiceBase0 < 0 || indiceBase0 >= objeto.length) {
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Índice do vetor fora do intervalo.',
+                    expressao.linha
+                ));
+            }
+            return objeto[indiceBase0];
+        }
+
+        if (objeto instanceof EstruturaTupla) {
+            if (!Number.isInteger(valorIndice)) {
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Somente inteiros podem ser usados para indexar uma tupla.',
+                    expressao.linha
+                ));
+            }
+            const indiceBase0 = valorIndice - 1;
+            if (indiceBase0 < 0 || indiceBase0 >= objeto.valores.length) {
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Índice da tupla fora de intervalo.',
+                    expressao.linha
+                ));
+            }
+            const elemento = objeto.valores[indiceBase0];
+            return elemento?.hasOwnProperty('valor') ? elemento.valor : elemento;
+        }
+
+        if (typeof objeto === 'string') {
+            if (!Number.isInteger(valorIndice)) {
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Somente inteiros podem ser usados para indexar um texto.',
+                    expressao.linha
+                ));
+            }
+            const indiceBase0 = valorIndice - 1;
+            if (indiceBase0 < 0 || indiceBase0 >= objeto.length) {
+                return Promise.reject(new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Índice fora do tamanho.',
+                    expressao.linha
+                ));
+            }
+            return objeto.charAt(indiceBase0);
+        }
+
+        return super.visitarExpressaoAcessoIndiceVariavel(expressao);
     }
 }

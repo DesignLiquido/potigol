@@ -249,6 +249,28 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[0]).toBe('10');
             });
 
+            it('acesso por índice base 1: a[1] retorna primeiro elemento', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = [10, 20, 30]',
+                    'escreva a[1]'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('10');
+            });
+
+            it('acesso por índice base 1: a[3] retorna último elemento de lista com 3 itens', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = [10, 20, 30]',
+                    'escreva a[3]'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('30');
+            });
+
             it('lista.filtre existe como método de primitiva de vetor', async () => {
                 // Testa que filtre existe no registry de primitivas de vetor e é chamável
                 const retornoLexador = lexador.mapear([
