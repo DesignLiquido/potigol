@@ -4,7 +4,7 @@ import {
     AcessoMetodoOuPropriedade,
     FuncaoConstruto, TipoDe, Tupla
 } from '@designliquido/delegua/construtos';
-import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
+import { Classe, Const, Escolha, Para } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 import { ConstrutoInterface } from '@designliquido/delegua';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
@@ -56,6 +56,27 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
 
     visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void {
         return Promise.resolve();
+    }
+
+    override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        const inicializador = Array.isArray(declaracao.inicializador)
+            ? declaracao.inicializador[0]
+            : declaracao.inicializador;
+        if ((inicializador as any)?.expressao?.alvo?.simbolo) {
+            const simbolo = (inicializador as any).expressao.alvo.simbolo;
+            this.pilhaEscoposExecucao.definirVariavel(simbolo.lexema, 0, 'inteiro');
+        }
+        return super.visitarDeclaracaoPara(declaracao);
+    }
+
+    override verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
+        return super.verificarOperandosNumeros(operador, direita, esquerda);
+    }
+
+    async visitarExpressaoFimPara(fimPara: any): Promise<any> {
+        if (fimPara.incremento) {
+            return this.avaliar(fimPara.incremento);
+        }
     }
 
     visitarDeclaracaoParaGere(declaracao: ParaGere): Promise<any> | void {

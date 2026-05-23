@@ -78,6 +78,10 @@ export class InterpretadorPotigolComDepuracao
         return comum.retirarInterpolacao(texto, variaveis);
     }
 
+    override verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
+        return super.verificarOperandosNumeros(operador, direita, esquerda);
+    }
+
     async visitarDeclaracaoReatribuicaoVariavel(expressao: ReatribuicaoVariavel): Promise<any> {
         return comum.visitarDeclaracaoReatribuicaoVariavel(this, expressao);
     }

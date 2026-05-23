@@ -308,6 +308,25 @@ describe('Interpretador (Potigol)', () => {
                 expect(['a', 'b', 'c']).toContain(_saidas[0]);
             });
 
+            it('Para simples com faça itera e escreve variável de iteração (issue 187)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para i de 1 até 5 faça',
+                    '  escreva i',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(5);
+                expect(_saidas[0]).toBe('1');
+                expect(_saidas[1]).toBe('2');
+                expect(_saidas[2]).toBe('3');
+                expect(_saidas[3]).toBe('4');
+                expect(_saidas[4]).toBe('5');
+            });
+
             it('Para gere com guarda executa corpo para itens filtrados', async () => {
                 const retornoLexador = lexador.mapear([
                     'para i de 1 até 5 se i > 2 gere',

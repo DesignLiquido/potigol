@@ -470,7 +470,7 @@ export async function visitarExpressaoBinaria(
 
     switch (expressao.operador.tipo) {
         case tiposDeSimbolos.EXPONENCIACAO:
-            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             if (ambosInteiroGrande) return valorEsquerdo ** valorDireito;
             return Math.pow(valorEsquerdo, valorDireito);
 
@@ -483,7 +483,7 @@ export async function visitarExpressaoBinaria(
             return String(valorEsquerdo) > String(valorDireito);
 
         case tiposDeSimbolos.MAIOR_IGUAL:
-            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             if (ambosInteiroGrande) return valorEsquerdo >= valorDireito;
             return Number(valorEsquerdo) >= Number(valorDireito);
 
@@ -496,12 +496,12 @@ export async function visitarExpressaoBinaria(
             return String(valorEsquerdo) < String(valorDireito);
 
         case tiposDeSimbolos.MENOR_IGUAL:
-            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             if (ambosInteiroGrande) return valorEsquerdo <= valorDireito;
             return Number(valorEsquerdo) <= Number(valorDireito);
 
         case tiposDeSimbolos.SUBTRACAO:
-            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             if (ambosInteiroGrande) return valorEsquerdo - valorDireito;
             return Number(valorEsquerdo) - Number(valorDireito);
 
@@ -514,12 +514,12 @@ export async function visitarExpressaoBinaria(
             return String(valorEsquerdo) + String(valorDireito);
 
         case tiposDeSimbolos.DIVISAO:
-            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             if (ambosInteiroGrande) return valorEsquerdo / valorDireito;
             return Number(valorEsquerdo) / Number(valorDireito);
 
         case tiposDeSimbolos.DIVISAO_INTEIRA:
-            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             if (ambosInteiroGrande) return valorEsquerdo / valorDireito;
             return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
 
@@ -528,7 +528,7 @@ export async function visitarExpressaoBinaria(
             return Number(valorEsquerdo) * Number(valorDireito);
 
         case tiposDeSimbolos.MODULO:
-            this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             if (ambosInteiroGrande) return valorEsquerdo % valorDireito;
             return Number(valorEsquerdo) % Number(valorDireito);
 
