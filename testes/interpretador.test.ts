@@ -628,6 +628,50 @@ describe('Interpretador (Potigol)', () => {
         });
 
         describe('Leia inteiros', () => {
+            it('leia_inteiros atribuído a constante com separador espaço deve ter tipo Lista e valor correto', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = leia_inteiros(" ")',
+                    'escreva a.qual_tipo',
+                    'escreva a'
+                ], -1);
+
+                const resposta = '1 2';
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta);
+                    }
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Lista');
+                expect(_saidas[1]).toBe('[1, 2]');
+            });
+
+            it('leia_inteiros atribuído a constante com quantidade deve ter tipo Lista e valor correto', async () => {
+                const retornoLexador = lexador.mapear([
+                    'x = leia_inteiros(2)',
+                    'escreva x.qual_tipo',
+                    'escreva x'
+                ], -1);
+
+                const respostas = ['1', '2'];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Lista');
+                expect(_saidas[1]).toBe('[1, 2]');
+            });
+
             it('Dado um leia_inteiros separador por virgula, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
                     'escreva(leia_inteiros(","))'
@@ -692,6 +736,50 @@ describe('Interpretador (Potigol)', () => {
         });
 
         describe('Leia reais', () => {
+            it('leia_reais atribuído a constante com separador espaço deve ter tipo Lista e valor correto', async () => {
+                const retornoLexador = lexador.mapear([
+                    'b = leia_reais(" ")',
+                    'escreva b.qual_tipo',
+                    'escreva b'
+                ], -1);
+
+                const resposta = '1.1 2.2';
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta);
+                    }
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Lista');
+                expect(_saidas[1]).toBe('[1.1, 2.2]');
+            });
+
+            it('leia_reais atribuído a constante com quantidade deve ter tipo Lista e valor correto', async () => {
+                const retornoLexador = lexador.mapear([
+                    'y = leia_reais(2)',
+                    'escreva y.qual_tipo',
+                    'escreva y'
+                ], -1);
+
+                const respostas = ['1.1', '2.2'];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Lista');
+                expect(_saidas[1]).toBe('[1.1, 2.2]');
+            });
+
             it('Dado um leia_reais separador por virgula, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
                     'escreva(leia_reais(","))'
@@ -736,6 +824,50 @@ describe('Interpretador (Potigol)', () => {
         });
 
         describe('Leia textos', () => {
+            it('leia_textos atribuído a constante com separador espaço deve ter tipo Lista e valor correto', async () => {
+                const retornoLexador = lexador.mapear([
+                    'c = leia_textos(" ")',
+                    'escreva c.qual_tipo',
+                    'escreva c'
+                ], -1);
+
+                const resposta = 'abc def';
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(resposta);
+                    }
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Lista');
+                expect(_saidas[1]).toBe('[abc, def]');
+            });
+
+            it('leia_textos atribuído a constante com quantidade deve ter tipo Lista e valor correto', async () => {
+                const retornoLexador = lexador.mapear([
+                    'z = leia_textos(2)',
+                    'escreva z.qual_tipo',
+                    'escreva z'
+                ], -1);
+
+                const respostas = ['abc', 'def'];
+                interpretador.interfaceEntradaSaida = {
+                    question: (mensagem: string, callback: Function) => {
+                        callback(respostas.shift());
+                    }
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Lista');
+                expect(_saidas[1]).toBe('[abc, def]');
+            });
+
             it('Dado um leia_textos separador por virgula, escreva deve imprimir o valor lido', async () => {
                 const retornoLexador = lexador.mapear([
                     'escreva(leia_textos(","))'

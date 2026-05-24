@@ -205,18 +205,24 @@ export async function visitarDeclaracaoConst(
 ): Promise<any> {
     const valorFinal = await interpretador.avaliacaoDeclaracaoVarOuConst(declaracao);
     let tipoResolvido = declaracao.tipo;
-    if (tipoResolvido === 'qualquer') {
-        switch (declaracao.inicializador.constructor) {
-            case LeiaInteiro:
-                tipoResolvido = 'inteiro';
-                break;
-            case LeiaReal:
-                tipoResolvido = 'número';
-                break;
-            case LeiaTexto:
-                tipoResolvido = 'texto';
-                break;
-        }
+
+    // Leia base class sets tipo='texto' on all Leia constructs, which Const picks up as
+    // inicializador.tipo. Override with the correct type for each Leia variant.
+    switch (declaracao.inicializador?.constructor) {
+        case LeiaInteiro:
+            tipoResolvido = 'inteiro';
+            break;
+        case LeiaReal:
+            tipoResolvido = 'número';
+            break;
+        case LeiaTexto:
+            tipoResolvido = 'texto';
+            break;
+        case LeiaInteiros:
+        case LeiaReais:
+        case LeiaTextos:
+            tipoResolvido = null;
+            break;
     }
 
     interpretador.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, tipoResolvido);
@@ -587,13 +593,14 @@ export async function visitarExpressaoLeiaMultiplo(
         return [];
     }
 
-    if (argumento.valor === ',') {
+    if (typeof argumento.valor === 'string') {
+        const separador = argumento.valor;
         const linha: string = await new Promise((resolver) => {
             interpretador.interfaceEntradaSaida.question('> ', (resposta: any) => {
                 resolver(String(resposta));
             });
         });
-        return linha.split(',').map((v) => v.trim()).filter((v) => v !== '');
+        return linha.split(separador).map((v) => v.trim()).filter((v) => v !== '');
     }
 
     const quantidade = argumento.valor as number;
