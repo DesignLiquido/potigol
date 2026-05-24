@@ -1011,6 +1011,22 @@ describe('Interpretador (Potigol)', () => {
         });
 
         describe('Se', () => {
+            it('Se como expressão (issue #191)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = 1',
+                    'b = 2',
+                    'maior = se a > b entao a senao b fim',
+                    'escreva maior'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('2');
+            });
+
             it('Se aninhado no bloco senão não gera erro (issue #188)', async () => {
                 const retornoLexador = lexador.mapear([
                     'se verdadeiro então',

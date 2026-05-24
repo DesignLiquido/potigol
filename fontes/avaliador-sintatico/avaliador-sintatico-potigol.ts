@@ -12,6 +12,7 @@ import {
     Isto,
     Leia,
     Literal,
+    SeTernario,
     TipoDe,
     Tupla,
     Unario,
@@ -590,6 +591,16 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.LEIA_REAIS:
             case tiposDeSimbolos.LEIA_TEXTOS:
                 return await this.logicaLeiaMultiplo();
+            case tiposDeSimbolos.SE: {
+                const simboloSeExpr: SimboloInterface = this.avancarEDevolverAnterior();
+                const condicaoSeExpr = await this.expressao();
+                this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em expressão 'se'.");
+                const expressaoSeVerdadeiro = await this.ou();
+                this.consumir(tiposDeSimbolos.SENAO, "Esperado palavra reservada 'senao' em expressão 'se'.");
+                const expressaoSeSenao = await this.ou();
+                this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fim' para fechar expressão 'se'.");
+                return new SeTernario(this.hashArquivo, condicaoSeExpr, expressaoSeVerdadeiro, simboloSeExpr, expressaoSeSenao);
+            }
             default:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 return new ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);

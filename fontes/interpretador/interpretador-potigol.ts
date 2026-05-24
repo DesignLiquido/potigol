@@ -2,7 +2,7 @@ import { InterpretadorBase } from '@designliquido/delegua/interpretador';
 import {
     AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
-    FuncaoConstruto, TipoDe, Tupla
+    FuncaoConstruto, SeTernario, TipoDe, Tupla
 } from '@designliquido/delegua/construtos';
 import { Classe, Const, Escolha, Para } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido/delegua/interpretador/estruturas';
@@ -54,8 +54,17 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarDeclaracaoEscolhaComGuarda(this, declaracao);
     }
 
-    visitarDeclaracaoAliasTipo(declaracao: AliasTipo): Promise<any> | void {
+    visitarDeclaracaoAliasTipo(_declaracao: AliasTipo): Promise<any> | void {
         return Promise.resolve();
+    }
+
+    async visitarExpressaoSeTernario(expressao: SeTernario): Promise<any> {
+        const avaliacaoCondicao = await this.avaliar(expressao.condicao);
+        const valorAvaliacaoCondicao = this.resolverValor(avaliacaoCondicao);
+        if (valorAvaliacaoCondicao) {
+            return this.avaliar(expressao.expressaoSe);
+        }
+        return this.avaliar(expressao.expressaoSenao);
     }
 
     override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
