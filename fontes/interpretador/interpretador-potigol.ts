@@ -9,7 +9,7 @@ import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido
 import { ConstrutoInterface } from '@designliquido/delegua';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 
-import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
@@ -172,6 +172,10 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
 
     protected retirarInterpolacao(texto: string, variaveis: any[]): string {
         return comum.retirarInterpolacao(texto, variaveis);
+    }
+
+    async visitarDeclaracaoAtribuicaoParalelaVariavel(declaracao: AtribuicaoParalelaVariavel): Promise<any> {
+        return comum.visitarDeclaracaoAtribuicaoParalelaVariavel(this, declaracao);
     }
 
     async visitarDeclaracaoReatribuicaoVariavel(expressao: ReatribuicaoVariavel): Promise<any> {

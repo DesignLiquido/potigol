@@ -34,7 +34,7 @@ import {
     LeiaTexto,
     LeiaTextos,
 } from '../construtos';
-import { ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { EstruturaMatriz, EstruturaCubo, EstruturaTupla, PotigolFuncao } from './estruturas';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
@@ -236,6 +236,23 @@ export async function visitarDeclaracaoReatribuicaoVariavel(
     const valorFinal = await interpretador.avaliacaoDeclaracaoVarOuConst(declaracao);
 
     interpretador.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, valorFinal);
+
+    return null;
+}
+
+export async function visitarDeclaracaoAtribuicaoParalelaVariavel(
+    interpretador: InterpretadorPotigolInterface,
+    declaracao: AtribuicaoParalelaVariavel
+): Promise<any> {
+    const valoresFinais = [];
+    for (const inicializador of declaracao.inicializadores) {
+        const val = await interpretador.avaliar(inicializador);
+        valoresFinais.push(resolverValor(val));
+    }
+
+    for (let i = 0; i < declaracao.simbolos.length; i++) {
+        interpretador.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolos[i], valoresFinais[i]);
+    }
 
     return null;
 }

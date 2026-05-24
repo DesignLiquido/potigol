@@ -1038,6 +1038,22 @@ describe('Interpretador (Potigol)', () => {
         });
 
         describe('Enquanto', () => {
+            it('Atribuição paralela de variáveis (issue #190)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var a := 2',
+                    'var b := 5',
+                    'a, b := b, a',
+                    'escreva a - b',
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('3');
+            });
+
             it('Variável atualizada dentro de enquanto persiste entre iterações (issue #186)', async () => {
                 const retornoLexador = lexador.mapear([
                     'var n := 1',

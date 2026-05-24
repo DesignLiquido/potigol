@@ -4,7 +4,7 @@ import { DeleguaFuncao, DescritorTipoClasse } from '@designliquido/delegua/inter
 import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
 
 import { InterpretadorPotigolInterface } from '../interfaces';
-import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 import { ConstrutoInterface } from '@designliquido/delegua/interfaces';
 
@@ -80,6 +80,10 @@ export class InterpretadorPotigolComDepuracao
 
     override verificarOperandosNumeros(operador: any, direita: any, esquerda: any): void {
         return super.verificarOperandosNumeros(operador, direita, esquerda);
+    }
+
+    async visitarDeclaracaoAtribuicaoParalelaVariavel(declaracao: AtribuicaoParalelaVariavel): Promise<any> {
+        return comum.visitarDeclaracaoAtribuicaoParalelaVariavel(this, declaracao);
     }
 
     async visitarDeclaracaoReatribuicaoVariavel(expressao: ReatribuicaoVariavel): Promise<any> {

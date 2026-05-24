@@ -75,7 +75,7 @@ import {
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
 import { ConstanteOuVariavel, LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
-import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
@@ -214,6 +214,21 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += `.${expressao.nomePropriedade}`;
+    }
+
+    visitarDeclaracaoAtribuicaoParalelaVariavel(declaracao: AtribuicaoParalelaVariavel): void {
+        if (this.deveIndentar) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
+        }
+
+        this.codigoFormatado += declaracao.simbolos.map(s => s.lexema).join(', ');
+        this.codigoFormatado += ` := `;
+        this.deveIndentar = false;
+        declaracao.inicializadores.forEach((init, i) => {
+            if (i > 0) this.codigoFormatado += ', ';
+            this.formatarDeclaracaoOuConstruto(init);
+        });
+        this.deveIndentar = true;
     }
 
     visitarDeclaracaoReatribuicaoVariavel(declaracao: ReatribuicaoVariavel): void {
@@ -1154,6 +1169,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 break;
             case ParaCada:
                 this.visitarDeclaracaoParaCada(declaracaoOuConstruto as ParaCada);
+                break;
+            case AtribuicaoParalelaVariavel:
+                this.visitarDeclaracaoAtribuicaoParalelaVariavel(declaracaoOuConstruto as AtribuicaoParalelaVariavel);
                 break;
             case ReatribuicaoVariavel:
                 this.visitarDeclaracaoReatribuicaoVariavel(declaracaoOuConstruto as ReatribuicaoVariavel);

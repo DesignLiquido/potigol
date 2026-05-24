@@ -36,7 +36,7 @@ import {
 } from '@designliquido/delegua/interfaces';
 import { FuncaoHipoteticaInterface } from '@designliquido/delegua/interfaces/funcao-hipotetica-interface';
 
-import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 
@@ -1133,6 +1133,23 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
 
     override visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
         this.verificarExistenciaConstruto(expressao.objeto);
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoAtribuicaoParalelaVariavel(declaracao: AtribuicaoParalelaVariavel): void | Promise<any> {
+        for (const simbolo of declaracao.simbolos) {
+            const variavel = this.gerenciadorEscopos.buscar(simbolo.lexema);
+            if (!variavel) {
+                this.erro(simbolo, `Variável '${simbolo.lexema}' ainda não foi declarada até este ponto.`);
+            } else if (variavel.imutavel) {
+                this.erro(simbolo, `Constante '${simbolo.lexema}' não pode ser modificada.`);
+            }
+        }
+
+        for (const inicializador of declaracao.inicializadores) {
+            this.marcarVariaveisUsadasEmExpressao(inicializador);
+        }
+
         return Promise.resolve();
     }
 

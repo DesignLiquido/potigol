@@ -55,7 +55,7 @@ import {
     LeiaTexto,
     LeiaTextos,
 } from '../construtos';
-import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
@@ -890,7 +890,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const inicializadores = [];
         do {
-            let inicializador = await this.expressao();
+            let inicializador = await this.ou();
             if (identificadores.length > 1 && (
                 inicializador instanceof LeiaInteiro || inicializador instanceof LeiaReal || inicializador instanceof LeiaTexto
             )) {
@@ -939,7 +939,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
      * @param primeiroIdentificador Um construto de variável. É defiido em reatribuições.
      * @returns Um vetor de declarações `Var`.
      */
-    async declaracaoDeVariaveisPotigol(primeiroIdentificador?: Variavel): Promise<Var[]> {
+    async declaracaoDeVariaveisPotigol(primeiroIdentificador?: Variavel): Promise<AtribuicaoParalelaVariavel | Var[]> {
         const identificadores: SimboloInterface[] = [];
         let simboloVar: SimboloInterface<string>;
 
@@ -962,14 +962,18 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const inicializadores = [];
         do {
-            inicializadores.push(await this.expressao());
+            inicializadores.push(await this.ou());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         if (identificadores.length !== inicializadores.length) {
             throw this.erro(
-                simboloVar,
+                simboloVar ?? identificadores[0],
                 'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
             );
+        }
+
+        if (primeiroIdentificador) {
+            return new AtribuicaoParalelaVariavel(identificadores, inicializadores);
         }
 
         const retorno = [];
