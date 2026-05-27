@@ -36,6 +36,7 @@ jobs:
         test-script: yarn testes-unitarios
         package-manager: yarn
         output: report-markdown
+        annotations: none
     - uses: marocchino/sticky-pull-request-comment@v2
       with:
         message: ${{ steps.coverage.outputs.report }}
