@@ -70,7 +70,8 @@ export async function raiz(
     indice = 2
 ) {
     const valor = typeof interpretadorOuValor === 'number' ? interpretadorOuValor : valorOuIndice;
-    const indiceEfetivo = typeof interpretadorOuValor === 'number' ? valorOuIndice : indice;
+    const indiceEfetivoBruto = typeof interpretadorOuValor === 'number' ? valorOuIndice : indice;
+    const indiceEfetivo = indiceEfetivoBruto ?? 2;
     return Promise.resolve(Math.pow(valor, 1 / indiceEfetivo));
 }
 
