@@ -252,14 +252,14 @@ Esta matriz compara as funcionalidades da implementação local do dialeto Potig
 ### Operações de Arquivo
 | Funcionalidade | Status | Notas |
 |---|---|---|
-| `Arquivo.leia` | ❌ | Não implementado |
-| `Arquivo.salve` | ❌ | Não implementado |
+| `Arquivo.leia` | ✅ | Implementado em `delegua-node`; lê o arquivo e retorna lista de linhas |
+| `Arquivo.salve` | ✅ | Implementado em `delegua-node`; suporta parâmetro `anexar` opcional |
 
 ### Operações de URL
 | Funcionalidade | Status | Notas |
 |---|---|---|
-| `URL(caminho).conteudo` | ❌ | Não implementado |
-| `URL(caminho).erro` | ❌ | Não implementado |
+| `URL(caminho).conteudo` | ✅ | Implementado em `delegua-node`; retorna vazio em caso de erro |
+| `URL(caminho).erro` | ✅ | Implementado em `delegua-node`; verdadeiro quando `conteudo` é vazio |
 
 ### Conversões de Tipo
 | Funcionalidade | Status | Notas |
@@ -309,9 +309,9 @@ Esta matriz compara as funcionalidades da implementação local do dialeto Potig
 
 ## Status Geral
 
-- **Funcionalidades implementadas**: ~99%
+- **Funcionalidades implementadas**: ~100%
 - **Funcionalidades parciais**: ~0%
-- **Funcionalidades não implementadas**: ~1% (Arquivo, URL, Lazy evaluation — fora do escopo deste repositório)
+- **Funcionalidades não implementadas**: ~0% (Lazy evaluation — fora do escopo deste repositório)
 
 ### Funcionalidades Concluídas
 - ✅ Léxico, sintaxe, expressões e tipos básicos completos
@@ -325,16 +325,15 @@ Esta matriz compara as funcionalidades da implementação local do dialeto Potig
 - ✅ `Matriz` com primitivas (`linhas`, `colunas`, `obter`, `definir`) e testes
 - ✅ `Cubo` com primitivas (`camadas`, `linhas`, `colunas`, `obter`, `definir`) e testes
 - ✅ `InteiroGrande` com literais `g`, aritmética BigInt e métodos
+- ✅ `Arquivo.leia` e `Arquivo.salve` implementados em `delegua-node`
+- ✅ `URL(caminho).conteudo` e `.erro` implementados em `delegua-node`
 
 ### Gaps Remanescentes (fora do escopo deste repositório)
-1. **Arquivo**: `Arquivo.leia` e `Arquivo.salve` — implementar em `D:\Delegua\delegua-node`
-2. **URL**: `URL(caminho).conteudo` e `.erro` — implementar em `D:\Delegua\delegua-node`
-3. **Lazy evaluation**: baixa prioridade; requer mudanças no interpretador base
+1. **Lazy evaluation**: baixa prioridade; requer mudanças no interpretador base
 
 ### Próximos Passos
-- ✅ **Fases 8, 9 e 10 concluídas**
+- ✅ **Fases 8, 9, 10 e 11 concluídas**
 - Expandir análise semântica (verificação de tipos em expressões binárias)
 - Adicionar testes de compatibilidade com exemplos do repositório upstream
-- Implementar Arquivo e URL em `D:\Delegua\delegua-node`
 
 Esta matriz será atualizada conforme novas funcionalidades forem implementadas.

@@ -112,7 +112,21 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
     }
 
     chamar(): ConstrutoInterface {
-        return this.formato();
+        let expressao = this.formato();
+
+        if (expressao && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+            const argumentos: ConstrutoInterface[] = [];
+            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                argumentos.push(this.ou());
+                while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                    argumentos.push(this.ou());
+                }
+            }
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após argumentos.");
+            expressao = new Chamada(this.hashArquivo, expressao, argumentos);
+        }
+
+        return expressao;
     }
 
     analisar(retornoLexador: RetornoLexadorInterface<SimboloInterface>, linha: number): RetornoAvaliadorSintaticoInterface<Declaracao> {

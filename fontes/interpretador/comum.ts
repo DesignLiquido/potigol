@@ -486,8 +486,12 @@ export async function visitarExpressaoBinaria(
     const direita: VariavelInterface | any = await interpretador.avaliar(expressao.direita);
     const valorEsquerdo: any = resolverValor(esquerda);
     const valorDireito: any = resolverValor(direita);
-    const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo') ? esquerda.tipo : inferirTipoVariavel(esquerda);
-    const tipoDireito: string = direita?.hasOwnProperty('tipo') ? direita.tipo : inferirTipoVariavel(direita);
+    const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo') && esquerda.tipo !== 'qualquer'
+        ? esquerda.tipo
+        : inferirTipoVariavel(valorEsquerdo);
+    const tipoDireito: string = direita?.hasOwnProperty('tipo') && direita.tipo !== 'qualquer'
+        ? direita.tipo
+        : inferirTipoVariavel(valorDireito);
 
     const ambosInteiroGrande = typeof valorEsquerdo === 'bigint' && typeof valorDireito === 'bigint';
 

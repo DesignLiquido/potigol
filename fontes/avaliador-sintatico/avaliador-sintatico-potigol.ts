@@ -259,8 +259,15 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
     async finalizarChamada(entidadeChamada: ConstrutoInterface): Promise<Chamada> {
         const simbolosEntreParenteses: SimboloInterface[] = [];
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
+        let nivelParenteses = 0;
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO) || nivelParenteses > 0) {
+            const simbolo = this.avancarEDevolverAnterior();
+            if (simbolo.tipo === tiposDeSimbolos.PARENTESE_ESQUERDO) {
+                nivelParenteses++;
+            } else if (simbolo.tipo === tiposDeSimbolos.PARENTESE_DIREITO) {
+                nivelParenteses--;
+            }
+            simbolosEntreParenteses.push(simbolo);
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");

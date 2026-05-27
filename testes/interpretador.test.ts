@@ -60,6 +60,20 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3');
             });
+
+            it('Chamada aninhada de função (issue #195)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'soma(x, y: Inteiro) = x + y',
+                    'escreva soma(1, soma(2, 3))'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('6');
+            });
         });
 
         describe('Tipos e objetos', () => {
