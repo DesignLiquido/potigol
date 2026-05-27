@@ -14,7 +14,7 @@ export class PotigolFuncao extends DeleguaFuncao {
         visitante: InterpretadorInterface,
         argumentos: Array<ArgumentoInterface>
     ): Promise<any> {
-        const ambiente = this.resolverAmbiente(argumentos);
+        const ambiente = await this.resolverAmbiente(visitante, argumentos);
 
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
