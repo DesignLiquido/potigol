@@ -1107,6 +1107,19 @@ describe('Interpretador (Potigol)', () => {
                     expect(_saidas[0]).toBe('a = 0');
                 });
 
+                it('interpolação com div resultando em zero (issue #202)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'a = 3 div 5',
+                        'escreva "{a}"'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('0');
+                });
+
                 it('interpolação com chamada de função (issue #200)', async () => {
                     const retornoLexador = lexador.mapear([
                         'maior(x, y: Inteiro) = se x > y entao x senao y fim',
