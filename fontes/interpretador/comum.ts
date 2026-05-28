@@ -800,10 +800,22 @@ export function retirarInterpolacao(texto: string, variaveis: any[]): string {
     let textoFinal = texto;
 
     variaveis.forEach((elemento) => {
-        if (elemento?.valor?.tipo === 'lógico') {
-            textoFinal = textoFinal.replace('{' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor));
+        // Desembrulha o invólucro de resultado de execução produzido por chamadas de função:
+        // executar() envolve resultados como { valorRetornado: RetornoQuebra(value), ... }
+        let valorElemento = elemento?.valor;
+        if (valorElemento && typeof valorElemento === 'object' &&
+            Object.prototype.hasOwnProperty.call(valorElemento, 'valorRetornado')) {
+            const retorno = valorElemento.valorRetornado;
+            valorElemento = (retorno && typeof retorno === 'object' &&
+                Object.prototype.hasOwnProperty.call(retorno, 'valor'))
+                ? retorno.valor
+                : retorno;
+        }
+
+        if (valorElemento?.tipo === 'lógico') {
+            textoFinal = textoFinal.replace('{' + elemento.variavel + '}', this.paraTexto(valorElemento?.valor));
         } else {
-            textoFinal = textoFinal.replace('{' + elemento.variavel + '}', String(elemento?.valor?.valor ?? elemento?.valor));
+            textoFinal = textoFinal.replace('{' + elemento.variavel + '}', String(valorElemento?.valor ?? valorElemento));
         }
     });
 
