@@ -357,6 +357,19 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[1]).toBe('4');
                 expect(_saidas[2]).toBe('5');
             });
+
+            it('Para gere em atribuição gera lista (issue 201)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'p = para i de 1 até 2 gere i fim',
+                    'escreva p'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('[1, 2]');
+            });
         })
 
         describe('Matrizes', () => {

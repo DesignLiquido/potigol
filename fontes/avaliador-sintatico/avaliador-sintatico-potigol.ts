@@ -598,6 +598,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.LEIA_REAIS:
             case tiposDeSimbolos.LEIA_TEXTOS:
                 return await this.logicaLeiaMultiplo();
+            case tiposDeSimbolos.PARA:
+                return this.declaracaoPara() as unknown as Promise<ConstrutoInterface>;
             case tiposDeSimbolos.SE: {
                 const simboloSeExpr: SimboloInterface = this.avancarEDevolverAnterior();
                 const condicaoSeExpr = await this.expressao();
