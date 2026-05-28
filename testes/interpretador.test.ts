@@ -1034,6 +1034,19 @@ describe('Interpretador (Potigol)', () => {
                     expect(saidas).toHaveLength(1);
                     expect(saidas[0]).toBe('A=3.1416');
                 });
+
+                it('interpolação com valor zero (issue #198)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'a = 3 * 0',
+                        'escreva "a = {a}"'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('a = 0');
+                });
             });
         });
 

@@ -763,7 +763,7 @@ export function retirarInterpolacao(texto: string, variaveis: any[]): string {
         if (elemento?.valor?.tipo === 'lógico') {
             textoFinal = textoFinal.replace('{' + elemento.variavel + '}', this.paraTexto(elemento?.valor?.valor));
         } else {
-            textoFinal = textoFinal.replace('{' + elemento.variavel + '}', elemento?.valor?.valor || elemento?.valor);
+            textoFinal = textoFinal.replace('{' + elemento.variavel + '}', String(elemento?.valor?.valor ?? elemento?.valor));
         }
     });
 
