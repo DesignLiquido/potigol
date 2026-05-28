@@ -50,6 +50,10 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         return comum.visitarDeclaracaoConst(this, declaracao);
     }
 
+    override async visitarDeclaracaoVar(declaracao: any): Promise<any> {
+        return comum.visitarDeclaracaoVar(this, declaracao);
+    }
+
     override async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
         return comum.visitarDeclaracaoEscolhaComGuarda(this, declaracao);
     }

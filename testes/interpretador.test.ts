@@ -639,6 +639,52 @@ describe('Interpretador (Potigol)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+
+            it('var com leia_inteiro deve inferir tipo Inteiro (issue #199)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var a := leia_inteiro',
+                    'escreva a.qual_tipo',
+                    'escreva a + 1'
+                ], -1);
+
+                const resposta = ['10'];
+                interpretador.interfaceEntradaSaida = {
+                    question: (_mensagem: string, callback: Function) => {
+                        callback(resposta.shift());
+                    }
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Inteiro');
+                expect(_saidas[1]).toBe('11');
+            });
+
+            it('var com leia_real deve inferir tipo Real (issue #199)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var a := leia_real',
+                    'escreva a.qual_tipo',
+                    'escreva a + 1.0'
+                ], -1);
+
+                const resposta = ['3.5'];
+                interpretador.interfaceEntradaSaida = {
+                    question: (_mensagem: string, callback: Function) => {
+                        callback(resposta.shift());
+                    }
+                };
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Real');
+                expect(_saidas[1]).toBe('4.5');
+            });
         });
 
         describe('Leia inteiros', () => {

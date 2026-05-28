@@ -18,7 +18,7 @@ import {
     ObjetoDeleguaClasse,
 } from '@designliquido/delegua/interpretador/estruturas';
 import { ConstrutoInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
-import { Classe, Const, Escolha } from '@designliquido/delegua/declaracoes';
+import { Classe, Const, Escolha, Var } from '@designliquido/delegua/declaracoes';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 import { PilhaEscoposExecucaoInterface } from '@designliquido/delegua/interfaces/pilha-escopos-execucao-interface';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
@@ -226,6 +226,46 @@ export async function visitarDeclaracaoConst(
     }
 
     interpretador.pilhaEscoposExecucao.definirConstante(declaracao.simbolo.lexema, valorFinal, tipoResolvido);
+    return null;
+}
+
+export async function visitarDeclaracaoVar(
+    interpretador: InterpretadorPotigolInterface,
+    declaracao: Var
+): Promise<any> {
+    const valorFinal = await interpretador.avaliacaoDeclaracaoVarOuConst(declaracao);
+    let tipoResolvido = declaracao.tipo;
+
+    switch (declaracao.inicializador?.constructor) {
+        case LeiaInteiro:
+            tipoResolvido = 'inteiro';
+            break;
+        case LeiaReal:
+            tipoResolvido = 'número';
+            break;
+        case LeiaTexto:
+            tipoResolvido = 'texto';
+            break;
+        case LeiaInteiros:
+        case LeiaReais:
+        case LeiaTextos:
+            tipoResolvido = null;
+            break;
+        default:
+            if (tipoResolvido.startsWith('função<')) {
+                tipoResolvido = tipoResolvido.replace('função<', '').replace('>', '');
+            }
+            if (!declaracao.tipoExplicito && tipoResolvido === 'qualquer' && valorFinal instanceof Array) {
+                tipoResolvido = inferirTipoVariavel(valorFinal);
+            }
+    }
+
+    interpretador.pilhaEscoposExecucao.definirVariavel(
+        declaracao.simbolo.lexema,
+        valorFinal,
+        tipoResolvido,
+        declaracao.tipoExplicito && declaracao.tipoOriginal !== 'qualquer'
+    );
     return null;
 }
 
