@@ -654,7 +654,9 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
             'último': [0],
             'primeiro': [0],
             'filtre': [1],
-            'reduza': [1]
+            'mapeie': [1],
+            'reduza': [1],
+            'zip': [1]
         };
 
         // Métodos de número

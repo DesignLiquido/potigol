@@ -35,8 +35,8 @@ export default {
 
         return Promise.resolve(vetor.slice(indice).join(''));
     },
-    divida: (interpretador: InterpretadorPotigolInterface, texto: string, separador: string = ' '): Promise<any> =>
-        Promise.resolve(texto.split(separador)),
+    divida: (interpretador: InterpretadorPotigolInterface, texto: string, separador?: string): Promise<any> =>
+        Promise.resolve(texto.split(separador !== undefined ? separador : ' ')),
     injete: async (
         interpretador: InterpretadorPotigolInterface,
         texto: string,
@@ -202,6 +202,39 @@ export default {
             retorno = interpretador.resolverValor
                 ? interpretador.resolverValor(retorno)
                 : retorno;
+        }
+        return Promise.resolve(retorno);
+    },
+    mapeie: async (
+        interpretador: InterpretadorPotigolInterface,
+        texto: string,
+        funcao: DeleguaFuncao
+    ): Promise<any> => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método 'mapeie'.");
+        }
+        const vetor = texto.split('');
+        const retorno: any[] = [];
+        for (const elemento of vetor) {
+            const resultado = await funcao.chamar(interpretador, [elemento as any]);
+            const resolvido = interpretador.resolverValor
+                ? interpretador.resolverValor(resultado)
+                : resultado;
+            retorno.push(resolvido);
+        }
+        return Promise.resolve(retorno);
+    },
+    zip: (
+        interpretador: InterpretadorPotigolInterface,
+        texto: string,
+        outro: string | Array<any>
+    ): Promise<any> => {
+        const vetor1 = texto.split('');
+        const vetor2 = typeof outro === 'string' ? outro.split('') : outro;
+        const tamanho = Math.min(vetor1.length, vetor2.length);
+        const retorno: any[][] = [];
+        for (let i = 0; i < tamanho; i++) {
+            retorno.push([vetor1[i], vetor2[i]]);
         }
         return Promise.resolve(retorno);
     },

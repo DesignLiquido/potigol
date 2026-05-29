@@ -1255,5 +1255,84 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[0]).toBe('N = -1');
             });
         });
+
+        describe('Métodos de Texto (issue #206)', () => {
+            it('divida com separador', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = "ABC def"',
+                    'escreva a.divida(" ")',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[ABC, def]');
+            });
+
+            it('selecione com lambda', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = "ABC def"',
+                    'escreva a.selecione(c => c >= "a" e c <= "z")',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('def');
+            });
+
+            it('pegue_enquanto com lambda', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = "ABC def"',
+                    'escreva a.pegue_enquanto(c => c >= "A" e c <= "Z")',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('ABC');
+            });
+
+            it('descarte_enquanto com lambda', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = "ABC def"',
+                    'escreva a.descarte_enquanto(c => c >= "A" e c <= "Z")',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe(' def');
+            });
+
+            it('mapeie com acesso a método no lambda', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = "abc"',
+                    'escreva a.mapeie(c => c.maiúsculo)',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[A, B, C]');
+            });
+
+            it('zip de dois textos', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = "abc"',
+                    'escreva a.zip("123")',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+            });
+        });
     });
 });

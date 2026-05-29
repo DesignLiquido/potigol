@@ -551,9 +551,11 @@ export async function visitarExpressaoBinaria(
             return String(valorEsquerdo) > String(valorDireito);
 
         case tiposDeSimbolos.MAIOR_IGUAL:
-            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-            if (ambosInteiroGrande) return valorEsquerdo >= valorDireito;
-            return Number(valorEsquerdo) >= Number(valorDireito);
+            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+                if (ambosInteiroGrande) return valorEsquerdo >= valorDireito;
+                return Number(valorEsquerdo) >= Number(valorDireito);
+            }
+            return String(valorEsquerdo) >= String(valorDireito);
 
         case tiposDeSimbolos.MENOR:
             if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
@@ -564,9 +566,11 @@ export async function visitarExpressaoBinaria(
             return String(valorEsquerdo) < String(valorDireito);
 
         case tiposDeSimbolos.MENOR_IGUAL:
-            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-            if (ambosInteiroGrande) return valorEsquerdo <= valorDireito;
-            return Number(valorEsquerdo) <= Number(valorDireito);
+            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+                if (ambosInteiroGrande) return valorEsquerdo <= valorDireito;
+                return Number(valorEsquerdo) <= Number(valorDireito);
+            }
+            return String(valorEsquerdo) <= String(valorDireito);
 
         case tiposDeSimbolos.SUBTRACAO:
             interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
@@ -745,7 +749,7 @@ export async function avaliarArgumentosEscreva(
     const resultadoAvaliacaoResolvido = resolverValor(resultadoAvaliacao);
     // TODO: Depreciar esta forma. Construtos e declarações usam `paraTexto` com outra finalidade.
     if (typeof resultadoAvaliacaoResolvido.paraTexto === 'function') {
-        formatoTexto = resultadoAvaliacao.paraTexto();
+        formatoTexto = resultadoAvaliacaoResolvido.paraTexto();
     } else {
         formatoTexto = `${interpretador.paraTexto(resultadoAvaliacaoResolvido)}`;
     }

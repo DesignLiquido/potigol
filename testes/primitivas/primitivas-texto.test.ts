@@ -1,7 +1,7 @@
 import { InterpretadorPotigol } from '../../fontes/interpretador';
 import primitivasTexto from '../../fontes/bibliotecas/primitivas-texto';
 import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
-import { Binario, FuncaoConstruto, Literal, Variavel } from '@designliquido/delegua/construtos';
+import { AcessoMetodoOuPropriedade, Binario, FuncaoConstruto, Literal, Variavel } from '@designliquido/delegua/construtos';
 import { Retorna } from '@designliquido/delegua/declaracoes';
 import { ParametroInterface } from '@designliquido/delegua/interfaces';
 import { Simbolo } from '@designliquido/delegua/lexador';
@@ -291,6 +291,50 @@ describe('Primitivas de texto - Potigol', () => {
         it('Texto vazio', async () => {
             const resultado = await primitivasTexto.último(interpretador, '');
             expect(resultado).toStrictEqual('');
+        });
+    });
+
+    describe('mapeie()', () => {
+        it('Converte cada caractere para maiúsculo', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        { linha: -1, hashArquivo: -1, lexema: '', literal: '', tipo: 'qualquer' },
+                        new AcessoMetodoOuPropriedade(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'maiúsculo', 'maiúsculo', -1, -1)
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasTexto.mapeie(interpretador, 'abc', deleguaFuncao);
+            expect(resultado).toStrictEqual(['A', 'B', 'C']);
+        });
+    });
+
+    describe('zip()', () => {
+        it('Zip texto com texto', async () => {
+            const resultado = await primitivasTexto.zip(interpretador, 'abc', '123');
+            expect(resultado).toStrictEqual([['a', '1'], ['b', '2'], ['c', '3']]);
+        });
+
+        it('Zip com texto mais curto', async () => {
+            const resultado = await primitivasTexto.zip(interpretador, 'ab', '1234');
+            expect(resultado).toStrictEqual([['a', '1'], ['b', '2']]);
+        });
+
+        it('Zip com texto mais longo', async () => {
+            const resultado = await primitivasTexto.zip(interpretador, 'abcd', '12');
+            expect(resultado).toStrictEqual([['a', '1'], ['b', '2']]);
         });
     });
 });
