@@ -475,6 +475,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
             }
             break;
         case 'texto':
+        case 'Texto':
             const metodoDePrimitivaTexto: Function = primitivasTexto[expressao.simbolo.lexema];
             if (metodoDePrimitivaTexto) {
                 const metodoTexto = new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');

@@ -734,8 +734,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                     return new TipoDe(this.hashArquivo, simbolo, valor);
                 } else {
                     const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                    const variavelMetodo = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
-                    expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, variavelMetodo, nome);
+                    const objeto = expressao instanceof ConstanteOuVariavel
+                        ? new Variavel(expressao.hashArquivo, expressao.simbolo)
+                        : expressao;
+                    expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, objeto, nome);
                 }
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = await this.expressao();
