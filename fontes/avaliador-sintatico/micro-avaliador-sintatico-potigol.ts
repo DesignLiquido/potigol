@@ -1,10 +1,12 @@
 import {
+    AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
     Agrupamento,
     Chamada,
     Constante,
     Literal,
     Tupla,
+    Variavel,
 } from '@designliquido/delegua/construtos';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
 import { MicroAvaliadorSintaticoBase } from '@designliquido/delegua/avaliador-sintatico/micro-avaliador-sintatico-base';
@@ -114,16 +116,28 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
     chamar(): ConstrutoInterface {
         let expressao = this.formato();
 
-        if (expressao && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-            const argumentos: ConstrutoInterface[] = [];
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                argumentos.push(this.ou());
-                while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+        while (expressao) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                const argumentos: ConstrutoInterface[] = [];
+                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                     argumentos.push(this.ou());
+                    while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                        argumentos.push(this.ou());
+                    }
                 }
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após argumentos.");
+                expressao = new Chamada(this.hashArquivo, expressao, argumentos);
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                const indice = this.ou();
+                const simboloFechamento = this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    "Esperado ']' após escrita do índice."
+                );
+                const variavelVetor = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
+                expressao = new AcessoIndiceVariavel(this.hashArquivo, variavelVetor, indice, simboloFechamento);
+            } else {
+                break;
             }
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após argumentos.");
-            expressao = new Chamada(this.hashArquivo, expressao, argumentos);
         }
 
         return expressao;
