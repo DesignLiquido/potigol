@@ -437,6 +437,42 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3');
             });
+
+            it('Para com múltiplas faixas e faça escreve produto cartesiano (issue #208)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para i de 1 até 2,',
+                    '     j de 1 até 2 faça',
+                    '        escreva i + j',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(4);
+                expect(_saidas[0]).toBe('2');
+                expect(_saidas[1]).toBe('3');
+                expect(_saidas[2]).toBe('3');
+                expect(_saidas[3]).toBe('4');
+            });
+
+            it('Para com múltiplas faixas e gere retorna lista plana (issue #208)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = para i de 1 até 2,',
+                    '         j de 1 até 2 gere',
+                    '            i + j',
+                    '    fim',
+                    'escreva a'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[2, 3, 3, 4]');
+            });
         })
 
         describe('Matrizes', () => {

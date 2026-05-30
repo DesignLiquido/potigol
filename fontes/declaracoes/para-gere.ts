@@ -10,6 +10,7 @@ export class ParaGere extends Declaracao {
     passo: ConstrutoInterface;
     condicao: ConstrutoInterface;
     corpo: any[];
+    aplanar: boolean;
 
     constructor(
         hashArquivo: number,
@@ -28,6 +29,7 @@ export class ParaGere extends Declaracao {
         this.corpo = corpo;
         this.passo = passo;
         this.condicao = condicao;
+        this.aplanar = false;
     }
 
     async aceitar(visitante: VisitanteComumPotigolInterface): Promise<any> {

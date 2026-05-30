@@ -351,7 +351,11 @@ export async function visitarDeclaracaoParaGere(
 
             const valorResolvido = resolverValor(retorno);
             if (valorResolvido !== null && valorResolvido !== undefined) {
-                resultados.push(valorResolvido);
+                if (declaracao.aplanar && Array.isArray(valorResolvido)) {
+                    resultados.push(...valorResolvido);
+                } else {
+                    resultados.push(valorResolvido);
+                }
             }
         }
     }

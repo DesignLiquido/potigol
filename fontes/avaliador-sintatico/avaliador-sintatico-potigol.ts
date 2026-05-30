@@ -1163,6 +1163,132 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         );
     }
 
+    private async calcularPasso(
+        inicio: ConstrutoInterface,
+        fim: ConstrutoInterface,
+        simboloPara: SimboloInterface
+    ): Promise<{
+        passo: ConstrutoInterface;
+        operadorCondicao: SimboloInterface;
+        operadorCondicaoIncremento: SimboloInterface;
+        resolverIncrementoEmExecucao: boolean;
+    }> {
+        let operadorCondicao = new Simbolo(
+            tiposDeSimbolos.MENOR_IGUAL,
+            '<=',
+            null,
+            Number(simboloPara.linha),
+            this.hashArquivo
+        );
+        let operadorCondicaoIncremento = new Simbolo(
+            tiposDeSimbolos.MENOR,
+            '<',
+            null,
+            Number(simboloPara.linha),
+            this.hashArquivo
+        );
+        // O laço `para` do Potigol pode ter passo positivo ou negativo dependendo dos
+        // operandos, que só são determináveis em tempo de execução quando um deles é variável.
+        let passo: ConstrutoInterface;
+        let resolverIncrementoEmExecucao = false;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
+            passo = await this.unario();
+        } else {
+            if (inicio instanceof Literal && fim instanceof Literal) {
+                if (inicio.valor > fim.valor) {
+                    passo = new Unario(
+                        this.hashArquivo,
+                        new Simbolo(
+                            tiposDeSimbolos.SUBTRACAO,
+                            '-',
+                            undefined,
+                            simboloPara.linha,
+                            simboloPara.hashArquivo
+                        ),
+                        new Literal(this.hashArquivo, Number(simboloPara.linha), 1),
+                        'ANTES'
+                    );
+                    operadorCondicao = new Simbolo(
+                        tiposDeSimbolos.MAIOR_IGUAL,
+                        '>=',
+                        null,
+                        Number(simboloPara.linha),
+                        this.hashArquivo
+                    );
+                    operadorCondicaoIncremento = new Simbolo(
+                        tiposDeSimbolos.MAIOR,
+                        '>',
+                        null,
+                        Number(simboloPara.linha),
+                        this.hashArquivo
+                    );
+                } else {
+                    passo = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
+                }
+            } else {
+                passo = undefined;
+                operadorCondicao = undefined;
+                operadorCondicaoIncremento = undefined;
+                resolverIncrementoEmExecucao = true;
+            }
+        }
+        return { passo, operadorCondicao, operadorCondicaoIncremento, resolverIncrementoEmExecucao };
+    }
+
+    private construirDeclaracaoPara(
+        variavelIteracao: SimboloInterface,
+        inicio: ConstrutoInterface,
+        fim: ConstrutoInterface,
+        passo: ConstrutoInterface,
+        operadorCondicao: SimboloInterface,
+        operadorCondicaoIncremento: SimboloInterface,
+        resolverIncrementoEmExecucao: boolean,
+        corpo: Bloco,
+        simboloPara: SimboloInterface
+    ): Para {
+        const para = new Para(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            new Expressao(new Atribuir(
+                this.hashArquivo,
+                new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
+                inicio
+            )),
+            new Binario(
+                this.hashArquivo,
+                new Variavel(this.hashArquivo, variavelIteracao),
+                operadorCondicao,
+                fim
+            ),
+            new FimPara(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                new Binario(
+                    this.hashArquivo,
+                    new Variavel(this.hashArquivo, variavelIteracao),
+                    operadorCondicaoIncremento,
+                    fim
+                ),
+                new Expressao(
+                    new Atribuir(
+                        this.hashArquivo,
+                        new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
+                        new Binario(
+                            this.hashArquivo,
+                            new Variavel(this.hashArquivo, variavelIteracao),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', null, Number(simboloPara.linha), this.hashArquivo),
+                            passo
+                        )
+                    )
+                )
+            ),
+            corpo
+        );
+        para.blocoPosExecucao = corpo;
+        para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
+        return para;
+    }
+
     async declaracaoPara(): Promise<Para> {
         const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
 
@@ -1214,69 +1340,36 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         const literalOuVariavelFim = await this.adicaoOuSubtracao();
 
-        let operadorCondicao = new Simbolo(
-            tiposDeSimbolos.MENOR_IGUAL,
-            '<=',
-            null,
-            Number(simboloPara.linha),
-            this.hashArquivo
-        );
-        let operadorCondicaoIncremento = new Simbolo(
-            tiposDeSimbolos.MENOR,
-            '<',
-            null,
-            Number(simboloPara.linha),
-            this.hashArquivo
-        );
+        const { passo, operadorCondicao, operadorCondicaoIncremento, resolverIncrementoEmExecucao } =
+            await this.calcularPasso(literalOuVariavelInicio, literalOuVariavelFim, simboloPara);
 
-        // Isso existe porque o laço `para` do Potigol pode ter o passo positivo ou negativo
-        // dependendo dos operandos de início e fim, que só são possíveis de determinar
-        // em tempo de execução.
-        // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
-        // passo são considerados indefinidos aqui.
-        let passo: ConstrutoInterface;
-        let resolverIncrementoEmExecucao = false;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
-            passo = await this.unario();
-        } else {
-            if (literalOuVariavelInicio instanceof Literal && literalOuVariavelFim instanceof Literal) {
-                if (literalOuVariavelInicio.valor > literalOuVariavelFim.valor) {
-                    passo = new Unario(
-                        this.hashArquivo,
-                        new Simbolo(
-                            tiposDeSimbolos.SUBTRACAO,
-                            '-',
-                            undefined,
-                            simboloPara.linha,
-                            simboloPara.hashArquivo
-                        ),
-                        new Literal(this.hashArquivo, Number(simboloPara.linha), 1),
-                        'ANTES'
-                    );
-                    operadorCondicao = new Simbolo(
-                        tiposDeSimbolos.MAIOR_IGUAL,
-                        '>=',
-                        null,
-                        Number(simboloPara.linha),
-                        this.hashArquivo
-                    );
-                    operadorCondicaoIncremento = new Simbolo(
-                        tiposDeSimbolos.MAIOR,
-                        '>',
-                        null,
-                        Number(simboloPara.linha),
-                        this.hashArquivo
-                    );
-                } else {
-                    passo = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
-                }
-            } else {
-                // Passo e operador de condição precisam ser resolvidos em tempo de execução.
-                passo = undefined;
-                operadorCondicao = undefined;
-                operadorCondicaoIncremento = undefined;
-                resolverIncrementoEmExecucao = true;
-            }
+        // Faixas adicionais separadas por vírgula: `para i de 1 até 2, j de 1 até 2 faça`
+        interface FaixaAdicional {
+            variavel: SimboloInterface;
+            inicio: ConstrutoInterface;
+            fim: ConstrutoInterface;
+            passo: ConstrutoInterface;
+            operadorCondicao: SimboloInterface;
+            operadorCondicaoIncremento: SimboloInterface;
+            resolverIncrementoEmExecucao: boolean;
+        }
+        const faixasAdicionais: FaixaAdicional[] = [];
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+            const varAdicional = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador de variável após ',' em laço 'para'."
+            );
+            this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após variável de controle adicional em 'para'.");
+            const inicioAdicional = await this.adicaoOuSubtracao();
+            this.consumir(tiposDeSimbolos.ATE, "Esperado 'ate' após valor inicial de faixa adicional em 'para'.");
+            const fimAdicional = await this.adicaoOuSubtracao();
+            const resultadoPasso = await this.calcularPasso(inicioAdicional, fimAdicional, simboloPara);
+            faixasAdicionais.push({
+                variavel: varAdicional,
+                inicio: inicioAdicional,
+                fim: fimAdicional,
+                ...resultadoPasso,
+            });
         }
 
         let condicaoGere: ConstrutoInterface = undefined;
@@ -1293,16 +1386,48 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             }
 
             this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após bloco de 'gere'.");
-            return new ParaGere(
+
+            // Construir de dentro para fora: a faixa mais interna contém o corpo real.
+            let gereAtual: ParaGere = new ParaGere(
                 this.hashArquivo,
                 Number(simboloPara.linha),
-                variavelIteracao,
-                literalOuVariavelInicio,
-                literalOuVariavelFim,
+                faixasAdicionais.length > 0
+                    ? faixasAdicionais[faixasAdicionais.length - 1].variavel
+                    : variavelIteracao,
+                faixasAdicionais.length > 0
+                    ? faixasAdicionais[faixasAdicionais.length - 1].inicio
+                    : literalOuVariavelInicio,
+                faixasAdicionais.length > 0
+                    ? faixasAdicionais[faixasAdicionais.length - 1].fim
+                    : literalOuVariavelFim,
                 declaracoesGere.filter((d) => d),
-                passo,
+                faixasAdicionais.length > 0
+                    ? faixasAdicionais[faixasAdicionais.length - 1].passo
+                    : passo,
                 condicaoGere
-            ) as unknown as Para;
+            );
+
+            // Envolver com faixas externas (da penúltima até a primeira adicional, depois a principal)
+            const faixasExternas = faixasAdicionais.length > 0
+                ? [{ variavel: variavelIteracao, inicio: literalOuVariavelInicio, fim: literalOuVariavelFim, passo, operadorCondicao, operadorCondicaoIncremento, resolverIncrementoEmExecucao }, ...faixasAdicionais.slice(0, -1)]
+                : [];
+            for (let i = faixasExternas.length - 1; i >= 0; i--) {
+                const faixa = faixasExternas[i];
+                const gereExterno = new ParaGere(
+                    this.hashArquivo,
+                    Number(simboloPara.linha),
+                    faixa.variavel,
+                    faixa.inicio,
+                    faixa.fim,
+                    [gereAtual],
+                    faixa.passo,
+                    undefined
+                );
+                gereExterno.aplanar = true;
+                gereAtual = gereExterno;
+            }
+
+            return gereAtual as unknown as Para;
         }
 
         if (condicaoGere) {
@@ -1332,47 +1457,37 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             declaracoesBlocoPara.filter((d) => d)
         );
 
-        const para = new Para(
-            this.hashArquivo,
-            Number(simboloPara.linha),
-            new Expressao(new Atribuir(
-                this.hashArquivo,
-                new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                literalOuVariavelInicio
-            )),
-            new Binario(
-                this.hashArquivo,
-                new Variavel(this.hashArquivo, variavelIteracao),
-                operadorCondicao,
-                literalOuVariavelFim
-            ),
-            new FimPara(
-                this.hashArquivo,
-                Number(simboloPara.linha),
-                new Binario(
-                    this.hashArquivo,
-                    new Variavel(this.hashArquivo, variavelIteracao),
-                    operadorCondicaoIncremento,
-                    literalOuVariavelFim
-                ),
-                new Expressao(
-                    new Atribuir(
-                        this.hashArquivo,
-                        new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                        new Binario(
-                            this.hashArquivo,
-                            new Variavel(this.hashArquivo, variavelIteracao),
-                            new Simbolo(tiposDeSimbolos.ADICAO, '+', null, Number(simboloPara.linha), this.hashArquivo),
-                            passo
-                        )
-                    )
-                )
-            ),
-            corpo
+        if (faixasAdicionais.length === 0) {
+            return this.construirDeclaracaoPara(
+                variavelIteracao, literalOuVariavelInicio, literalOuVariavelFim,
+                passo, operadorCondicao, operadorCondicaoIncremento,
+                resolverIncrementoEmExecucao, corpo, simboloPara
+            );
+        }
+
+        // Múltiplas faixas com faça: construir loops aninhados de dentro para fora.
+        const ultimaFaixa = faixasAdicionais[faixasAdicionais.length - 1];
+        let paraAtual: Para = this.construirDeclaracaoPara(
+            ultimaFaixa.variavel, ultimaFaixa.inicio, ultimaFaixa.fim,
+            ultimaFaixa.passo, ultimaFaixa.operadorCondicao, ultimaFaixa.operadorCondicaoIncremento,
+            ultimaFaixa.resolverIncrementoEmExecucao, corpo, simboloPara
         );
-        para.blocoPosExecucao = corpo;
-        para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
-        return para;
+
+        const faixasExternas2 = [
+            { variavel: variavelIteracao, inicio: literalOuVariavelInicio, fim: literalOuVariavelFim, passo, operadorCondicao, operadorCondicaoIncremento, resolverIncrementoEmExecucao },
+            ...faixasAdicionais.slice(0, -1)
+        ];
+        for (let i = faixasExternas2.length - 1; i >= 0; i--) {
+            const faixa = faixasExternas2[i];
+            const blocoInterno = new Bloco(this.hashArquivo, Number(simboloPara.linha) + 1, [paraAtual]);
+            paraAtual = this.construirDeclaracaoPara(
+                faixa.variavel, faixa.inicio, faixa.fim,
+                faixa.passo, faixa.operadorCondicao, faixa.operadorCondicaoIncremento,
+                faixa.resolverIncrementoEmExecucao, blocoInterno, simboloPara
+            );
+        }
+
+        return paraAtual;
     }
 
     async declaracaoEscolha(): Promise<Escolha> {
