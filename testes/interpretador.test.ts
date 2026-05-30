@@ -310,6 +310,30 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[0]).toBe('10');
             });
 
+            it('injete com função nomeada e valor inicial (https://github.com/DesignLiquido/potigol/issues/207)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = [2, 1, 3]',
+                    'soma(x, y: Inteiro) = x + y',
+                    'escreva a.injete(0)(soma)',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('6');
+            });
+
+            it('selecione com função nomeada (https://github.com/DesignLiquido/potigol/issues/207)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = [2, 1, 3]',
+                    'impar(x: Inteiro) = x mod 2 == 1',
+                    'escreva a.selecione(impar)',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('[1, 3]');
+            });
+
             it('aleatorio(lista) retorna elemento da lista', async () => {
                 const retornoLexador = lexador.mapear([
                     'opcoes = ["a", "b", "c"]',

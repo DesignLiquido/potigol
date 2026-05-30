@@ -1,4 +1,4 @@
-import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
+import { DeleguaFuncao, FuncaoPadrao } from '@designliquido/delegua/interpretador/estruturas';
 import { InterpretadorPotigolInterface } from '../interfaces';
 
 const primitivasVetor = {
@@ -77,33 +77,56 @@ const primitivasVetor = {
     imutável: (interpretador: InterpretadorPotigolInterface, vetor: Array<any>): Promise<any> => Promise.resolve(),
     injete: async (
         interpretador: InterpretadorPotigolInterface,
-        
         vetor: Array<any>,
-        funcao: DeleguaFuncao,
-        valorInicial?: any
+        funcaoOuValorInicial: any,
+        funcaoOpcional?: any
     ): Promise<any> => {
-        if (funcao === undefined || funcao === null) {
+        const ehChamavel = (v: any) => v && typeof v.chamar === 'function';
+
+        const executarInjete = async (
+            interp: InterpretadorPotigolInterface,
+            v: Array<any>,
+            fn: DeleguaFuncao,
+            ini: any
+        ) => {
+            if (v.length === 0 && ini === undefined) {
+                return undefined;
+            }
+            let retorno: any = ini;
+            let indiceInicio = 0;
+            if (retorno === undefined) {
+                retorno = v[0];
+                indiceInicio = 1;
+            }
+            for (let indice = indiceInicio; indice < v.length; indice++) {
+                const elemento = v[indice];
+                retorno = await fn.chamar(interp, [retorno, elemento]);
+                retorno = interp.resolverValor(retorno);
+            }
+            return retorno;
+        };
+
+        if (ehChamavel(funcaoOuValorInicial)) {
+            return executarInjete(interpretador, vetor, funcaoOuValorInicial, funcaoOpcional);
+        }
+
+        if (ehChamavel(funcaoOpcional)) {
+            return executarInjete(interpretador, vetor, funcaoOpcional, funcaoOuValorInicial);
+        }
+
+        if (funcaoOuValorInicial === undefined || funcaoOuValorInicial === null) {
             return Promise.reject("É necessário passar uma função para o método 'injete'.");
         }
 
-        if (vetor.length === 0 && valorInicial === undefined) {
-            return Promise.resolve(undefined);
-        }
-
-        let retorno: any = valorInicial;
-        let indiceInicio = 0;
-        if (retorno === undefined) {
-            retorno = vetor[0];
-            indiceInicio = 1;
-        }
-
-        for (let indice = indiceInicio; indice < vetor.length; indice++) {
-            const elemento = vetor[indice];
-            retorno = await funcao.chamar(interpretador, [retorno, elemento]);
-            retorno = interpretador.resolverValor(retorno);
-        }
-
-        return retorno;
+        // Partial application: a.injete(valorInicial) → returns callable for a.injete(valorInicial)(funcao)
+        const valorInicial = funcaoOuValorInicial;
+        const vetorCapturado = vetor;
+        return new FuncaoPadrao(1, async (interp: InterpretadorPotigolInterface, fn: any) => {
+            if (!ehChamavel(fn)) {
+                return Promise.reject("É necessário passar uma função para o método 'injete'.");
+            }
+            return executarInjete(interp, vetorCapturado, fn, valorInicial);
+        });
     },
 
     insira: (
@@ -180,7 +203,7 @@ const primitivasVetor = {
     },
     selecione: async (
         interpretador: InterpretadorPotigolInterface,
-        
+
         vetor: Array<any>,
         funcao: DeleguaFuncao
     ): Promise<any> => {
@@ -190,7 +213,11 @@ const primitivasVetor = {
 
         const retorno = [];
         for (let elemento of vetor) {
-            if (await funcao.chamar(interpretador, [elemento])) {
+            const resultado = await funcao.chamar(interpretador, [elemento]);
+            const resolvido = interpretador.resolverValor
+                ? interpretador.resolverValor(resultado)
+                : resultado;
+            if (resolvido) {
                 retorno.push(elemento);
             }
         }
