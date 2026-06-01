@@ -57,6 +57,7 @@ import {
     LeiaTextos,
 } from '../construtos';
 import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { FaixaEmInterface } from '../interfaces';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
 
@@ -1300,6 +1301,20 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
             const colecao = await this.expressao();
 
+            const faixasEm: FaixaEmInterface[] = [];
+            while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                const varAdicional = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado identificador de variável após ',' em laço 'para ... em'."
+                );
+                this.consumir(
+                    tiposDeSimbolos.EM,
+                    "Esperado palavra reservada 'em' após variável de controle adicional em laço 'para ... em'."
+                );
+                const colecaoAdicional = await this.expressao();
+                faixasEm.push({ variavel: varAdicional, colecao: colecaoAdicional });
+            }
+
             this.consumir(
                 tiposDeSimbolos.FACA,
                 "Esperado palavra reservada 'faca' após coleção em laço 'para ... em'."
@@ -1320,13 +1335,43 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 declaracoesBloco.filter((d) => d)
             );
 
-            return new ParaCada(
+            if (faixasEm.length === 0) {
+                return new ParaCada(
+                    this.hashArquivo,
+                    Number(simboloPara.linha),
+                    new Variavel(this.hashArquivo, variavelIteracao),
+                    colecao,
+                    corpo
+                ) as unknown as Para;
+            }
+
+            // Constrói loops ParaCada aninhados de dentro para fora.
+            const ultimaFaixaEm = faixasEm[faixasEm.length - 1];
+            let paraEm: Para = new ParaCada(
                 this.hashArquivo,
                 Number(simboloPara.linha),
-                new Variavel(this.hashArquivo, variavelIteracao),
-                colecao,
+                new Variavel(this.hashArquivo, ultimaFaixaEm.variavel),
+                ultimaFaixaEm.colecao,
                 corpo
             ) as unknown as Para;
+
+            const faixasExternasEm: FaixaEmInterface[] = [
+                { variavel: variavelIteracao, colecao },
+                ...faixasEm.slice(0, -1)
+            ];
+            for (let i = faixasExternasEm.length - 1; i >= 0; i--) {
+                const faixa = faixasExternasEm[i];
+                const blocoInterno = new Bloco(this.hashArquivo, Number(simboloPara.linha) + 1, [paraEm]);
+                paraEm = new ParaCada(
+                    this.hashArquivo,
+                    Number(simboloPara.linha),
+                    new Variavel(this.hashArquivo, faixa.variavel),
+                    faixa.colecao,
+                    blocoInterno
+                ) as unknown as Para;
+            }
+
+            return paraEm;
         }
 
         this.consumir(tiposDeSimbolos.DE, "Esperado palavra reservada 'de' após variável de controle de 'para'.");

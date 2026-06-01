@@ -235,6 +235,25 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[2]).toBe('30');
             });
 
+            it('Para cada com múltiplas faixas "em" (issue 209)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para x em [1, 2] ,',
+                    '     y em [3, 4] faca',
+                    '  escreva x + y',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(4);
+                expect(_saidas[0]).toBe('4');
+                expect(_saidas[1]).toBe('5');
+                expect(_saidas[2]).toBe('5');
+                expect(_saidas[3]).toBe('6');
+            });
+
             it('Para cada (for-each) itera sobre variável de lista', async () => {
                 const retornoLexador = lexador.mapear([
                     'nomes = ["Ana", "Bia"]',
