@@ -137,7 +137,8 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
                 const variavelVetor = new Variavel(expressao.hashArquivo, (expressao as any).simbolo);
                 expressao = new AcessoIndiceVariavel(this.hashArquivo, variavelVetor, indice, simboloFechamento);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do método após '.'.");
+                if (this.atual >= this.simbolos.length) break;
+                const nome = this.avancarEDevolverAnterior();
                 const objeto = (expressao as any).simbolo
                     ? new Variavel(expressao.hashArquivo, (expressao as any).simbolo)
                     : expressao;

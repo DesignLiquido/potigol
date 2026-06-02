@@ -1272,6 +1272,45 @@ describe('Interpretador (Potigol)', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('3 eh o maior');
                 });
+
+                it('interpolação de lista exibe colchetes (issue #216)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'numeros = [1, 2]',
+                        'escreva "numeros = {numeros}"'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('numeros = [1, 2]');
+                });
+
+                it('interpolação com acesso a propriedade de lista (issue #216)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'numeros = [1, 2]',
+                        'escreva "tipo = {numeros.qual_tipo}"'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('tipo = Lista');
+                });
+
+                it('interpolação com indexação de lista (issue #216)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'numeros = [1, 2]',
+                        'escreva "soma = {numeros[1] + numeros[2]}"'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('soma = 3');
+                });
             });
         });
 

@@ -184,7 +184,21 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
     }
 
     protected retirarInterpolacao(texto: string, variaveis: any[]): string {
-        return comum.retirarInterpolacao(texto, variaveis);
+        let textoFinal = texto;
+        for (const elemento of variaveis) {
+            let valorElemento = elemento?.valor;
+            if (valorElemento && typeof valorElemento === 'object' &&
+                Object.prototype.hasOwnProperty.call(valorElemento, 'valorRetornado')) {
+                const retorno = valorElemento.valorRetornado;
+                valorElemento = (retorno && typeof retorno === 'object' &&
+                    Object.prototype.hasOwnProperty.call(retorno, 'valor'))
+                    ? retorno.valor
+                    : retorno;
+            }
+            const rawValor = valorElemento?.valor ?? valorElemento;
+            textoFinal = textoFinal.replace('{' + elemento.variavel + '}', this.paraTexto(rawValor));
+        }
+        return textoFinal;
     }
 
     async visitarDeclaracaoAtribuicaoParalelaVariavel(declaracao: AtribuicaoParalelaVariavel): Promise<any> {

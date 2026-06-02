@@ -135,6 +135,18 @@ export class MicroLexadorPotigol {
                 this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
                 this.atual++;
                 break;
+            case '.':
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                this.atual++;
+                break;
+            case '[':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.atual++;
+                break;
+            case ']':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
+                this.atual++;
+                break;
             case '+':
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
