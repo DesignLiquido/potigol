@@ -26,9 +26,6 @@ jobs:
     #     sudo npm run testes-unitarios
     # - name: Cobertura de Código
     #   uses: MishaKav/jest-coverage-comment@main
-    # Os pacotes abaixo continuam dando o seguinte problema:
-    # https://github.com/ArtiomTr/jest-coverage-report-action/issues/233
-    # A solução dada pelo autor não resolve o problema.
     - uses: ArtiomTr/jest-coverage-report-action@v2
       id: coverage
       with:

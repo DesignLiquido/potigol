@@ -1247,29 +1247,76 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         corpo: Bloco,
         simboloPara: SimboloInterface
     ): Para {
+        const linha = Number(simboloPara.linha);
+
+        let condicao: ConstrutoInterface;
+        let condicaoFimPara: ConstrutoInterface;
+        let passoReal: ConstrutoInterface;
+
+        if (resolverIncrementoEmExecucao) {
+            // Direção (ascendente/descendente) só é conhecida em tempo de execução.
+            // condicao: (inicio <= fim) ? (i <= fim) : (i >= fim)
+            const opMenorIgual = new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '<=', null, linha, this.hashArquivo);
+            const opMaiorIgual = new Simbolo(tiposDeSimbolos.MAIOR_IGUAL, '>=', null, linha, this.hashArquivo);
+            const opMenor = new Simbolo(tiposDeSimbolos.MENOR, '<', null, linha, this.hashArquivo);
+            const opMaior = new Simbolo(tiposDeSimbolos.MAIOR, '>', null, linha, this.hashArquivo);
+            const direcaoAscendente = new Binario(this.hashArquivo, inicio, opMenorIgual, fim);
+            condicao = new SeTernario(
+                this.hashArquivo,
+                direcaoAscendente,
+                new Binario(this.hashArquivo, new Variavel(this.hashArquivo, variavelIteracao), new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '<=', null, linha, this.hashArquivo), fim),
+                null,
+                new Binario(this.hashArquivo, new Variavel(this.hashArquivo, variavelIteracao), opMaiorIgual, fim)
+            );
+            condicaoFimPara = new SeTernario(
+                this.hashArquivo,
+                new Binario(this.hashArquivo, inicio, new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '<=', null, linha, this.hashArquivo), fim),
+                new Binario(this.hashArquivo, new Variavel(this.hashArquivo, variavelIteracao), opMenor, fim),
+                null,
+                new Binario(this.hashArquivo, new Variavel(this.hashArquivo, variavelIteracao), opMaior, fim)
+            );
+            // passoReal: (inicio <= fim) ? 1 : -1
+            passoReal = new SeTernario(
+                this.hashArquivo,
+                new Binario(this.hashArquivo, inicio, new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '<=', null, linha, this.hashArquivo), fim),
+                new Literal(this.hashArquivo, linha, 1),
+                null,
+                new Unario(
+                    this.hashArquivo,
+                    new Simbolo(tiposDeSimbolos.SUBTRACAO, '-', undefined, linha, this.hashArquivo),
+                    new Literal(this.hashArquivo, linha, 1),
+                    'ANTES'
+                )
+            );
+        } else {
+            condicao = new Binario(
+                this.hashArquivo,
+                new Variavel(this.hashArquivo, variavelIteracao),
+                operadorCondicao,
+                fim
+            );
+            condicaoFimPara = new Binario(
+                this.hashArquivo,
+                new Variavel(this.hashArquivo, variavelIteracao),
+                operadorCondicaoIncremento,
+                fim
+            );
+            passoReal = passo;
+        }
+
         const para = new Para(
             this.hashArquivo,
-            Number(simboloPara.linha),
+            linha,
             new Expressao(new Atribuir(
                 this.hashArquivo,
                 new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
                 inicio
             )),
-            new Binario(
-                this.hashArquivo,
-                new Variavel(this.hashArquivo, variavelIteracao),
-                operadorCondicao,
-                fim
-            ),
+            condicao,
             new FimPara(
                 this.hashArquivo,
-                Number(simboloPara.linha),
-                new Binario(
-                    this.hashArquivo,
-                    new Variavel(this.hashArquivo, variavelIteracao),
-                    operadorCondicaoIncremento,
-                    fim
-                ),
+                linha,
+                condicaoFimPara as unknown as Binario,
                 new Expressao(
                     new Atribuir(
                         this.hashArquivo,
@@ -1277,8 +1324,8 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                         new Binario(
                             this.hashArquivo,
                             new Variavel(this.hashArquivo, variavelIteracao),
-                            new Simbolo(tiposDeSimbolos.ADICAO, '+', null, Number(simboloPara.linha), this.hashArquivo),
-                            passo
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', null, linha, this.hashArquivo),
+                            passoReal
                         )
                     )
                 )

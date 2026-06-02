@@ -365,6 +365,24 @@ describe('Interpretador (Potigol)', () => {
                 expect(['a', 'b', 'c']).toContain(_saidas[0]);
             });
 
+            it('Para com variáveis como faixa itera corretamente (issue 215)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a = 1',
+                    'b = 2',
+                    'para i de a até b faça',
+                    '  escreva i',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('1');
+                expect(_saidas[1]).toBe('2');
+            });
+
             it('Para simples com faça itera e escreve variável de iteração (issue 187)', async () => {
                 const retornoLexador = lexador.mapear([
                     'para i de 1 até 5 faça',
