@@ -547,7 +547,7 @@ export async function visitarExpressaoBinaria(
             return Math.pow(valorEsquerdo, valorDireito);
 
         case tiposDeSimbolos.MAIOR:
-            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+            if (tiposNumericos.includes(tipoEsquerdo.toLowerCase()) && tiposNumericos.includes(tipoDireito.toLowerCase())) {
                 if (ambosInteiroGrande) return valorEsquerdo > valorDireito;
                 return Number(valorEsquerdo) > Number(valorDireito);
             }
@@ -555,14 +555,14 @@ export async function visitarExpressaoBinaria(
             return String(valorEsquerdo) > String(valorDireito);
 
         case tiposDeSimbolos.MAIOR_IGUAL:
-            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+            if (tiposNumericos.includes(tipoEsquerdo.toLowerCase()) && tiposNumericos.includes(tipoDireito.toLowerCase())) {
                 if (ambosInteiroGrande) return valorEsquerdo >= valorDireito;
                 return Number(valorEsquerdo) >= Number(valorDireito);
             }
             return String(valorEsquerdo) >= String(valorDireito);
 
         case tiposDeSimbolos.MENOR:
-            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+            if (tiposNumericos.includes(tipoEsquerdo.toLowerCase()) && tiposNumericos.includes(tipoDireito.toLowerCase())) {
                 if (ambosInteiroGrande) return valorEsquerdo < valorDireito;
                 return Number(valorEsquerdo) < Number(valorDireito);
             }
@@ -570,7 +570,7 @@ export async function visitarExpressaoBinaria(
             return String(valorEsquerdo) < String(valorDireito);
 
         case tiposDeSimbolos.MENOR_IGUAL:
-            if (tiposNumericos.includes(tipoEsquerdo) && tiposNumericos.includes(tipoDireito)) {
+            if (tiposNumericos.includes(tipoEsquerdo.toLowerCase()) && tiposNumericos.includes(tipoDireito.toLowerCase())) {
                 if (ambosInteiroGrande) return valorEsquerdo <= valorDireito;
                 return Number(valorEsquerdo) <= Number(valorDireito);
             }

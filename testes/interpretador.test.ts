@@ -383,6 +383,38 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[1]).toBe('2');
             });
 
+            it('Para com valor final 10 itera corretamente (issue 217)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para i de 1 até 10 faça',
+                    '  escreva i',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(10);
+                expect(_saidas[0]).toBe('1');
+                expect(_saidas[9]).toBe('10');
+            });
+
+            it('Para com valor final 9 itera corretamente (issue 217)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para i de 1 até 9 faça',
+                    '  escreva i',
+                    'fim'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(9);
+                expect(_saidas[0]).toBe('1');
+                expect(_saidas[8]).toBe('9');
+            });
+
             it('Para simples com faça itera e escreve variável de iteração (issue 187)', async () => {
                 const retornoLexador = lexador.mapear([
                     'para i de 1 até 5 faça',
