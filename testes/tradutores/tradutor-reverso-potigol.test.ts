@@ -243,6 +243,44 @@ describe('Tradutor Reverso Potigol -> Delégua', () => {
         });
     });
 
+    describe('Comparações (operadores restantes)', () => {
+        it('maior ou igual (>=)', async () => {
+            const resultado = await traduzir([`x = 3 >= 2`]);
+            expect(resultado).toMatch(/var x = 3 >= 2/);
+        });
+
+        it('menor ou igual (<=)', async () => {
+            const resultado = await traduzir([`x = 2 <= 3`]);
+            expect(resultado).toMatch(/var x = 2 <= 3/);
+        });
+    });
+
+    describe('Literais booleanos', () => {
+        it('verdadeiro -> verdadeiro', async () => {
+            const resultado = await traduzir([`x = verdadeiro`]);
+            expect(resultado).toMatch(/var x = verdadeiro/);
+        });
+
+        it('falso -> falso', async () => {
+            const resultado = await traduzir([`x = falso`]);
+            expect(resultado).toMatch(/var x = falso/);
+        });
+    });
+
+    describe('Interpolação de texto', () => {
+        it('string com {variavel} -> template literal com ${variavel}', async () => {
+            const resultado = await traduzir([`escreva "Olá {nome}"`]);
+            expect(resultado).toMatch(/`Olá \$\{nome\}`/);
+        });
+    });
+
+    describe('Vetores', () => {
+        it('vetor vazio -> []', async () => {
+            const resultado = await traduzir([`nums = []`]);
+            expect(resultado).toMatch(/\[\]/);
+        });
+    });
+
     describe('Entrada (leia_*)', () => {
         it('leia_inteiro -> leia()', async () => {
             const resultado = await traduzir([`x = leia_inteiro`]);
@@ -257,6 +295,286 @@ describe('Tradutor Reverso Potigol -> Delégua', () => {
         it('leia_real -> leia()', async () => {
             const resultado = await traduzir([`n = leia_real`]);
             expect(resultado).toMatch(/var n = leia\(\)/);
+        });
+
+        it('múltiplos inteiros (a, b = leia_inteiro) -> ConstMultiplo leia()', async () => {
+            const resultado = await traduzir([`a, b = leia_inteiro`]);
+            expect(resultado).toMatch(/var a, b = leia\(\)/);
+        });
+
+        it('múltiplos reais (a, b = leia_real) -> ConstMultiplo leia()', async () => {
+            const resultado = await traduzir([`a, b = leia_real`]);
+            expect(resultado).toMatch(/var a, b = leia\(\)/);
+        });
+
+        it('múltiplos textos (a, b = leia_texto) -> ConstMultiplo leia()', async () => {
+            const resultado = await traduzir([`a, b = leia_texto`]);
+            expect(resultado).toMatch(/var a, b = leia\(\)/);
+        });
+
+        it('leia_inteiros(n) com quantidade -> leia() (cardinalidade não propagada pelo tradutor)', async () => {
+            const resultado = await traduzir([`x = leia_inteiros(3)`]);
+            expect(resultado).toMatch(/var x = leia\(\)/);
+        });
+
+        it('leia_reais(n) com quantidade -> leia() (cardinalidade não propagada pelo tradutor)', async () => {
+            const resultado = await traduzir([`x = leia_reais(3)`]);
+            expect(resultado).toMatch(/var x = leia\(\)/);
+        });
+
+        it('leia_textos(n) com quantidade -> leia() (cardinalidade não propagada pelo tradutor)', async () => {
+            const resultado = await traduzir([`x = leia_textos(3)`]);
+            expect(resultado).toMatch(/var x = leia\(\)/);
+        });
+    });
+
+    describe('Funções anônimas (lambda)', () => {
+        it('lambda de um parâmetro -> função(...)', async () => {
+            const resultado = await traduzir([`escreva ((x: Inteiro) => x + 1)(2)`]);
+            expect(resultado).toMatch(/função\(x\)/);
+        });
+
+        it('lambda de dois parâmetros -> função(...)', async () => {
+            const resultado = await traduzir([`escreva ((x, y: Inteiro) => x + y)(2, 3)`]);
+            expect(resultado).toMatch(/função\(x, y\)/);
+        });
+    });
+
+    describe('Métodos de coleção e texto', () => {
+        it('cabeça -> [0]', async () => {
+            const resultado = await traduzir([`x = lista.cabeça`]);
+            expect(resultado).toMatch(/var x = lista\[0\]/);
+        });
+
+        it('primeiro -> [0]', async () => {
+            const resultado = await traduzir([`x = lista.primeiro`]);
+            expect(resultado).toMatch(/var x = lista\[0\]/);
+        });
+
+        it('último -> [tamanho() - 1]', async () => {
+            const resultado = await traduzir([`x = lista.último`]);
+            expect(resultado).toMatch(/lista\.tamanho\(\) - 1/);
+        });
+
+        it('cauda -> fatiar(1)', async () => {
+            const resultado = await traduzir([`x = lista.cauda`]);
+            expect(resultado).toMatch(/lista\.fatiar\(1\)/);
+        });
+
+        it('pegue(n) -> fatiar(0, n)', async () => {
+            const resultado = await traduzir([`x = lista.pegue(2)`]);
+            expect(resultado).toMatch(/lista\.fatiar\(0, 2\)/);
+        });
+
+        it('descarte(n) -> fatiar(n)', async () => {
+            const resultado = await traduzir([`x = lista.descarte(2)`]);
+            expect(resultado).toMatch(/lista\.fatiar\(2\)/);
+        });
+
+        it('junte(sep) -> juntar(lista)', async () => {
+            const resultado = await traduzir([`x = lista.junte(",")`]);
+            expect(resultado).toMatch(/juntar\(lista\)/);
+        });
+
+        it('junte sem argumento -> juntar("")', async () => {
+            const resultado = await traduzir([`x = lista.junte`]);
+            expect(resultado).toMatch(/lista\.juntar\(""\)/);
+        });
+
+        it('mapeie(f) -> mapear(f)', async () => {
+            const resultado = await traduzir([`x = lista.mapeie(dobro)`]);
+            expect(resultado).toMatch(/lista\.mapear\(dobro\)/);
+        });
+
+        it('selecione(f) -> filtrar(f)', async () => {
+            const resultado = await traduzir([`x = lista.selecione(positivo)`]);
+            expect(resultado).toMatch(/lista\.filtrar\(positivo\)/);
+        });
+
+        it('filtre(f) -> filtrar(f)', async () => {
+            const resultado = await traduzir([`x = lista.filtre(positivo)`]);
+            expect(resultado).toMatch(/lista\.filtrar\(positivo\)/);
+        });
+
+        it('injete(f) -> reduzir(f)', async () => {
+            const resultado = await traduzir([`x = lista.injete(soma)`]);
+            expect(resultado).toMatch(/lista\.reduzir\(soma\)/);
+        });
+
+        it('reduza(f) -> reduzir(f)', async () => {
+            const resultado = await traduzir([`x = lista.reduza(soma)`]);
+            expect(resultado).toMatch(/lista\.reduzir\(soma\)/);
+        });
+
+        it('contém(v) -> inclui(v)', async () => {
+            const resultado = await traduzir([`x = lista.contém(5)`]);
+            expect(resultado).toMatch(/lista\.inclui\(5\)/);
+        });
+
+        it('maiúsculo -> maiusculo()', async () => {
+            const resultado = await traduzir([`x = texto.maiúsculo`]);
+            expect(resultado).toMatch(/texto\.maiusculo\(\)/);
+        });
+
+        it('minúsculo -> minusculo()', async () => {
+            const resultado = await traduzir([`x = texto.minúsculo`]);
+            expect(resultado).toMatch(/texto\.minusculo\(\)/);
+        });
+
+        it('divida(sep) -> dividir(sep)', async () => {
+            const resultado = await traduzir([`x = texto.divida(" ")`]);
+            expect(resultado).toMatch(/texto\.dividir\(" "\)/);
+        });
+
+        it('remova(i) -> remover(i)', async () => {
+            const resultado = await traduzir([`x = lista.remova(0)`]);
+            expect(resultado).toMatch(/lista\.remover\(0\)/);
+        });
+
+        it('posição(v) -> posicao(v)', async () => {
+            const resultado = await traduzir([`x = lista.posição(5)`]);
+            expect(resultado).toMatch(/lista\.posicao\(5\)/);
+        });
+
+        it('vazia -> tamanho() == 0', async () => {
+            const resultado = await traduzir([`x = lista.vazia`]);
+            expect(resultado).toMatch(/lista\.tamanho\(\) == 0/);
+        });
+    });
+
+    describe('Escolha/caso', () => {
+        it('escolha com casos simples -> escolha com caso', async () => {
+            const codigo = [
+                'var x := 2',
+                'escolha x',
+                'caso 1 => escreva "um"',
+                'caso 2 => escreva "dois"',
+                'fim',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/escolha/);
+            expect(resultado).toMatch(/caso 1:/);
+            expect(resultado).toMatch(/caso 2:/);
+            expect(resultado).toMatch(/escreva\("um"\)/);
+            expect(resultado).toMatch(/escreva\("dois"\)/);
+        });
+
+        it('escolha com caso padrão (_) -> padrao:', async () => {
+            const codigo = [
+                'var x := 3',
+                'escolha x',
+                'caso 1 => escreva "um"',
+                'caso _ => escreva "outro"',
+                'fim',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/padrao:/);
+            expect(resultado).toMatch(/escreva\("outro"\)/);
+        });
+    });
+
+    describe('Para gere', () => {
+        it('para de/até/gere sem passo -> para com passo 1', async () => {
+            const codigo = [
+                'para i de 1 até 5 gere',
+                'escreva i',
+                'fim',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/para \(var i = 1; i <= 5; i = i \+ 1\)/);
+            expect(resultado).toMatch(/escreva\(i\)/);
+        });
+
+        it('para de/até/passo/gere com passo explícito', async () => {
+            const codigo = [
+                'para i de 0 até 10 passo 2 gere',
+                'escreva i',
+                'fim',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/para \(var i = 0; i <= 10; i = i \+ 2\)/);
+        });
+    });
+
+    describe('Para cada', () => {
+        it('para cada x em lista -> para cada ... em ...', async () => {
+            const codigo = [
+                'para x em [1, 2, 3] faca',
+                '  escreva x',
+                'fim',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/para cada x em \[1, 2, 3\]/);
+            expect(resultado).toMatch(/escreva\(x\)/);
+        });
+    });
+
+    describe('Alias de tipo', () => {
+        it('tipo Novo = Existente -> comentário', async () => {
+            const resultado = await traduzir([`tipo Comprimento = Inteiro`]);
+            expect(resultado).toMatch(/\/\/ tipo Comprimento = Inteiro/);
+        });
+    });
+
+    describe('Chamadas de função (Constante com argumentos)', () => {
+        it('chamada de função definida pelo usuário', async () => {
+            const codigo = [
+                'dobro(x: Inteiro) = x * 2',
+                'escreva dobro(5)',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/dobro\(5\)/);
+        });
+    });
+
+    describe('Acesso a métodos não mapeados', () => {
+        it('propriedade desconhecida sem args -> objeto.propriedade', async () => {
+            const resultado = await traduzir([`x = obj.qualTipo`]);
+            expect(resultado).toMatch(/obj\.qualTipo/);
+        });
+
+        it('insira (sem tradução direta) com args -> método original', async () => {
+            const resultado = await traduzir([`x = lista.insira(5)`]);
+            expect(resultado).toMatch(/lista\.insira\(5\)/);
+        });
+    });
+
+    describe('Declaração de classe (tipo)', () => {
+        it('tipo com propriedades -> classe com var', async () => {
+            const codigo = [
+                'tipo Ponto',
+                '  x: Inteiro',
+                '  y: Inteiro',
+                'fim',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/classe Ponto/);
+            expect(resultado).toMatch(/var x/);
+            expect(resultado).toMatch(/var y/);
+        });
+
+        it('tipo com método -> classe com função', async () => {
+            const codigo = [
+                'tipo Circulo',
+                '  raio: Inteiro',
+                '  area() = raio * raio',
+                'fim',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/classe Circulo/);
+            expect(resultado).toMatch(/função area/);
+        });
+
+        it('instanciação de tipo (Constante com args)', async () => {
+            const codigo = [
+                'tipo Ponto',
+                '  x: Inteiro',
+                '  y: Inteiro',
+                'fim',
+                'p = Ponto(1, 2)',
+            ];
+            const resultado = await traduzir(codigo);
+            expect(resultado).toMatch(/Ponto\(1, 2\)/);
         });
     });
 });

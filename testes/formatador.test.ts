@@ -3,8 +3,38 @@ import * as sistemaOperacional from 'os';
 import { LexadorPotigol } from "../fontes/lexador";
 import { AvaliadorSintaticoPotigol } from "../fontes/avaliador-sintatico";
 import { FormatadorPotigol } from "../fontes/formatador";
-import { VarMultiplo } from '@designliquido/delegua/declaracoes';
-import { Literal } from '@designliquido/delegua/construtos';
+import {
+    Bloco,
+    Comentario,
+    Const,
+    Expressao,
+    Falhar,
+    Fazer,
+    Para,
+    Sustar,
+    Tente,
+    VarMultiplo,
+} from '@designliquido/delegua/declaracoes';
+import {
+    AcessoMetodo,
+    AcessoPropriedade,
+    AtribuicaoPorIndice,
+    Atribuir,
+    Binario,
+    DefinirValor,
+    ExpressaoRegular,
+    FimPara,
+    FuncaoConstruto,
+    Isto,
+    Leia,
+    Literal,
+    Logico,
+    Super,
+    TuplaN,
+    Unario,
+} from '@designliquido/delegua/construtos';
+import { AtribuicaoParalelaVariavel } from '../fontes/declaracoes';
+import { ConstanteOuVariavel } from '../fontes/construtos';
 
 describe('Formatador > Potigol', () => {
     describe('analisar()', () => {
@@ -895,6 +925,212 @@ describe('Formatador > Potigol', () => {
                     const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
                     expect(linhasResultado[0]).toBe('var x, y, z := 42');
+                });
+            });
+
+            describe('Cobertura adicional (AST direto)', () => {
+                it('Comentário (visitarDeclaracaoComentario)', () => {
+                    const comentario = new Comentario(-1, 1, 'Olá comentário', false);
+                    const resultado = formatadorPotigol.formatar([comentario]);
+                    expect(resultado).toContain('# Olá comentário');
+                });
+
+                it('AtribuicaoParalelaVariavel', () => {
+                    const simA = { lexema: 'a', linha: 1, hashArquivo: -1 } as any;
+                    const simB = { lexema: 'b', linha: 1, hashArquivo: -1 } as any;
+                    const apv = new AtribuicaoParalelaVariavel(
+                        [simA, simB],
+                        [new Literal(-1, 1, 5), new Literal(-1, 1, 2)]
+                    );
+                    const resultado = formatadorPotigol.formatar([apv]);
+                    expect(resultado).toContain('a, b := 5, 2');
+                });
+
+                it('Tupla (visitarExpressaoTupla direto)', () => {
+                    formatadorPotigol.formatar([]);
+                    const mockTupla = { elementos: [new Literal(-1, 1, 1), new Literal(-1, 1, 2)] } as any;
+                    formatadorPotigol.visitarExpressaoTupla(mockTupla);
+                    expect(formatadorPotigol.codigoFormatado).toContain('(1, 2)');
+                });
+
+                it('TuplaN com 11 elementos', () => {
+                    const elementos = Array.from({ length: 11 }, (_, i) => new Literal(-1, 1, i + 1));
+                    const tuplaN = new TuplaN(-1, 1, elementos);
+                    const resultado = formatadorPotigol.formatar([new Expressao(tuplaN)]);
+                    expect(resultado).toContain('(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)');
+                });
+
+                it('AcessoMetodo', () => {
+                    const lit = new Literal(-1, 1, 'ola');
+                    const acesso = new AcessoMetodo(-1, lit, 'tamanho');
+                    const resultado = formatadorPotigol.formatar([new Expressao(acesso)]);
+                    expect(resultado).toContain('"ola".tamanho');
+                });
+
+                it('AcessoPropriedade', () => {
+                    const lit = new Literal(-1, 1, 'ola');
+                    const acesso = new AcessoPropriedade(-1, lit, 'tipo');
+                    const resultado = formatadorPotigol.formatar([new Expressao(acesso)]);
+                    expect(resultado).toContain('"ola".tipo');
+                });
+
+                it('AtribuicaoPorIndice', () => {
+                    const obj = new Literal(-1, 1, 'a');
+                    const indice = new Literal(-1, 1, 0);
+                    const valor = new Literal(-1, 1, 99);
+                    const atrib = new AtribuicaoPorIndice(-1, 1, obj, indice, valor);
+                    const resultado = formatadorPotigol.formatar([new Expressao(atrib)]);
+                    expect(resultado).toContain('[0]');
+                    expect(resultado).toContain(':= 99');
+                });
+
+                it('DefinirValor', () => {
+                    const obj = new Literal(-1, 1, 'obj');
+                    const simNome = { lexema: 'campo', linha: 1, hashArquivo: -1 } as any;
+                    const valor = new Literal(-1, 1, 42);
+                    const definir = new DefinirValor(-1, 1, obj, simNome, valor);
+                    const resultado = formatadorPotigol.formatar([new Expressao(definir)]);
+                    expect(resultado).toContain('.campo := 42');
+                });
+
+                it('Atribuir com devePularLinha (linha 376)', () => {
+                    const alvo = new Literal(-1, 1, 'x');
+                    const valor = new Literal(-1, 1, 42);
+                    const atribuir = new Atribuir(-1, alvo, valor);
+                    const resultado = formatadorPotigol.formatar([new Expressao(atribuir)]);
+                    expect(resultado).toContain(' de ');
+                });
+
+                it('Binario com CONCATENACAO_LISTA (::)', () => {
+                    const op = { tipo: 'CONCATENACAO_LISTA', lexema: '::', linha: 1, hashArquivo: -1 } as any;
+                    const bin = new Binario(-1, new Literal(-1, 1, 1), op, new Literal(-1, 1, 2));
+                    const resultado = formatadorPotigol.formatar([new Expressao(bin)]);
+                    expect(resultado).toContain(' :: ');
+                });
+
+                it('Binario com IGUAL (=)', () => {
+                    const op = { tipo: 'IGUAL', lexema: '=', linha: 1, hashArquivo: -1 } as any;
+                    const bin = new Binario(-1, new Literal(-1, 1, 1), op, new Literal(-1, 1, 1));
+                    const resultado = formatadorPotigol.formatar([new Expressao(bin)]);
+                    expect(resultado).toContain(' = ');
+                });
+
+                it('Binario com operador desconhecido (default/console.log)', () => {
+                    const op = { tipo: 'OPERADOR_DESCONHECIDO', lexema: '?', linha: 1, hashArquivo: -1 } as any;
+                    const bin = new Binario(-1, new Literal(-1, 1, 1), op, new Literal(-1, 1, 2));
+                    const resultado = formatadorPotigol.formatar([new Expressao(bin)]);
+                    expect(resultado).toBeDefined();
+                });
+
+                it('Logico com NEGACAO', () => {
+                    const op = { tipo: 'NEGACAO', lexema: 'nao', linha: 1, hashArquivo: -1 } as any;
+                    const log = new Logico(-1, new Literal(-1, 1, true), op, new Literal(-1, 1, false));
+                    const resultado = formatadorPotigol.formatar([new Expressao(log)]);
+                    expect(resultado).toContain(' nao ');
+                });
+
+                it('Unario com ADICAO (incidencia ANTES)', () => {
+                    const op = { tipo: 'ADICAO', lexema: '+', linha: 1, hashArquivo: -1 } as any;
+                    const unario = new Unario(-1, op, new Literal(-1, 1, 5), 'ANTES');
+                    const resultado = formatadorPotigol.formatar([new Expressao(unario)]);
+                    expect(resultado).toContain('+');
+                });
+
+                it('Unario com incidencia DEPOIS', () => {
+                    const op = { tipo: 'SUBTRACAO', lexema: '-', linha: 1, hashArquivo: -1 } as any;
+                    const unario = new Unario(-1, op, new Literal(-1, 1, 5), 'DEPOIS');
+                    const resultado = formatadorPotigol.formatar([new Expressao(unario)]);
+                    expect(resultado).toContain('-');
+                });
+
+                it('Isto', () => {
+                    const isto = new Isto(-1, 1);
+                    const resultado = formatadorPotigol.formatar([new Expressao(isto)]);
+                    expect(resultado).toContain('isto');
+                });
+
+                it('FuncaoConstruto switch case (via Expressao)', () => {
+                    const funcao = new FuncaoConstruto(-1, 1, [], []);
+                    const resultado = formatadorPotigol.formatar([new Expressao(funcao)]);
+                    expect(resultado).toBeDefined();
+                });
+
+                it('Const com tipoExplicito=true e tipo vazio (normalizarTipo falsy)', () => {
+                    const sim = { lexema: 'x', linha: 1, hashArquivo: -1 } as any;
+                    const lit = new Literal(-1, 1, 42);
+                    const constDecl = new Const(sim, lit, 'placeholder', true);
+                    (constDecl as any).tipo = '';
+                    const resultado = formatadorPotigol.formatar([constDecl]);
+                    expect(resultado).toContain('x = 42');
+                    expect(resultado).not.toContain(': ');
+                });
+
+                it('ConstanteOuVariavel com deveIndentar', () => {
+                    const sim = { lexema: 'minhaVar', linha: 1, hashArquivo: -1 } as any;
+                    const constOuVar = new ConstanteOuVariavel(-1, sim);
+                    const resultado = formatadorPotigol.formatar([new Expressao(constOuVar)]);
+                    expect(resultado).toContain('minhaVar');
+                });
+
+                it('Para com inicializador em array e condição não-Binário', () => {
+                    const simX = { lexema: 'x', linha: 1, hashArquivo: -1 } as any;
+                    const constX = new Const(simX, new Literal(-1, 1, 0));
+                    const condicao = new Literal(-1, 1, true);
+                    const opBin = { tipo: 'MENOR', lexema: '<', linha: 1, hashArquivo: -1 } as any;
+                    const condicaoBin = new Binario(-1, new Literal(-1, 1, 1), opBin, new Literal(-1, 1, 10));
+                    const fimPara = new FimPara(-1, 1, condicaoBin);
+                    const bloco = new Bloco(-1, 1, []);
+                    const para = new Para(-1, 1, [constX], condicao, fimPara, bloco);
+                    const resultado = formatadorPotigol.formatar([para]);
+                    expect(resultado).toContain('para');
+                });
+
+                it('Falhar lança erro (switch case coberto)', () => {
+                    const sim = { lexema: 'falhar', linha: 1, hashArquivo: -1 } as any;
+                    const falhar = new Falhar(sim, 'mensagem');
+                    expect(() => formatadorPotigol.formatar([falhar])).toThrow();
+                });
+
+                it('Fazer lança erro (switch case coberto)', () => {
+                    const fazer = new Fazer(-1, 1, new Bloco(-1, 1, []), new Literal(-1, 1, true));
+                    expect(() => formatadorPotigol.formatar([fazer])).toThrow();
+                });
+
+                it('Super lança erro (switch case coberto)', () => {
+                    const sim = { lexema: 'super', linha: 1, hashArquivo: -1 } as any;
+                    const superExpr = new Super(-1, sim, 'Base');
+                    expect(() => formatadorPotigol.formatar([new Expressao(superExpr)])).toThrow();
+                });
+
+                it('Sustar lança erro (switch case coberto)', () => {
+                    const sim = { lexema: 'sustar', linha: 1, hashArquivo: -1 } as any;
+                    const sustar = new Sustar(sim);
+                    expect(() => formatadorPotigol.formatar([sustar])).toThrow();
+                });
+
+                it('Tente lança erro (switch case coberto)', () => {
+                    const tente = new Tente(-1, 1, [], [], [], []);
+                    expect(() => formatadorPotigol.formatar([tente])).toThrow();
+                });
+
+                it('Leia lança erro (switch case coberto)', () => {
+                    const sim = { lexema: 'leia', linha: 1, hashArquivo: -1 } as any;
+                    const leia = new Leia(sim, []);
+                    expect(() => formatadorPotigol.formatar([new Expressao(leia)])).toThrow();
+                });
+
+                it('ExpressaoRegular lança erro (switch case coberto)', () => {
+                    const sim = { lexema: 'regex', linha: 1, hashArquivo: -1 } as any;
+                    const regex = new ExpressaoRegular(-1, sim, /test/);
+                    expect(() => formatadorPotigol.formatar([new Expressao(regex)])).toThrow();
+                });
+
+                it('default throw para construto desconhecido', () => {
+                    class Desconhecido {}
+                    const fake = new Desconhecido() as any;
+                    fake.linha = 1;
+                    fake.hashArquivo = -1;
+                    expect(() => formatadorPotigol.formatar([fake])).toThrow('não implementado');
                 });
             });
         });

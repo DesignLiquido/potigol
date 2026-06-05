@@ -1083,8 +1083,10 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         return declaracoes;
     }
 
-    async declaracaoSe(): Promise<Se> {
-        const simboloSe: SimboloInterface = this.avancarEDevolverAnterior();
+    async declaracaoSe(consumirSe: boolean = true): Promise<Se> {
+        const simboloSe: SimboloInterface = consumirSe
+            ? this.avancarEDevolverAnterior()
+            : this.simbolos[this.atual - 1];
 
         const condicao = await this.expressao();
 
@@ -1093,7 +1095,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
         const declaracoes = [];
         do {
             declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
-        } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
+        } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.SENAOSE, tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
         let caminhoSenao = null;
         let consumirFimExterno = true;
@@ -1103,7 +1105,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 this.simbolos[this.atual].linha === this.simbolos[this.atual - 1].linha;
             if (ehSenaoSe || ehSenaose) {
                 // "senao se" na mesma linha ou "senaose": o Se aninhado vai consumir o próprio fim
-                caminhoSenao = await this.declaracaoSe();
+                caminhoSenao = await this.declaracaoSe(!ehSenaose);
                 consumirFimExterno = false;
             } else {
                 const simboloSenao = this.simbolos[this.atual - 1];

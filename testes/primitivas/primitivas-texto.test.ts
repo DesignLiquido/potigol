@@ -275,6 +275,18 @@ describe('Primitivas de texto - Potigol', () => {
         });
     });
 
+    describe('primeiro()', () => {
+        it('Retorna primeiro caractere', async () => {
+            const resultado = await primitivasTexto.primeiro(interpretador, 'abc');
+            expect(resultado).toStrictEqual('a');
+        });
+
+        it('Texto vazio retorna string vazia', async () => {
+            const resultado = await primitivasTexto.primeiro(interpretador, '');
+            expect(resultado).toStrictEqual('');
+        });
+    });
+
     describe('tamanho()', () => {
         it('Trivial', async () => {
             const resultado = await primitivasTexto.tamanho(interpretador, 'abc');
@@ -318,6 +330,146 @@ describe('Primitivas de texto - Potigol', () => {
 
             const resultado = await primitivasTexto.mapeie(interpretador, 'abc', deleguaFuncao);
             expect(resultado).toStrictEqual(['A', 'B', 'C']);
+        });
+    });
+
+    describe('filtre()', () => {
+        it('Filtra caracteres que satisfazem a condição', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        { linha: -1, hashArquivo: -1, lexema: '', literal: '', tipo: 'qualquer' },
+                        new Binario(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.DIFERENTE, '<>', '<>', -1, -1),
+                            new Literal(-1, -1, 'b')
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasTexto.filtre(interpretador, 'abc', deleguaFuncao);
+            expect(resultado).toStrictEqual('ac');
+        });
+
+        it('Rejeita quando função é nula', async () => {
+            await expect(primitivasTexto.filtre(interpretador, 'abc', null)).rejects.toContain('filtre');
+        });
+    });
+
+    describe('reduza()', () => {
+        it('Reduz concatenando caracteres', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface,
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        { linha: -1, hashArquivo: -1, lexema: '', literal: '', tipo: 'qualquer' },
+                        new Binario(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', '+', -1, -1),
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1))
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasTexto.reduza(interpretador, 'abc', deleguaFuncao);
+            expect(resultado).toStrictEqual('abc');
+        });
+
+        it('Reduz com valor inicial', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface,
+                    {
+                        abrangencia: 'padrao',
+                        nome: new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1),
+                        tipoDado: 'texto'
+                    } as ParametroInterface
+                ], [
+                    new Retorna(
+                        { linha: -1, hashArquivo: -1, lexema: '', literal: '', tipo: 'qualquer' },
+                        new Binario(
+                            -1,
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', 'x', -1, -1)),
+                            new Simbolo(tiposDeSimbolos.ADICAO, '+', '+', -1, -1),
+                            new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', 'y', -1, -1))
+                        )
+                    )
+                ])
+            );
+
+            const resultado = await primitivasTexto.reduza(interpretador, 'bc', deleguaFuncao, 'a');
+            expect(resultado).toStrictEqual('abc');
+        });
+
+        it('Rejeita quando função é nula', async () => {
+            await expect(primitivasTexto.reduza(interpretador, 'abc', null)).rejects.toContain('reduza');
+        });
+
+        it('Texto vazio sem valor inicial retorna undefined', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [], [])
+            );
+            const resultado = await primitivasTexto.reduza(interpretador, '', deleguaFuncao);
+            expect(resultado).toBeUndefined();
+        });
+    });
+
+    describe('Verificações de função nula', () => {
+        it('descarte_enquanto rejeita quando função é nula', async () => {
+            await expect(primitivasTexto.descarte_enquanto(interpretador, 'abc', null)).rejects.toContain('descarte_enquanto');
+        });
+
+        it('injete rejeita quando função é nula', async () => {
+            await expect(primitivasTexto.injete(interpretador, 'abc', null)).rejects.toContain('injete');
+        });
+
+        it('injete texto vazio sem valor inicial retorna undefined', async () => {
+            const deleguaFuncao: DeleguaFuncao = new DeleguaFuncao(
+                'funcao',
+                new FuncaoConstruto(-1, -1, [], [])
+            );
+            const resultado = await primitivasTexto.injete(interpretador, '', deleguaFuncao);
+            expect(resultado).toBeUndefined();
+        });
+
+        it('pegue_enquanto rejeita quando função é nula', async () => {
+            await expect(primitivasTexto.pegue_enquanto(interpretador, 'abc', null)).rejects.toContain('pegue_enquanto');
+        });
+
+        it('selecione rejeita quando função é nula', async () => {
+            await expect(primitivasTexto.selecione(interpretador, 'abc', null)).rejects.toContain('selecione');
+        });
+
+        it('mapeie rejeita quando função é nula', async () => {
+            await expect(primitivasTexto.mapeie(interpretador, 'abc', null)).rejects.toContain('mapeie');
         });
     });
 
