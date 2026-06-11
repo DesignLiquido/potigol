@@ -34,7 +34,7 @@ import {
     LeiaTexto,
     LeiaTextos,
 } from '../construtos';
-import { AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AtribuicaoParalelaVariavel, ParaEmGere, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { EstruturaMatriz, EstruturaCubo, EstruturaTupla, PotigolFuncao } from './estruturas';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
@@ -295,6 +295,59 @@ export async function visitarDeclaracaoAtribuicaoParalelaVariavel(
     }
 
     return null;
+}
+
+export async function visitarDeclaracaoParaEmGere(
+    interpretador: InterpretadorPotigolInterface,
+    declaracao: ParaEmGere
+): Promise<any> {
+    const colecaoAvaliada = await interpretador.avaliar(declaracao.colecao);
+    const colecao: any[] = resolverValor(colecaoAvaliada);
+
+    if (!Array.isArray(colecao)) {
+        throw new ErroEmTempoDeExecucao(
+            declaracao.simboloIteracao,
+            "O valor após 'em' em 'para ... em ... gere' deve ser uma lista.",
+            declaracao.linha
+        );
+    }
+
+    const resultados = [];
+    for (const elemento of colecao) {
+        interpretador.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simboloIteracao.lexema,
+            elemento
+        );
+
+        if (declaracao.condicao) {
+            const condicao = await interpretador.avaliar(declaracao.condicao);
+            if (!(interpretador as any).eVerdadeiro(condicao)) {
+                continue;
+            }
+        }
+
+        for (const declaracaoCorpo of declaracao.corpo) {
+            const retorno = await interpretador.executar(declaracaoCorpo);
+            if (retorno instanceof SustarQuebra) {
+                return resultados;
+            }
+
+            if (retorno instanceof ContinuarQuebra) {
+                break;
+            }
+
+            const valorResolvido = resolverValor(retorno);
+            if (valorResolvido !== null && valorResolvido !== undefined) {
+                if (declaracao.aplanar && Array.isArray(valorResolvido)) {
+                    resultados.push(...valorResolvido);
+                } else {
+                    resultados.push(valorResolvido);
+                }
+            }
+        }
+    }
+
+    return resultados;
 }
 
 export async function visitarDeclaracaoParaGere(

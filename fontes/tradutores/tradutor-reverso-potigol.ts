@@ -39,7 +39,7 @@ import {
 import { ConstrutoInterface, SimboloInterface, TradutorInterface } from '@designliquido/delegua/interfaces';
 
 import { LeiaInteiro, LeiaInteiros, LeiaReal, LeiaReais, LeiaTexto, LeiaTextos } from '../construtos';
-import { AliasTipo, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, ParaEmGere, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
 
@@ -504,6 +504,33 @@ export class TradutorReversoPotigol implements TradutorInterface<Declaracao> {
         );
     }
 
+    traduzirDeclaracaoParaEmGere(paraEmGere: ParaEmGere): string {
+        const nome = paraEmGere.simboloIteracao.lexema;
+        const colecao = this.dicionarioConstrutos[paraEmGere.colecao.constructor.name](paraEmGere.colecao);
+
+        const corpoParts = paraEmGere.corpo
+            .map((dec: Declaracao) => {
+                const nomeDec = dec.constructor.name;
+                if (this.dicionarioConstrutos.hasOwnProperty(nomeDec)) {
+                    return ' '.repeat(this.indentacao + 4) + this.dicionarioConstrutos[nomeDec](dec);
+                }
+                return ' '.repeat(this.indentacao + 4) + this.dicionarioDeclaracoes[nomeDec](dec);
+            })
+            .join('\n');
+
+        const guarda = paraEmGere.condicao
+            ? ` se (${this.dicionarioConstrutos[paraEmGere.condicao.constructor.name](paraEmGere.condicao)})`
+            : '';
+
+        return (
+            `para cada ${nome} em ${colecao}${guarda} {\n` +
+            corpoParts +
+            '\n' +
+            ' '.repeat(this.indentacao) +
+            '}'
+        );
+    }
+
     traduzirDeclaracaoParaCada(paraCada: ParaCada): string {
         const variavel = this.dicionarioConstrutos[paraCada.variavelIteracao.constructor.name](
             paraCada.variavelIteracao
@@ -633,6 +660,7 @@ export class TradutorReversoPotigol implements TradutorInterface<Declaracao> {
         FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
+        ParaEmGere: this.traduzirDeclaracaoParaEmGere.bind(this),
         ParaGere: this.traduzirDeclaracaoParaGere.bind(this),
         ReatribuicaoVariavel: this.traduzirDeclaracaoReatribuicaoVariavel.bind(this),
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),

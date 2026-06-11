@@ -254,6 +254,40 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[3]).toBe('6');
             });
 
+            it('Para em gere retorna lista gerada a partir de coleção (issue #221)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'numeros = [1, 2, 3]',
+                    'a = para c em numeros gere',
+                    '  c',
+                    'fim',
+                    'escreva a'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[1, 2, 3]');
+            });
+
+            it('Para em gere com guarda se filtra elementos (issue #221)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'numeros = [1, 2, 3, 4, 5]',
+                    'a = para c em numeros se c > 2 gere',
+                    '  c',
+                    'fim',
+                    'escreva a'
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[3, 4, 5]');
+            });
+
             it('Para cada (for-each) itera sobre variável de lista', async () => {
                 const retornoLexador = lexador.mapear([
                     'nomes = ["Ana", "Bia"]',

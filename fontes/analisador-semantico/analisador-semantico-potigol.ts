@@ -36,7 +36,7 @@ import {
 } from '@designliquido/delegua/interfaces';
 import { FuncaoHipoteticaInterface } from '@designliquido/delegua/interfaces/funcao-hipotetica-interface';
 
-import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaEmGere, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 import { LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
 
@@ -1083,6 +1083,31 @@ export class AnalisadorSemanticoPotigol extends AnalisadorSemanticoBase implemen
         this.gerenciadorEscopos.declarar(declaracao.simboloIteracao.lexema, {
             nome: declaracao.simboloIteracao.lexema,
             tipo: 'inteiro' as any,
+            imutavel: false,
+            valor: undefined,
+            inicializada: true,
+            usada: false,
+            hashArquivo: declaracao.simboloIteracao.hashArquivo,
+            linha: declaracao.simboloIteracao.linha,
+        });
+
+        if (declaracao.condicao) {
+            this.verificarCondicao(declaracao.condicao);
+        }
+
+        for (const declaracaoCorpo of declaracao.corpo) {
+            declaracaoCorpo.aceitar(this);
+        }
+
+        this.gerenciadorEscopos.desempilharEscopo();
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoParaEmGere(declaracao: ParaEmGere): Promise<any> | void {
+        this.gerenciadorEscopos.empilharEscopo();
+        this.gerenciadorEscopos.declarar(declaracao.simboloIteracao.lexema, {
+            nome: declaracao.simboloIteracao.lexema,
+            tipo: 'qualquer' as any,
             imutavel: false,
             valor: undefined,
             inicializada: true,

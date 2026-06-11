@@ -75,7 +75,7 @@ import {
 import { ContinuarQuebra, SustarQuebra } from '@designliquido/delegua/quebras';
 
 import { ConstanteOuVariavel, LeiaInteiro, LeiaInteiros, LeiaReais, LeiaReal, LeiaTexto, LeiaTextos } from '../construtos';
-import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaEmGere, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { VisitanteComumPotigolInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/lexico-regular';
@@ -525,6 +525,24 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
             this.codigoFormatado += ' passo ';
             this.formatarDeclaracaoOuConstruto(declaracao.passo);
         }
+
+        if (declaracao.condicao) {
+            this.codigoFormatado += ' se ';
+            this.formatarDeclaracaoOuConstruto(declaracao.condicao);
+        }
+
+        this.codigoFormatado += ` gere${this.quebraLinha}`;
+        this.devePularLinha = true;
+        this.formatarBlocoOuVetorDeclaracoes(declaracao.corpo as any[]);
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}fim${this.quebraLinha}`;
+        this.deveIndentar = true;
+    }
+
+    visitarDeclaracaoParaEmGere(declaracao: ParaEmGere): void {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para ${declaracao.simboloIteracao.lexema} em `;
+        this.deveIndentar = false;
+        this.devePularLinha = false;
+        this.formatarDeclaracaoOuConstruto(declaracao.colecao);
 
         if (declaracao.condicao) {
             this.codigoFormatado += ' se ';
@@ -1166,6 +1184,9 @@ export class FormatadorPotigol implements VisitanteComumPotigolInterface {
                 break;
             case ParaGere:
                 this.visitarDeclaracaoParaGere(declaracaoOuConstruto as ParaGere);
+                break;
+            case ParaEmGere:
+                this.visitarDeclaracaoParaEmGere(declaracaoOuConstruto as ParaEmGere);
                 break;
             case ParaCada:
                 this.visitarDeclaracaoParaCada(declaracaoOuConstruto as ParaCada);

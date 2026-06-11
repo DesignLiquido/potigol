@@ -56,7 +56,7 @@ import {
     LeiaTexto,
     LeiaTextos,
 } from '../construtos';
-import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaEmGere, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { FaixaEmInterface } from '../interfaces';
 import { MicroAvaliadorSintaticoPotigol } from './micro-avaliador-sintatico-potigol';
 import { PilhaEscoposVariaveisConhecidas } from './pilha-escopos-variaveis-conhecidas';
@@ -1364,9 +1364,75 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 faixasEm.push({ variavel: varAdicional, colecao: colecaoAdicional });
             }
 
+            let condicaoEmGere: ConstrutoInterface = undefined;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
+                condicaoEmGere = await this.expressao();
+            }
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.GERE)) {
+                const declaracoesGere = [];
+                let simboloAtualGere: SimboloInterface = this.simbolos[this.atual];
+                while (simboloAtualGere.tipo !== tiposDeSimbolos.FIM) {
+                    declaracoesGere.push(await this.resolverDeclaracaoForaDeBloco());
+                    simboloAtualGere = this.simbolos[this.atual];
+                }
+                this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após bloco de 'gere'.");
+
+                const corpoGere = declaracoesGere.filter((d) => d);
+
+                if (faixasEm.length === 0) {
+                    return new ParaEmGere(
+                        this.hashArquivo,
+                        Number(simboloPara.linha),
+                        variavelIteracao,
+                        colecao,
+                        corpoGere,
+                        condicaoEmGere
+                    ) as unknown as Para;
+                }
+
+                // Constrói ParaEmGere aninhados de dentro para fora.
+                const ultimaFaixaGere = faixasEm[faixasEm.length - 1];
+                let gereEm: Para = new ParaEmGere(
+                    this.hashArquivo,
+                    Number(simboloPara.linha),
+                    ultimaFaixaGere.variavel,
+                    ultimaFaixaGere.colecao,
+                    corpoGere,
+                    condicaoEmGere
+                ) as unknown as Para;
+
+                const faixasExternasGere: FaixaEmInterface[] = [
+                    { variavel: variavelIteracao, colecao },
+                    ...faixasEm.slice(0, -1)
+                ];
+                for (let i = faixasExternasGere.length - 1; i >= 0; i--) {
+                    const faixa = faixasExternasGere[i];
+                    const gereExterno = new ParaEmGere(
+                        this.hashArquivo,
+                        Number(simboloPara.linha),
+                        faixa.variavel,
+                        faixa.colecao,
+                        [gereEm],
+                        undefined
+                    ) as unknown as Para;
+                    (gereExterno as unknown as ParaEmGere).aplanar = true;
+                    gereEm = gereExterno;
+                }
+
+                return gereEm;
+            }
+
+            if (condicaoEmGere) {
+                throw this.erro(
+                    this.simbolos[this.atual] || this.simboloAnterior(),
+                    "A guarda 'se' em laço 'para ... em' só é suportada com a forma 'gere' neste dialeto."
+                );
+            }
+
             this.consumir(
                 tiposDeSimbolos.FACA,
-                "Esperado palavra reservada 'faca' após coleção em laço 'para ... em'."
+                "Esperado palavra reservada 'faca' ou 'gere' após coleção em laço 'para ... em'."
             );
 
             const declaracoesBloco = [];

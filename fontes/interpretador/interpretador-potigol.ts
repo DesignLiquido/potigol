@@ -9,7 +9,7 @@ import { DeleguaFuncao, DescritorTipoClasse, ObjetoPadrao } from '@designliquido
 import { ConstrutoInterface } from '@designliquido/delegua';
 import { ErroEmTempoDeExecucao } from '@designliquido/delegua/excecoes';
 
-import { AliasTipo, AtribuicaoParalelaVariavel, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
+import { AliasTipo, AtribuicaoParalelaVariavel, ParaEmGere, ParaGere, ReatribuicaoVariavel } from '../declaracoes';
 import { InterpretadorPotigolInterface } from '../interfaces/interpretador-potigol-interface';
 import { MicroLexadorPotigol } from '../lexador';
 import { MicroAvaliadorSintaticoPotigol } from '../avaliador-sintatico/micro-avaliador-sintatico-potigol';
@@ -90,6 +90,10 @@ export class InterpretadorPotigol extends InterpretadorBase implements Interpret
         if (fimPara.incremento) {
             return this.avaliar(fimPara.incremento);
         }
+    }
+
+    visitarDeclaracaoParaEmGere(declaracao: ParaEmGere): Promise<any> | void {
+        return comum.visitarDeclaracaoParaEmGere(this, declaracao);
     }
 
     visitarDeclaracaoParaGere(declaracao: ParaGere): Promise<any> | void {
