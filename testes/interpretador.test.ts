@@ -1460,6 +1460,26 @@ describe('Interpretador (Potigol)', () => {
                 expect(_saidas[0]).toBe('3');
             });
 
+            it('Múltiplas variáveis atualizadas dentro de enquanto convergem corretamente (issue #222)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var a := 12',
+                    'var b := 18',
+                    'enquanto b > 0 faça',
+                    '  var r := a mod b',
+                    '  a := b',
+                    '  b := r',
+                    'fim',
+                    'escreva a',
+                ], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('6');
+            });
+
             it('Variável atualizada dentro de enquanto persiste entre iterações (issue #186)', async () => {
                 const retornoLexador = lexador.mapear([
                     'var n := 1',

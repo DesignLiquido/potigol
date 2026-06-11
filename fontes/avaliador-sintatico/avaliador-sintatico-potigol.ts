@@ -1092,9 +1092,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
 
-        const declaracoes = [];
+        let declaracoes = [];
         do {
-            declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
+            const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(retornoDeclaracao)) {
+                declaracoes = declaracoes.concat(retornoDeclaracao);
+            } else if (retornoDeclaracao) {
+                declaracoes.push(retornoDeclaracao);
+            }
         } while (![tiposDeSimbolos.SENAO, tiposDeSimbolos.SENAOSE, tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
         let caminhoSenao = null;
@@ -1109,16 +1114,21 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
                 consumirFimExterno = false;
             } else {
                 const simboloSenao = this.simbolos[this.atual - 1];
-                const declaracoesSenao = [];
+                let declaracoesSenao = [];
 
                 do {
-                    declaracoesSenao.push(await this.resolverDeclaracaoForaDeBloco());
+                    const retornoDeclaracaoSenao = await this.resolverDeclaracaoForaDeBloco();
+                    if (Array.isArray(retornoDeclaracaoSenao)) {
+                        declaracoesSenao = declaracoesSenao.concat(retornoDeclaracaoSenao);
+                    } else if (retornoDeclaracaoSenao) {
+                        declaracoesSenao.push(retornoDeclaracaoSenao);
+                    }
                 } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
                 caminhoSenao = new Bloco(
                     this.hashArquivo,
                     Number(simboloSenao.linha),
-                    declaracoesSenao.filter((d) => d)
+                    declaracoesSenao
                 );
             }
         }
@@ -1132,7 +1142,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             new Bloco(
                 this.hashArquivo,
                 Number(simboloSe.linha),
-                declaracoes.filter((d) => d)
+                declaracoes
             ),
             [],
             caminhoSenao
@@ -1149,9 +1159,14 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             "Esperado paravra reservada 'faca' após condição de continuidade em declaracão 'enquanto'."
         );
 
-        const declaracoes = [];
+        let declaracoes = [];
         do {
-            declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
+            const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(retornoDeclaracao)) {
+                declaracoes = declaracoes.concat(retornoDeclaracao);
+            } else if (retornoDeclaracao) {
+                declaracoes.push(retornoDeclaracao);
+            }
         } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
         this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fim' para fechamento de declaração 'enquanto'.");
@@ -1161,7 +1176,7 @@ export class AvaliadorSintaticoPotigol extends AvaliadorSintaticoBase {
             new Bloco(
                 simboloAtual.hashArquivo,
                 Number(simboloAtual.linha),
-                declaracoes.filter((d) => d)
+                declaracoes
             )
         );
     }
