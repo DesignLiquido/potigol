@@ -33,7 +33,7 @@
         "@designliquido/delegua": "^1.24.4",
         "@types/estree": "^1.0.7",
         "@types/jest": "^30.0.0",
-        "@types/node": "^25.0.2",
+        "@types/node": "^26.0.0",
         "@typescript-eslint/eslint-plugin": "^8.34.1",
         "@typescript-eslint/parser": "^8.34.1",
         "copyfiles": "^2.4.1",
