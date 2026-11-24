@@ -3,6 +3,7 @@ import { AvaliadorSintaticoPotigol } from "../fontes/avaliador-sintatico";
 import { ErroAvaliadorSintatico } from "@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico";
 import { Escreva } from "@designliquido/delegua";
 import { MicroAvaliadorSintaticoPotigol } from "../fontes/avaliador-sintatico/micro-avaliador-sintatico-potigol";
+import { Simbolo } from "@designliquido/delegua/lexador";
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -627,6 +628,46 @@ describe('Avaliador sintático', () => {
                     const resultadoMicroLexador = microLexador.mapear(argumentoInterpolado.replace(/[{}]/gi, ''));
                     const resultadoMicroAvaliacao = microAvaliadorSintatico.analisar(resultadoMicroLexador, 3);
                     expect(resultadoMicroAvaliacao.declaracoes).toHaveLength(1);
+                });
+            });
+
+            describe('Micro avaliador sintático', () => {
+                const microAnalisar = (codigo: string) => {
+                    const microLexador = new MicroLexadorPotigol();
+                    const microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(-1);
+                    const resultadoMicroLexador = microLexador.mapear(codigo);
+                    return microAvaliadorSintatico.analisar(resultadoMicroLexador, 1);
+                };
+
+                it('Unário', () => {
+                    const resultado = microAnalisar('-x');
+                    expect(resultado.erros).toHaveLength(0);
+                    expect(resultado.declaracoes).toHaveLength(1);
+                    expect(resultado.declaracoes[0].constructor.name).toBe('Unario');
+                });
+
+                it('Exponenciação com resolução à direita', () => {
+                    const resultado = microAnalisar('2 ** 3 ** 2');
+                    expect(resultado.erros).toHaveLength(0);
+                    expect(resultado.declaracoes).toHaveLength(1);
+                    const binario = resultado.declaracoes[0] as any;
+                    expect(binario.constructor.name).toBe('Binario');
+                    expect(binario.direita.constructor.name).toBe('Binario');
+                });
+
+                it('Comparação', () => {
+                    // O micro lexador ainda não reconhece operadores de comparação,
+                    // então os símbolos são montados diretamente.
+                    const simbolos = [
+                        new Simbolo('IDENTIFICADOR', 'a', null, 1, -1),
+                        new Simbolo('MAIOR_IGUAL', '>=', null, 1, -1),
+                        new Simbolo('IDENTIFICADOR', 'b', null, 1, -1),
+                    ];
+                    const microAvaliadorSintatico = new MicroAvaliadorSintaticoPotigol(-1);
+                    const resultado = microAvaliadorSintatico.analisar({ simbolos, erros: [] } as any, 1);
+                    expect(resultado.erros).toHaveLength(0);
+                    expect(resultado.declaracoes).toHaveLength(1);
+                    expect(resultado.declaracoes[0].constructor.name).toBe('Binario');
                 });
             });
 

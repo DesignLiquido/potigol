@@ -2,11 +2,14 @@ import {
     AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,
     Agrupamento,
+    Binario,
     Chamada,
     Constante,
     FuncaoConstruto,
     Literal,
+    Logico,
     Tupla,
+    Unario,
     Variavel,
 } from '@designliquido/delegua/construtos';
 import { Declaracao, Retorna } from '@designliquido/delegua/declaracoes';
@@ -146,6 +149,60 @@ export class MicroAvaliadorSintaticoPotigol extends MicroAvaliadorSintaticoBase 
             } else {
                 break;
             }
+        }
+
+        return expressao;
+    }
+
+    unario(): ConstrutoInterface {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            return new Unario(this.hashArquivo, operador, direito, 'ANTES');
+        }
+
+        return this.chamar();
+    }
+
+    exponenciacao(): ConstrutoInterface {
+        let expressao = this.unario();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            // Resolução à direita: `2 ^ 3 ^ 2` é avaliado como `2 ^ (3 ^ 2)`.
+            const direito = this.exponenciacao();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
+    comparar(): ConstrutoInterface {
+        let expressao = this.adicaoOuSubtracao();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.MAIOR,
+                tiposDeSimbolos.MAIOR_IGUAL,
+                tiposDeSimbolos.MENOR,
+                tiposDeSimbolos.MENOR_IGUAL
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.adicaoOuSubtracao();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
+    e(): ConstrutoInterface {
+        let expressao = this.comparacaoIgualdade();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.comparacaoIgualdade();
+            expressao = new Logico(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
